@@ -13,20 +13,20 @@ Senha: admin
 
 ## Layout Web
 
-![Img 1](https://github.com/brunocesaromax/lancamentos/blob/master/lancamentos-ui/src/assets/img1.png)
-![Img 2](https://github.com/brunocesaromax/lancamentos/blob/master/lancamentos-ui/src/assets/img2.png)
-![Img 3](https://github.com/brunocesaromax/lancamentos/blob/master/lancamentos-ui/src/assets/img3.png)
-![Img 4](https://github.com/brunocesaromax/lancamentos/blob/master/lancamentos-ui/src/assets/img4.png)
-![Img 5](https://github.com/brunocesaromax/lancamentos/blob/master/lancamentos-ui/src/assets/img5.png)
-![Img 6](https://github.com/brunocesaromax/lancamentos/blob/master/lancamentos-ui/src/assets/img6.png)
+![img1.png](docs/main-pages/img1.png)
+![img2.png](docs/main-pages/img2.png)
+![img3.png](docs/main-pages/img3.png)
+![img4.png](docs/main-pages/img4.png)
+![img5.png](docs/main-pages/img5.png)
+![img6.png](docs/main-pages/img6.png)
 
 ## Modelo Conceitual
 
-![Modelo Conceitual](https://github.com/brunocesaromax/lancamentos/blob/master/lancamentos-ui/src/assets/class-diagram.png)
+![Modelo Conceitual](docs/diagrams/class-diagram.png)
 
 ## Modelo de banco de dados
 
-![Modelo bd](https://github.com/brunocesaromax/lancamentos/blob/master/lancamentos-ui/src/assets/entity-diagram.png)
+![Modelo bd](docs/diagrams/entity-diagram.png)
 
 ## Tecnologias utilizadas
 
