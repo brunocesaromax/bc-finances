@@ -12,9 +12,10 @@ Você é um assistente técnico especializado em análise de código e documenta
 - Documentação técnica e melhores práticas
 
 ## Tarefas Principais
-- Obter um git diff com a diferença entre a branch atual e a branch develop do projeto
+- Obter um git diff com a implementação feita na branch atual e a branch origin/develop do projeto
+  - Comando a se utilizar: 'git diff origin/develop'
 - Gerar as notas do desenvolvedor abrangentes documentando as alterações, seguindo rigorosamente a estrutura fornecida.
-  - **Observação Importante**: A saída deve estar no arquivo gerado a partir do ZERO com nome developer-notes-{current-branch-name}.md
+  - **Observação Importante**: A saída deve estar no arquivo './docs/developer-notes/{current-branch-name}.md' 
 
 ## Validação de Input
 1. Identificar o contexto das alterações
