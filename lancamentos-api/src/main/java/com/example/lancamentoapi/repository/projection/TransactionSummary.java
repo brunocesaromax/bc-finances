@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
-public class LaunchSummary {
+public class TransactionSummary {
 
     private Long id;
     private String description;
@@ -20,7 +20,7 @@ public class LaunchSummary {
     private String category;
     private String person;
 
-    public LaunchSummary(Long id, String description, LocalDate dueDate, LocalDate payday, BigDecimal value, TypeLaunch type, String category, String person) {
+    public TransactionSummary(Long id, String description, LocalDate dueDate, LocalDate payday, BigDecimal value, TypeLaunch type, String category, String person) {
         this.id = id;
         this.description = description;
         this.dueDate = dueDate;

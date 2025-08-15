@@ -1,6 +1,6 @@
 package com.example.lancamentoapi.model;
 
-import com.example.lancamentoapi.repository.listener.LaunchAttachmentListener;
+import com.example.lancamentoapi.repository.listener.TransactionAttachmentListener;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -11,12 +11,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
-//Quando um objeto Launch for carregado do banco o listener será ativado
-@EntityListeners(LaunchAttachmentListener.class)
+//Quando um objeto Transaction for carregado do banco o listener será ativado
+@EntityListeners(TransactionAttachmentListener.class)
 @Entity
-@Table(name = "launch")
+@Table(name = "transactions")
 @Data
-public class Launch {
+public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

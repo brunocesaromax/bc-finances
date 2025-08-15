@@ -1,17 +1,17 @@
 package com.example.lancamentoapi.service;
 
-import com.example.lancamentoapi.dto.LaunchStatisticByDay;
-import com.example.lancamentoapi.dto.LaunchStatisticCategory;
-import com.example.lancamentoapi.dto.LaunchStatisticPerson;
+import com.example.lancamentoapi.dto.TransactionStatisticByDay;
+import com.example.lancamentoapi.dto.TransactionStatisticCategory;
+import com.example.lancamentoapi.dto.TransactionStatisticPerson;
 import com.example.lancamentoapi.mail.Mailer;
-import com.example.lancamentoapi.model.Launch;
-import com.example.lancamentoapi.model.Launch_;
+import com.example.lancamentoapi.model.Transaction;
+import com.example.lancamentoapi.model.Transaction_;
 import com.example.lancamentoapi.model.Person;
 import com.example.lancamentoapi.model.User;
-import com.example.lancamentoapi.repository.LaunchRepository;
+import com.example.lancamentoapi.repository.TransactionRepository;
 import com.example.lancamentoapi.repository.UserRepository;
-import com.example.lancamentoapi.repository.filter.LaunchFilter;
-import com.example.lancamentoapi.repository.projection.LaunchSummary;
+import com.example.lancamentoapi.repository.filter.TransactionFilter;
+import com.example.lancamentoapi.repository.projection.TransactionSummary;
 import com.example.lancamentoapi.service.exception.PersonInexistentOrInactiveException;
 import com.example.lancamentoapi.storage.S3;
 import lombok.RequiredArgsConstructor;
@@ -39,11 +39,11 @@ import java.util.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class LaunchService {
+public class TransactionService {
 
     private static final String RECIPIENTS = "ROLE_SEARCH_LAUNCH";
 
-    private final LaunchRepository launchRepository;
+    private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
 
     private final Mailer mailer;
@@ -56,50 +56,50 @@ public class LaunchService {
         this.personService = personService;
     }
 
-    public Page<Launch> findAll(LaunchFilter launchFilter, Pageable pageable) {
-        return launchRepository.filterOut(launchFilter, pageable);
+    public Page<Transaction> findAll(TransactionFilter transactionFilter, Pageable pageable) {
+        return transactionRepository.filterOut(transactionFilter, pageable);
     }
 
-    public Optional<Launch> findById(Long id) {
-        return launchRepository.findById(id);
+    public Optional<Transaction> findById(Long id) {
+        return transactionRepository.findById(id);
     }
 
-    public Launch save(Launch launch) {
-        validatePerson(launch.getPerson());
+    public Transaction save(Transaction transaction) {
+        validatePerson(transaction.getPerson());
 
-        if (StringUtils.hasText(launch.getAttachment())) {
-            s3.save(launch.getAttachment());
+        if (StringUtils.hasText(transaction.getAttachment())) {
+            s3.save(transaction.getAttachment());
         }
 
-        return launchRepository.save(launch);
+        return transactionRepository.save(transaction);
     }
 
     public void delete(Long id) {
-        launchRepository.deleteById(id);
+        transactionRepository.deleteById(id);
     }
 
-    public Page<LaunchSummary> sumUp(LaunchFilter launchFilter, Pageable pageable) {
-        return launchRepository.sumUp(launchFilter, pageable);
+    public Page<TransactionSummary> sumUp(TransactionFilter transactionFilter, Pageable pageable) {
+        return transactionRepository.sumUp(transactionFilter, pageable);
     }
 
-    public Launch update(Long id, Launch launch) {
-        Launch launchBD = findExistentLaunch(id);
+    public Transaction update(Long id, Transaction transaction) {
+        Transaction transactionBD = findExistentTransaction(id);
 
-        if (!launch.getPerson().equals(launchBD.getPerson())) {
-            validatePerson(launch.getPerson());
+        if (!transaction.getPerson().equals(transactionBD.getPerson())) {
+            validatePerson(transaction.getPerson());
         }
 
-        if (StringUtils.isEmpty(launch.getAttachment())
-            && StringUtils.hasText(launchBD.getAttachment())) {
-            s3.delete(launchBD.getAttachment());
+        if (StringUtils.isEmpty(transaction.getAttachment())
+            && StringUtils.hasText(transactionBD.getAttachment())) {
+            s3.delete(transactionBD.getAttachment());
 
-        } else if (StringUtils.hasText(launch.getAttachment())
-                   && !launch.getAttachment().equals(launchBD.getAttachment())) {
-            s3.update(launchBD.getAttachment(), launch.getAttachment());
+        } else if (StringUtils.hasText(transaction.getAttachment())
+                   && !transaction.getAttachment().equals(transactionBD.getAttachment())) {
+            s3.update(transactionBD.getAttachment(), transaction.getAttachment());
         }
 
-        BeanUtils.copyProperties(launch, launchBD, Launch_.ID);
-        return launchRepository.save(launchBD);
+        BeanUtils.copyProperties(transaction, transactionBD, Transaction_.ID);
+        return transactionRepository.save(transactionBD);
     }
 
     private void validatePerson(Person person) {
@@ -112,18 +112,18 @@ public class LaunchService {
         }
     }
 
-    private Launch findExistentLaunch(Long id) {
-        Optional<Launch> launchBD = launchRepository.findById(id);
+    private Transaction findExistentTransaction(Long id) {
+        Optional<Transaction> transactionBD = transactionRepository.findById(id);
 
-        if (!launchBD.isPresent()) {
+        if (!transactionBD.isPresent()) {
             throw new IllegalArgumentException();
         } else {
-            return launchBD.get();
+            return transactionBD.get();
         }
     }
 
     public byte[] reportByPerson(LocalDate start, LocalDate end) throws JRException {
-        List<LaunchStatisticPerson> result = launchRepository.findByPerson(start, end);
+        List<TransactionStatisticPerson> result = transactionRepository.findByPerson(start, end);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("DT_BEGIN", Date.valueOf(start));
@@ -144,7 +144,7 @@ public class LaunchService {
             log.debug("Preparando envio de e-mails de aviso de lançamentos vencidos.");
         }
 
-        List<Launch> overdueLaunchs = launchRepository.findByDueDateLessThanEqualAndPaydayIsNull(LocalDate.now());
+        List<Transaction> overdueLaunchs = transactionRepository.findByDueDateLessThanEqualAndPaydayIsNull(LocalDate.now());
 
         if (overdueLaunchs.isEmpty()) {
             log.info("Sem lançamentos vencidos para aviso.");
@@ -160,23 +160,23 @@ public class LaunchService {
             return;
         }
 
-        mailer.alertOverdueLaunchs(overdueLaunchs, users);
+        mailer.alertOverdueTransactions(overdueLaunchs, users);
 
         log.info("Envio de e-mails de aviso concluído.");
     }
 
     @Transactional(readOnly = true)
     public boolean existsWithPersonId(Long id) {
-        return launchRepository.existsByPersonId(id);
+        return transactionRepository.existsByPersonId(id);
     }
 
     @Transactional(readOnly = true)
-    public List<LaunchStatisticCategory> findByCategory(LocalDate date) {
-        return launchRepository.findByCategory(date);
+    public List<TransactionStatisticCategory> findByCategory(LocalDate date) {
+        return transactionRepository.findByCategory(date);
     }
 
     @Transactional(readOnly = true)
-    public List<LaunchStatisticByDay> findByDay(LocalDate date) {
-        return launchRepository.findByDay(date);
+    public List<TransactionStatisticByDay> findByDay(LocalDate date) {
+        return transactionRepository.findByDay(date);
     }
 }

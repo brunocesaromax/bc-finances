@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 
 @Data
-public class LaunchFilter {
+public class TransactionFilter {
 
     private String description;
 

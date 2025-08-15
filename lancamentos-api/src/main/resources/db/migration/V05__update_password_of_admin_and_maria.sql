@@ -1,2 +1,0 @@
-update user set password = '$2a$10$6v9JTwJNt1gngxGTy51ecON5Sx.m8aJ2HZPz.i2moVeP8.2oUAZAO' where name = 'Administrador';
-update user set password = '$2a$10$gYakxlN5Ldbh5GbEjuq/WuxstGQBtIQ2U95q1jsa6mgQcyFyRXtOG' where name = 'Maria Silva';

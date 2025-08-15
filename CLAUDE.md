@@ -11,6 +11,16 @@ Este arquivo fornece orientação para o Claude Code (claude.ai/code) ao trabalh
 3. **CHANGELOG.md** - Histórico de mudanças e decisões técnicas
 4. **Diretório ./docs/** - TODAS as documentações e decisões importantes do projeto
 
+## 🚨 REGRA CRÍTICA: DOCUMENTAÇÃO OBRIGATÓRIA
+
+**TODO.md e CHANGELOG.md DEVEM SER CRIADOS E ATUALIZADOS A CADA DEMANDA/BRANCH:**
+
+- **TODO.md**: OBRIGATÓRIO no início de qualquer nova demanda/branch
+- **CHANGELOG.md**: OBRIGATÓRIO para registrar todas as mudanças
+- **Atualização contínua**: A cada tarefa concluída ou mudança significativa
+- **Foco na branch atual**: Documentar apenas a demanda em desenvolvimento
+- **Prompt de reforço**: SEMPRE verificar se estes arquivos existem e estão atualizados
+
 ### Diretório ./docs como Centralizador
 O diretório `./docs/` é o **repositório oficial** de documentações técnicas e decisões de arquitetura:
 - **Architecture Decision Records (ADRs)** - Decisões arquiteturais importantes
@@ -34,7 +44,7 @@ Lançamentos é uma aplicação full-stack de gerenciamento financeiro construí
 **Backend (lancamentos-api/):**
 - Spring Boot 2.3.7 com Java 8
 - Autenticação OAuth2 + JWT com suporte duplo de cliente (web + mobile)
-- Banco de dados MySQL com migrações Flyway
+- Banco de dados PostgreSQL 16 com migrações Flyway
 - JasperReports para geração de PDF
 - Integração AWS S3 para anexos de arquivos
 - Notificações por email com templates Thymeleaf
@@ -49,7 +59,10 @@ Lançamentos é uma aplicação full-stack de gerenciamento financeiro construí
 
 ### Desenvolvimento Backend
 ```bash
-# Iniciar servidor de desenvolvimento (de lancamentos-api/)
+# Comando obrigatório de build (SEMPRE executar para verificar compilação)
+mvn clean compile
+
+# Iniciar servidor de desenvolvimento (de lancamentos-api/) - SOMENTE COM PERMISSÃO DO USUÁRIO
 ./mvnw spring-boot:run
 
 # Executar testes
@@ -83,19 +96,34 @@ ng lint
 ng e2e
 ```
 
+### Docker Compose (Recomendado)
+```bash
+# Subir PostgreSQL + pgAdmin
+docker-compose up -d
+
+# Verificar status dos containers
+docker-compose ps
+
+# Parar os serviços
+docker-compose down
+
+# Acessar pgAdmin: http://localhost:8081
+# Email: admin@lancamentos.com | Senha: admin
+```
+
 ## Configuração de Ambiente
 
 A aplicação usa configuração baseada em ambiente com arquivos .env (dependência spring-dotenv):
 
 **Variáveis de Ambiente Obrigatórias:**
-- `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` - Conexão banco de dados MySQL
+- `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` - Conexão banco de dados PostgreSQL 16
 - `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` - Configuração de email
 - `AWS_S3_ACCESS_KEY_ID`, `AWS_S3_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET` - Armazenamento S3
 - `FRONT_END_CLIENT`, `FRONT_END_PASSWORD` - Credenciais cliente OAuth2 frontend
 - `MOBILE_CLIENT`, `MOBILE_PASSWORD` - Credenciais cliente OAuth2 mobile
 
 **Perfis:**
-- `dev` - Desenvolvimento com MySQL (padrão: localhost:3306/lancamentos)
+- `dev` - Desenvolvimento com PostgreSQL (padrão: localhost:5432/bc-finances)
 - `prod` - Configuração de produção
 - `oauth-security` - Segurança OAuth2 (padrão)
 - `basic-security` - Autenticação HTTP básica (alternativa)
@@ -110,7 +138,7 @@ A aplicação usa configuração baseada em ambiente com arquivos .env (dependê
 **Camada de Dados:**
 - Entidades JPA em `/model` com anotações Lombok
 - Consultas customizadas de repositório em `/repository/query` com Criteria API
-- Migrações Flyway em `/resources/db/migration`
+- Migrações Flyway em `/resources/db/migration` seguindo padrões específicos do projeto
 
 **Camada de Serviço:**
 - Lógica de negócio em pacotes `/service`
@@ -146,7 +174,111 @@ Entidades principais:
 
 Credenciais padrão: admin@algamoney.com / admin
 
+## Padrões de Migrations (Flyway)
+
+### Estrutura de Diretórios
+```
+src/main/resources/db/migration/
+├── 2025/
+│   ├── 08/
+│   │   ├── 202508142205__create_categories_table.sql
+│   │   ├── 202508142210__create_users_table.sql
+│   │   └── 202508142215__create_launches_table.sql
+│   └── 09/
+│       └── 202509011200__add_index_to_users.sql
+└── 2026/
+    └── 01/
+        └── 202601151030__new_feature_migration.sql
+```
+
+### Nomenclatura de Arquivos
+- **Formato obrigatório**: `YYYYMMDDHHMM__description.sql`
+- **Ano/Mês/Dia/Hora/Minuto**: Timestamp exato da criação
+- **Descrição**: Snake_case, descritiva e concisa
+- **Exemplos**:
+  - `202508142205__create_categories_table.sql`
+  - `202508142210__add_email_index_to_users.sql`
+  - `202508142215__alter_launches_add_attachment_column.sql`
+
+### Padrões de SQL
+- **Palavras-chave SQL**: SEMPRE em UPPERCASE (`CREATE`, `TABLE`, `INSERT`, `SELECT`, `WHERE`, etc.)
+- **Nomes de tabelas**: SEMPRE no plural (`users`, `categories`, `launches`, `permissions`)
+- **Nomes de colunas**: snake_case minúsculo (`user_id`, `created_at`, `full_name`)
+- **Constraints**: Nomenclatura clara (`fk_launches_user_id`, `idx_users_email`)
+
+### Padrões de Tabelas
+- **Nomes no plural**: `user` → `users`, `category` → `categories`, `launch` → `launches`
+- **Chaves primárias**: `id BIGSERIAL PRIMARY KEY`
+- **Chaves estrangeiras**: `table_id BIGINT NOT NULL`
+- **Timestamps**: `created_at TIMESTAMP DEFAULT NOW()`, `updated_at TIMESTAMP`
+
+### Estrutura de Migration
+```sql
+-- Create users table with basic authentication fields
+-- Date: 2025-08-14
+-- Author: [Developer name]
+
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(150) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_users_email ON users(email);
+
+INSERT INTO users (name, email, password) VALUES 
+('Administrador', 'admin@algamoney.com', 'admin'),
+('Maria Silva', 'maria@algamoney.com', 'maria');
+
+-- ROLLBACK (SQL to undo this migration):
+-- DROP TABLE IF EXISTS users;
+-- DELETE FROM flyway_schema_history WHERE version = '202508142210';
+```
+
+### Comentários de Reversão Obrigatórios
+**Toda migration DEVE terminar com comentários de reversão EM INGLÊS contendo:**
+1. **SQL de reversão**: Comandos para desfazer completamente a migration
+2. **Remoção do Flyway**: `DELETE FROM flyway_schema_history WHERE version = 'VERSION';`
+3. **Ordem reversa**: Se criar tabela A depois B, reverter B depois A
+
+### Regras Críticas
+1. **NUNCA modificar migrations já executadas em produção**
+2. **SEMPRE testar reversão em ambiente de desenvolvimento**
+3. **Uma migration = uma responsabilidade** (criação de tabela, adição de coluna, etc.)
+4. **Usar transações quando necessário** (`BEGIN; ... COMMIT;`)
+5. **Validar dados antes de alterações destrutivas**
+
+### Exemplos de Reversão
+```sql
+-- For CREATE TABLE:
+-- DROP TABLE IF EXISTS table_name;
+
+-- For ALTER TABLE ADD COLUMN:
+-- ALTER TABLE table_name DROP COLUMN IF EXISTS column_name;
+
+-- For INSERT:
+-- DELETE FROM table_name WHERE condition;
+
+-- For CREATE INDEX:
+-- DROP INDEX IF EXISTS index_name;
+```
+
+### Padrões de Idioma
+- **Código SQL**: Comentários e nomes em inglês
+- **Documentação**: Português (README.md, CLAUDE.md, TODO.md, CHANGELOG.md)
+- **Commits**: Português ou inglês (conforme padrão do projeto)
+
 ## Padrões de Desenvolvimento
+
+### 🚨 REGRA CRÍTICA DE BUILD
+**COMANDO OBRIGATÓRIO:** `mvn clean compile`
+- **SEMPRE executar** antes de qualquer tarefa ou mudança
+- **Executar em loop** até compilação 100% sem erros
+- **NUNCA iniciar aplicação** sem permissão explícita do usuário
+- **TODA tarefa só é concluída** quando projeto compila sem erros
 
 ### Princípios de Código
 - **SOLID e Clean Code**: Aplicar rigorosamente os princípios SOLID em todas as implementações

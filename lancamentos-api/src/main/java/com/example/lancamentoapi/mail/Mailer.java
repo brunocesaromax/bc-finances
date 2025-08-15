@@ -1,6 +1,6 @@
 package com.example.lancamentoapi.mail;
 
-import com.example.lancamentoapi.model.Launch;
+import com.example.lancamentoapi.model.Transaction;
 import com.example.lancamentoapi.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,7 +23,7 @@ public class Mailer {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
-//    private final LaunchRepository repository;
+//    private final TransactionRepository repository;
 
     //Usar para simular emails na aplicação
     /*@EventListener
@@ -36,11 +36,11 @@ public class Mailer {
 
 //    @EventListener
 //    private void test(ApplicationReadyEvent event) {//Evento disparado quando aplicação sobe
-//        String template = "mail/alert-overdue-launchs";
+//        String template = "mail/alert-overdue-transactions";
 //
-//        List<Launch> launchList = repository.findAll();
+//        List<Transaction> transactionList = repository.findAll();
 //        Map<String, Object> variables = new HashMap<>();
-//        variables.put("launchs", launchList);
+//        variables.put("transactions", transactionList);
 //
 //        this.sendEmail("brunocesar.dev.test.java@gmail.com",
 //                Collections.singletonList("brunocesar.oc96@gmail.com"),
@@ -57,15 +57,15 @@ public class Mailer {
         sendEmail(from, targets, subject, message);
     }
 
-    public void alertOverdueLaunchs(List<Launch> launches, List<User> recipients) {
+    public void alertOverdueTransactions(List<Transaction> transactions, List<User> recipients) {
         Map<String, Object> variables = new HashMap<>();
-        variables.put("launchs", launches);
+        variables.put("transactions", transactions);
 
         List<String> emails = recipients.stream().map(User::getEmail).collect(Collectors.toList());
         this.sendEmail("brunocesar.dev.test.java@gmail.com",
                 emails,
                 "Lançamentos vencidos",
-                "mail/alert-overdue-launchs",
+                "mail/alert-overdue-transactions",
                 variables);
     }
 
