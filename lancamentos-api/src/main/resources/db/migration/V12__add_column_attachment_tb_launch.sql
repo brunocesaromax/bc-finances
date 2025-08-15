@@ -1,1 +1,0 @@
-alter table launch add column attachment varchar(200);
