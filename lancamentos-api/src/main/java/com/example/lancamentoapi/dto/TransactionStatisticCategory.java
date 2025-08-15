@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Setter
 @Getter
-public class LaunchStatisticCategory {
+public class TransactionStatisticCategory {
 
     private Category category;
     private BigDecimal total;

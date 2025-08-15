@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "category")
+@Table(name = "categories")
 @Data
 public class Category {
 	

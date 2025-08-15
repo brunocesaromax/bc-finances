@@ -1,11 +1,11 @@
 package com.example.lancamentoapi.controller;
 
 import com.example.lancamentoapi.event.ResourceCreatedEvent;
-import com.example.lancamentoapi.exceptionHandler.LaunchExceptionHandler;
+import com.example.lancamentoapi.exceptionHandler.TransactionExceptionHandler;
 import com.example.lancamentoapi.model.Person;
 import com.example.lancamentoapi.repository.PersonRepository;
 import com.example.lancamentoapi.service.PersonService;
-import com.example.lancamentoapi.service.exception.PersonExistentInLaunchException;
+import com.example.lancamentoapi.service.exception.PersonExistentInTransactionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
@@ -82,11 +82,11 @@ public class PersonController {
         personService.updateFieldActive(id, value);
     }
 
-    @ExceptionHandler({PersonExistentInLaunchException.class})
-    public ResponseEntity<Object> handlePersonExistentInLaunchException(PersonExistentInLaunchException ex) {
-        String msgUser = messageSource.getMessage("person.existent.in.launch", null, LocaleContextHolder.getLocale());
+    @ExceptionHandler({PersonExistentInTransactionException.class})
+    public ResponseEntity<Object> handlePersonExistentInTransactionException(PersonExistentInTransactionException ex) {
+        String msgUser = messageSource.getMessage("person.existent.in.transaction", null, LocaleContextHolder.getLocale());
         String msgDev = Optional.ofNullable(ex.getCause()).isPresent() ? ex.getCause().toString() : ex.toString();
-        List<LaunchExceptionHandler.Error> errors = Collections.singletonList(new LaunchExceptionHandler.Error(msgUser, msgDev));
+        List<TransactionExceptionHandler.Error> errors = Collections.singletonList(new TransactionExceptionHandler.Error(msgUser, msgDev));
 
         return ResponseEntity.badRequest().body(errors);
     }

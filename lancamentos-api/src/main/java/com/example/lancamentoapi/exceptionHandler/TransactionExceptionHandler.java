@@ -26,7 +26,7 @@ import java.util.List;
 
 // Captura exceções de ResponseEntities
 @ControllerAdvice // Observa toda a aplicação
-public class LaunchExceptionHandler extends ResponseEntityExceptionHandler {
+public class TransactionExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Qualifier("messageSource")
     @Autowired

@@ -3,7 +3,7 @@ package com.example.lancamentoapi.service;
 import com.example.lancamentoapi.model.Person;
 import com.example.lancamentoapi.model.Person_;
 import com.example.lancamentoapi.repository.PersonRepository;
-import com.example.lancamentoapi.service.exception.PersonExistentInLaunchException;
+import com.example.lancamentoapi.service.exception.PersonExistentInTransactionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +20,11 @@ import java.util.Optional;
 public class PersonService {
 
     private final PersonRepository personRepository;
-    private LaunchService launchService;
+    private TransactionService transactionService;
 
     @Autowired
-    public void setLaunchService(LaunchService launchService) {
-        this.launchService = launchService;
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Transactional
@@ -76,8 +76,8 @@ public class PersonService {
 
     @Transactional
     public void deleteById(Long id) {
-        if (launchService.existsWithPersonId(id)) {
-            throw new PersonExistentInLaunchException();
+        if (transactionService.existsWithPersonId(id)) {
+            throw new PersonExistentInTransactionException();
         } else {
             personRepository.deleteById(id);
         }
