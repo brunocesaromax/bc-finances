@@ -1,16 +1,16 @@
 CREATE TABLE launch(
-	id BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
+	id BIGSERIAL PRIMARY KEY,
 	description VARCHAR(50) NOT NULL,
 	due_day DATE NOT NULL,
 	payday DATE,
-	value DECIMAl(10,2) NOT NULL,
+	value DECIMAL(10,2) NOT NULL,
 	observation VARCHAR (100),
 	type VARCHAR (20) NOT NULL,
-	category_id BIGINT(20) NOT NULL,
-	person_id BIGINT(20) NOT NULL,
+	category_id BIGINT NOT NULL,
+	person_id BIGINT NOT NULL,
 	CONSTRAINT category_fk FOREIGN KEY (category_id) references category(id),
     CONSTRAINT person_fk FOREIGN KEY (person_id) references person(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 insert into launch (description, due_day, payday, value, observation, type, category_id, person_id)
 values ('Salário Mensal', '2019-09-19', '2019-09-21', 150.88, null, 'DESPESA', 5, 1);

@@ -1,5 +1,5 @@
 CREATE TABLE person(
-	id BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
+	id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
 	active BOOLEAN NOT NULL,
 	street VARCHAR (50),
@@ -9,8 +9,7 @@ CREATE TABLE person(
 	zipCode VARCHAR (10),
 	city VARCHAR (25),
 	state VARCHAR (25)
-	
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 insert into person (name,active,street,number,complement,neighborhood,zipCode,city,state)
 values ('Bruno',true,'Rua 1','SN','qd 5 lt 44','Jardim Itaipu','74355509','Goiânia','Goiás');

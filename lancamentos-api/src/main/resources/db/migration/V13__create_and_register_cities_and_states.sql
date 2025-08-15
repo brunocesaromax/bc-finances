@@ -1,7 +1,7 @@
 create table state (
-    id bigint(20) primary key AUTO_INCREMENT,
+    id bigserial primary key,
     name varchar(50) not null
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 INSERT INTO state (id, name) VALUES (1, 'Acre');
 INSERT INTO state (id, name) VALUES (2, 'Alagoas');
@@ -32,11 +32,11 @@ INSERT INTO state (id, name) VALUES (26, 'Sergipe');
 INSERT INTO state (id, name) VALUES (27, 'Tocantins');
 
 create table city(
-    id   bigint(20) primary key AUTO_INCREMENT,
+    id   bigserial primary key,
     name varchar(50) not null,
-    state_id bigint(20) not null,
+    state_id bigint not null,
     foreign key (state_id) references state(id)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 INSERT INTO city (id, name, state_id) VALUES (1, 'Acrelândia', 1);
 INSERT INTO city (id, name, state_id) VALUES (2, 'Assis Brasil', 1);
@@ -5746,7 +5746,7 @@ INSERT INTO city (id, name, state_id) VALUES (5706, 'SITIO D''ABADIA', 9);
 
 alter table person drop column city;
 alter table person drop column state;
-alter table person add column city_id BIGINT(20);
+alter table person add column city_id BIGINT;
 alter table person add constraint fk_person_city foreign key (city_id) references city(id);
 
 update person set city_id = 971;

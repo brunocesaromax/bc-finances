@@ -1,1 +1,1 @@
-ALTER TABLE person CHANGE COLUMN zipCode zip_code VARCHAR(10) NULL DEFAULT NULL ;
+ALTER TABLE person RENAME COLUMN zipCode TO zip_code;

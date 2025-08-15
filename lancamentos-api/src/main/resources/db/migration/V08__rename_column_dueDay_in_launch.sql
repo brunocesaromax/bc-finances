@@ -1,1 +1,1 @@
-ALTER TABLE launch CHANGE COLUMN due_day due_date DATE NOT NULL ;
+ALTER TABLE launch RENAME COLUMN due_day TO due_date;

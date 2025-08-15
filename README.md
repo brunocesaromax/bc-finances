@@ -34,7 +34,7 @@ Senha: admin
 - Java 8
 - Spring Boot 2.3.7
 - JPA/ Hibernate
-- MySql (database: lancamentos | username: root  | password: root)
+- PostgreSQL 16 (database: bc-finances | username: postgres | password: postgres)
 - Maven 
 
 ### Front end
@@ -44,9 +44,39 @@ Senha: admin
 
 ## Como executar o projeto
 
-### Back end
+### Executando com Docker Compose (Recomendado)
 
-Pré-requisitos: Java 8
+Pré-requisitos: Docker e Docker Compose
+
+  1 - Clonar o repositório: 
+  
+  ```bash 
+  git clone https://github.com/brunocesaromax/lancamentos.git
+  cd lancamentos
+  ```
+  
+  2 - Subir os serviços (PostgreSQL + pgAdmin):
+  
+  ```bash 
+  docker-compose up -d
+  ```
+  
+  3 - Criar arquivo .env com as configurações (baseado no .env.example):
+  
+  ```bash 
+  cp .env.example .env
+  ```
+  
+  4 - Entrar na pasta do projeto back end e executar:
+  
+  ```bash 
+  cd lancamentos-api
+  ./mvnw spring-boot:run
+  ```
+
+### Back end (Desenvolvimento Local)
+
+Pré-requisitos: Java 8, PostgreSQL 16
 
   1 - Clonar o repositório: 
   
@@ -61,7 +91,9 @@ Pré-requisitos: Java 8
   cd lancamentos-api
   ```
   
-  3 - Executar o projeto:
+  3 - Configurar banco PostgreSQL local e variáveis de ambiente no .env
+  
+  4 - Executar o projeto:
   
   
   ```bash 

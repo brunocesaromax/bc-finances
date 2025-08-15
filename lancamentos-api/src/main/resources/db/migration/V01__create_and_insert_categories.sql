@@ -1,7 +1,7 @@
 CREATE TABLE category(
-	id BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
+	id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 insert into category (name) values ('Lazer');
 insert into category (name) values ('Alimentação');

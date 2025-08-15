@@ -34,7 +34,7 @@ Lançamentos é uma aplicação full-stack de gerenciamento financeiro construí
 **Backend (lancamentos-api/):**
 - Spring Boot 2.3.7 com Java 8
 - Autenticação OAuth2 + JWT com suporte duplo de cliente (web + mobile)
-- Banco de dados MySQL com migrações Flyway
+- Banco de dados PostgreSQL 16 com migrações Flyway
 - JasperReports para geração de PDF
 - Integração AWS S3 para anexos de arquivos
 - Notificações por email com templates Thymeleaf
@@ -83,19 +83,34 @@ ng lint
 ng e2e
 ```
 
+### Docker Compose (Recomendado)
+```bash
+# Subir PostgreSQL + pgAdmin
+docker-compose up -d
+
+# Verificar status dos containers
+docker-compose ps
+
+# Parar os serviços
+docker-compose down
+
+# Acessar pgAdmin: http://localhost:8081
+# Email: admin@lancamentos.com | Senha: admin
+```
+
 ## Configuração de Ambiente
 
 A aplicação usa configuração baseada em ambiente com arquivos .env (dependência spring-dotenv):
 
 **Variáveis de Ambiente Obrigatórias:**
-- `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` - Conexão banco de dados MySQL
+- `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` - Conexão banco de dados PostgreSQL 16
 - `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` - Configuração de email
 - `AWS_S3_ACCESS_KEY_ID`, `AWS_S3_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET` - Armazenamento S3
 - `FRONT_END_CLIENT`, `FRONT_END_PASSWORD` - Credenciais cliente OAuth2 frontend
 - `MOBILE_CLIENT`, `MOBILE_PASSWORD` - Credenciais cliente OAuth2 mobile
 
 **Perfis:**
-- `dev` - Desenvolvimento com MySQL (padrão: localhost:3306/lancamentos)
+- `dev` - Desenvolvimento com PostgreSQL (padrão: localhost:5432/bc-finances)
 - `prod` - Configuração de produção
 - `oauth-security` - Segurança OAuth2 (padrão)
 - `basic-security` - Autenticação HTTP básica (alternativa)
