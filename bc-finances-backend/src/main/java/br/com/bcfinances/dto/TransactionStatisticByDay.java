@@ -1,6 +1,6 @@
 package br.com.bcfinances.dto;
 
-import br.com.bcfinances.model.TypeLaunch;
+import br.com.bcfinances.model.TypeTransaction;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Getter
 public class TransactionStatisticByDay {
 
-    private TypeLaunch type;
+    private TypeTransaction type;
     private LocalDate day;
     private BigDecimal total;
 }

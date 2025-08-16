@@ -1,6 +1,6 @@
 package br.com.bcfinances.repository.projection;
 
-import br.com.bcfinances.model.TypeLaunch;
+import br.com.bcfinances.model.TypeTransaction;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,17 +13,17 @@ public class TransactionSummary {
 
     private Long id;
     private String description;
-    private LocalDate dueDate;
+    private LocalDate dueDay;
     private LocalDate payday;
     private BigDecimal value;
-    private TypeLaunch type;
+    private TypeTransaction type;
     private String category;
     private String person;
 
-    public TransactionSummary(Long id, String description, LocalDate dueDate, LocalDate payday, BigDecimal value, TypeLaunch type, String category, String person) {
+    public TransactionSummary(Long id, String description, LocalDate dueDay, LocalDate payday, BigDecimal value, TypeTransaction type, String category, String person) {
         this.id = id;
         this.description = description;
-        this.dueDate = dueDate;
+        this.dueDay = dueDay;
         this.payday = payday;
         this.value = value;
         this.type = type;

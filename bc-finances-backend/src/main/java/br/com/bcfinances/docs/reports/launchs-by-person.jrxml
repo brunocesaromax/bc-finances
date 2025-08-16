@@ -7,7 +7,7 @@
 		<![CDATA[]]>
 	</queryString>
 	<field name="total" class="java.math.BigDecimal"/>
-	<field name="type" class="br.com.bcfinances.model.TypeLaunch"/>
+	<field name="type" class="br.com.bcfinances.model.TypeTransaction"/>
 	<field name="person" class="br.com.bcfinances.model.Person"/>
 	<title>
 		<band height="60" splitType="Stretch">

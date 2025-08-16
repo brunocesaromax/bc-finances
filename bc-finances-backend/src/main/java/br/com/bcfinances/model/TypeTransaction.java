@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum TypeLaunch {
+public enum TypeTransaction {
     RECIPE("Receita"),
     EXPENSE("Despesa");
 

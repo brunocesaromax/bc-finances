@@ -26,8 +26,8 @@ public class Transaction {
     private String description;
 
     @NotNull
-    @Column(name = "due_date")
-    private LocalDate dueDate;
+    @Column(name = "due_day")
+    private LocalDate dueDay;
 
     @Column(name = "payday")
     private LocalDate payday;
@@ -39,7 +39,7 @@ public class Transaction {
 
     @NotNull
     @Enumerated(EnumType.STRING) // Melhor para consultas escritas a mao
-    private TypeLaunch type;
+    private TypeTransaction type;
 
     @NotNull
     @ManyToOne
@@ -60,6 +60,6 @@ public class Transaction {
 
     @JsonIgnore
     public boolean isRecipe(){
-        return this.type.equals(TypeLaunch.RECIPE);
+        return this.type.equals(TypeTransaction.RECIPE);
     }
 }

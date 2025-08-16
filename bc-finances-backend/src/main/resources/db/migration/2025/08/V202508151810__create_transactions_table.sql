@@ -18,10 +18,10 @@ CREATE TABLE transactions (
 
 INSERT INTO transactions (description, due_day, payday, value, observation, type, category_id, person_id)
 VALUES 
-('Salário Mensal', '2019-09-19', '2019-09-21', 150.88, null, 'DESPESA', 5, 1),
-('Lanche', '2018-02-19', '2019-09-21', 18.88, null, 'DESPESA', 4, 3),
-('Conta de luz', '2015-10-14', '2019-09-21', 180.00, null, 'DESPESA', 2, 2),
-('Internet fibra optica', '2020-03-12', '2030-09-21', 119.90, null, 'DESPESA', 1, 5);
+('Salário Mensal', '2019-09-19', '2019-09-21', 150.88, null, 'EXPENSE', 5, 1),
+('Lanche', '2018-02-19', '2019-09-21', 18.88, null, 'EXPENSE', 4, 3),
+('Conta de luz', '2015-10-14', '2019-09-21', 180.00, null, 'EXPENSE', 2, 2),
+('Internet fibra optica', '2020-03-12', '2030-09-21', 119.90, null, 'EXPENSE', 1, 5);
 
 -- ROLLBACK (SQL to undo this migration):
 -- DROP TABLE IF EXISTS transactions;

@@ -58,7 +58,7 @@ public class TransactionRepositoryImpl implements TransactionRepositoryQuery {
         criteriaQuery.select(builder.construct(TransactionSummary.class,
                 root.get(Transaction_.ID),
                 root.get(Transaction_.DESCRIPTION),
-                root.get(Transaction_.DUE_DATE),
+                root.get(Transaction_.DUE_DAY),
                 root.get(Transaction_.PAYDAY),
                 root.get(Transaction_.VALUE),
                 root.get(Transaction_.TYPE),
@@ -92,8 +92,8 @@ public class TransactionRepositoryImpl implements TransactionRepositoryQuery {
         LocalDate lastDay = monthReference.withDayOfMonth(monthReference.lengthOfMonth());
 
         criteriaQuery.where(
-                criteriaBuilder.greaterThanOrEqualTo(root.get(Transaction_.DUE_DATE), firstDay),
-                criteriaBuilder.lessThanOrEqualTo(root.get(Transaction_.DUE_DATE), lastDay)
+                criteriaBuilder.greaterThanOrEqualTo(root.get(Transaction_.DUE_DAY), firstDay),
+                criteriaBuilder.lessThanOrEqualTo(root.get(Transaction_.DUE_DAY), lastDay)
         );
 
         criteriaQuery.groupBy(root.get(Transaction_.CATEGORY));
@@ -114,18 +114,18 @@ public class TransactionRepositoryImpl implements TransactionRepositoryQuery {
 
         criteriaQuery.select(criteriaBuilder.construct(TransactionStatisticByDay.class,
                 root.get(Transaction_.TYPE),
-                root.get(Transaction_.DUE_DATE),
+                root.get(Transaction_.DUE_DAY),
                 criteriaBuilder.sum(root.get(Transaction_.VALUE))));
 
         LocalDate firstDay = monthReference.withDayOfMonth(1);
         LocalDate lastDay = monthReference.withDayOfMonth(monthReference.lengthOfMonth());
 
         criteriaQuery.where(
-                criteriaBuilder.greaterThanOrEqualTo(root.get(Transaction_.DUE_DATE), firstDay),
-                criteriaBuilder.lessThanOrEqualTo(root.get(Transaction_.DUE_DATE), lastDay)
+                criteriaBuilder.greaterThanOrEqualTo(root.get(Transaction_.DUE_DAY), firstDay),
+                criteriaBuilder.lessThanOrEqualTo(root.get(Transaction_.DUE_DAY), lastDay)
         );
 
-        criteriaQuery.groupBy(root.get(Transaction_.TYPE), root.get(Transaction_.DUE_DATE));
+        criteriaQuery.groupBy(root.get(Transaction_.TYPE), root.get(Transaction_.DUE_DAY));
 
         TypedQuery<TransactionStatisticByDay> typedQuery = manager.createQuery(criteriaQuery);
 
@@ -147,8 +147,8 @@ public class TransactionRepositoryImpl implements TransactionRepositoryQuery {
                 criteriaBuilder.sum(root.get(Transaction_.VALUE))));
 
         criteriaQuery.where(
-                criteriaBuilder.greaterThanOrEqualTo(root.get(Transaction_.DUE_DATE), start),
-                criteriaBuilder.lessThanOrEqualTo(root.get(Transaction_.DUE_DATE), end)
+                criteriaBuilder.greaterThanOrEqualTo(root.get(Transaction_.DUE_DAY), start),
+                criteriaBuilder.lessThanOrEqualTo(root.get(Transaction_.DUE_DAY), end)
         );
 
         criteriaQuery.groupBy(root.get(Transaction_.TYPE), root.get(Transaction_.PERSON));
@@ -173,12 +173,12 @@ public class TransactionRepositoryImpl implements TransactionRepositoryQuery {
 
             if (transactionFilter.getDueDayStart() != null) {
                 predicates.add(
-                        builder.greaterThanOrEqualTo(root.get(Transaction_.DUE_DATE), transactionFilter.getDueDayStart()));
+                        builder.greaterThanOrEqualTo(root.get(Transaction_.DUE_DAY), transactionFilter.getDueDayStart()));
             }
 
             if (transactionFilter.getDueDayEnd() != null) {
                 predicates.add(
-                        builder.lessThanOrEqualTo(root.get(Transaction_.DUE_DATE), transactionFilter.getDueDayEnd()));
+                        builder.lessThanOrEqualTo(root.get(Transaction_.DUE_DAY), transactionFilter.getDueDayEnd()));
             }
         }
 

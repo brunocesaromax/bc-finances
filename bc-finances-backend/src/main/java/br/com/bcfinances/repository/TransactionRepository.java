@@ -11,5 +11,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
 
     boolean existsByPersonId(Long id);
 
-    List<Transaction> findByDueDateLessThanEqualAndPaydayIsNull(LocalDate date);
+    List<Transaction> findByDueDayLessThanEqualAndPaydayIsNull(LocalDate date);
 }

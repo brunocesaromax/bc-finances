@@ -40,7 +40,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TransactionService {
 
-    private static final String RECIPIENTS = "ROLE_SEARCH_LAUNCH";
+    private static final String RECIPIENTS = "ROLE_SEARCH_TRANSACTION";
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
@@ -138,19 +138,19 @@ public class TransactionService {
 
     //    @Scheduled(fixedDelay = 1000 * 60 * 30) //Evita enfileiramento de execuções do método, somente quando uma execução termina que outra começa
     @Scheduled(cron = "0 0 6 * * *") // SS MM HH DAY_OF_MONTH MONTH DAY_OF_WEEK
-    public void alertOverdueLaunchs() {
+    public void alertOverduetransactions() {
         if (log.isDebugEnabled()) {
             log.debug("Preparando envio de e-mails de aviso de lançamentos vencidos.");
         }
 
-        List<Transaction> overdueLaunchs = transactionRepository.findByDueDateLessThanEqualAndPaydayIsNull(LocalDate.now());
+        List<Transaction> overduetransactions = transactionRepository.findByDueDayLessThanEqualAndPaydayIsNull(LocalDate.now());
 
-        if (overdueLaunchs.isEmpty()) {
+        if (overduetransactions.isEmpty()) {
             log.info("Sem lançamentos vencidos para aviso.");
             return;
         }
 
-        log.info("Existem {} lançamentos vencidos.", overdueLaunchs.size());
+        log.info("Existem {} lançamentos vencidos.", overduetransactions.size());
 
         List<User> users = userRepository.findByPermissionsDescription(RECIPIENTS);
 
@@ -159,7 +159,7 @@ public class TransactionService {
             return;
         }
 
-        mailer.alertOverdueTransactions(overdueLaunchs, users);
+        mailer.alertOverdueTransactions(overduetransactions, users);
 
         log.info("Envio de e-mails de aviso concluído.");
     }

@@ -183,7 +183,7 @@ src/main/resources/db/migration/
 │   ├── 08/
 │   │   ├── 202508142205__create_categories_table.sql
 │   │   ├── 202508142210__create_users_table.sql
-│   │   └── 202508142215__create_launches_table.sql
+│   │   └── 202508142215__create_transactions_table.sql
 │   └── 09/
 │       └── 202509011200__add_index_to_users.sql
 └── 2026/
@@ -198,16 +198,16 @@ src/main/resources/db/migration/
 - **Exemplos**:
   - `202508142205__create_categories_table.sql`
   - `202508142210__add_email_index_to_users.sql`
-  - `202508142215__alter_launches_add_attachment_column.sql`
+  - `202508142215__alter_transactions_add_attachment_column.sql`
 
 ### Padrões de SQL
 - **Palavras-chave SQL**: SEMPRE em UPPERCASE (`CREATE`, `TABLE`, `INSERT`, `SELECT`, `WHERE`, etc.)
-- **Nomes de tabelas**: SEMPRE no plural (`users`, `categories`, `launches`, `permissions`)
+- **Nomes de tabelas**: SEMPRE no plural (`users`, `categories`, `transactions`, `permissions`)
 - **Nomes de colunas**: snake_case minúsculo (`user_id`, `created_at`, `full_name`)
-- **Constraints**: Nomenclatura clara (`fk_launches_user_id`, `idx_users_email`)
+- **Constraints**: Nomenclatura clara (`fk_transactions_user_id`, `idx_users_email`)
 
 ### Padrões de Tabelas
-- **Nomes no plural**: `user` → `users`, `category` → `categories`, `launch` → `launches`
+- **Nomes no plural**: `user` → `users`, `category` → `categories`, `launch` → `transactions`
 - **Chaves primárias**: `id BIGSERIAL PRIMARY KEY`
 - **Chaves estrangeiras**: `table_id BIGINT NOT NULL`
 - **Timestamps**: `created_at TIMESTAMP DEFAULT NOW()`, `updated_at TIMESTAMP`

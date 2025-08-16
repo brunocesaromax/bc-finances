@@ -11,15 +11,15 @@ import javax.persistence.ManyToOne;
 @Embeddable
 class Address {
 
-	private String street;
-	private String number;
-	private String complement;
-	private String neighborhood;
+    private String street;
+    private String number;
+    private String complement;
+    private String neighborhood;
 
-	@Column(name = "zip_code")
-	private String zipCode;
+    @Column(name = "zip_code")
+    private String zipCode;
 
-	@ManyToOne
-  @JoinColumn(name = "city_id")
-  private City city;
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    private City city;
 }
