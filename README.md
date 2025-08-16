@@ -1,9 +1,9 @@
-# Lançamentos
+# BC Finances
 [![NPM](https://img.shields.io/npm/l/express)](https://github.com/brunocesaromax/lancamentos/blob/master/LICENSE)
 
 # Sobre o projeto
 
-Lançamentos é uma aplicação full stack web construída durante o acompanhamento do curso __Full Stack Angular and Spring__ da Algaworks.
+BC Finances é uma aplicação full stack web construída durante o acompanhamento do curso __Full Stack Angular and Spring__ da Algaworks.
 
 A aplicação consiste no gerenciamento financeiro do usuário, através de lançamentos de débitos e créditos.
 
@@ -70,8 +70,8 @@ Pré-requisitos: Docker e Docker Compose
   4 - Entrar na pasta do projeto back end e executar:
   
   ```bash 
-  cd lancamentos-api
-  ./mvnw spring-boot:run
+  cd bc-finances-backend
+  mvn spring-boot:run
   ```
 
 ### Back end (Desenvolvimento Local)
@@ -88,7 +88,7 @@ Pré-requisitos: Java 8, PostgreSQL 16
   2 - Entrar na pasta do projeto back end: 
   
   ```bash 
-  cd lancamentos-api
+  cd bc-finances-backend
   ```
   
   3 - Configurar banco PostgreSQL local e variáveis de ambiente no .env

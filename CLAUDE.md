@@ -37,11 +37,11 @@ O diretório `./docs/` é o **repositório oficial** de documentações técnica
 
 ## Visão Geral do Projeto
 
-Lançamentos é uma aplicação full-stack de gerenciamento financeiro construída com Spring Boot (backend) e Angular 9 (frontend). O sistema gerencia entradas financeiras (lançamentos) com débitos e créditos, apresentando segurança OAuth2, armazenamento de arquivos AWS S3, notificações por email e geração de relatórios em PDF.
+BC Finances é uma aplicação full-stack de gerenciamento financeiro construída com Spring Boot (backend) e Angular 9 (frontend). O sistema gerencia entradas financeiras (lançamentos) com débitos e créditos, apresentando segurança OAuth2, armazenamento de arquivos AWS S3, notificações por email e geração de relatórios em PDF.
 
 ## Arquitetura
 
-**Backend (lancamentos-api/):**
+**Backend (bc-finances-backend/):**
 - Spring Boot 2.3.7 com Java 8
 - Autenticação OAuth2 + JWT com suporte duplo de cliente (web + mobile)
 - Banco de dados PostgreSQL 16 com migrações Flyway
@@ -62,17 +62,17 @@ Lançamentos é uma aplicação full-stack de gerenciamento financeiro construí
 # Comando obrigatório de build (SEMPRE executar para verificar compilação)
 mvn clean compile
 
-# Iniciar servidor de desenvolvimento (de lancamentos-api/) - SOMENTE COM PERMISSÃO DO USUÁRIO
-./mvnw spring-boot:run
+# Iniciar servidor de desenvolvimento (de bc-finances-backend/) - SOMENTE COM PERMISSÃO DO USUÁRIO
+mvn spring-boot:run
 
 # Executar testes
-./mvnw test
+mvn test
 
 # Empacotar aplicação
-./mvnw package
+mvn package
 
 # Executar com perfil específico
-./mvnw spring-boot:run -Dspring.profiles.active=dev
+mvn spring-boot:run -Dspring.profiles.active=dev
 ```
 
 ### Desenvolvimento Frontend
@@ -296,7 +296,7 @@ INSERT INTO users (name, email, password) VALUES
 
 #### Estrutura do TODO.md
 ```markdown
-# TODO - Lançamentos
+# TODO - BC Finances
 
 ## Sprint Atual (Branch: nome-da-branch)
 - [ ] Tarefas da sprint/branch atual
@@ -343,7 +343,7 @@ INSERT INTO users (name, email, password) VALUES
 
 #### Quando Criar Arquivos Separados
 Apenas em casos excepcionais de módulos completamente independentes:
-- `lancamentos-api/TODO.md` e `lancamentos-ui/TODO.md` (se necessário)
+- `bc-finances-backend/TODO.md` e `lancamentos-ui/TODO.md` (se necessário)
 - Nunca por branch ou feature individual
 
 ### Padrões de Comentários
