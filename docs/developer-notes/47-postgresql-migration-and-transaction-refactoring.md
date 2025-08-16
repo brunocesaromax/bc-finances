@@ -29,17 +29,17 @@ Alteração do nome de entidade "Launch" para "Transaction" por ser mais adequad
 ```
 Launch → Transaction (entidade principal)
 LaunchController → TransactionController
-LaunchService → TransactionService
+Transactionservice → TransactionService
 LaunchRepository → TransactionRepository
 LaunchRepositoryQuery → TransactionRepositoryQuery
 LaunchRepositoryImpl → TransactionRepositoryImpl
 LaunchFilter → TransactionFilter
-LaunchSummary → TransactionSummary
-LaunchStatistic* → TransactionStatistic* (3 DTOs)
+Transactionsummary → TransactionSummary
+Transactionstatistic* → TransactionStatistic* (3 DTOs)
 LaunchAttachmentListener → TransactionAttachmentListener
 LaunchExceptionHandler → TransactionExceptionHandler
 PersonExistentInLaunchException → PersonExistentInTransactionException
-/launchs → /transactions (endpoint)
+/Transactions → /transactions (endpoint)
 ```
 
 ## Arquitetura Atual
@@ -195,7 +195,7 @@ List<TransactionStatisticByDay> findByDay(LocalDate date)
 
 // Agendamento
 @Scheduled(cron = "0 0 6 * * *") // 6h da manhã diariamente
-alertOverdueLaunchs() // Email para usuários com ROLE_SEARCH_LAUNCH
+alertOverdueTransactions() // Email para usuários com ROLE_SEARCH_TRANSACTION
 ```
 
 ### Repositórios Customizados
@@ -266,13 +266,13 @@ MOBILE_PASSWORD=m0b1l30
 ### Build e Execução
 ```bash
 # Build obrigatório (sempre verificar compilação)
-cd lancamentos-api && mvn clean compile
+cd bc-finances-backend && mvn clean compile
 
 # Iniciar aplicação (somente com permissão do usuário)
-./mvnw spring-boot:run
+mvn spring-boot:run
 
 # Testes
-./mvnw test
+mvn test
 
 # Docker (banco de dados)
 docker-compose up -d

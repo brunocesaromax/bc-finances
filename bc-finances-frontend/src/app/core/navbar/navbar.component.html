@@ -1,0 +1,21 @@
+<nav class="navbar">
+  <div class="container">
+    <div class="ui-g">
+      <div class="ui-g-12">
+        <a href="javascript:;" class="navbar-toggle" (click)="showMenu = !showMenu"><i class="pi pi-bars"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <ul class="navbar-menu" [hidden]="!showMenu">
+    <li class="navbar-user">{{ auth.jwtPayload?.name }}</li>
+    <!--    <li class="navbar-menuitem"><a href="/transactions">Lançamentos</a></li> &lt;!&ndash; Dessa forma a aplicaçao e reiniciada a tod momento, nao indicado&ndash;&gt;-->
+    <div *ngIf="auth.hasPermission('ROLE_SEARCH_TRANSACTION')">
+      <li class="navbar-menuitem" routerLinkActive="active"><a routerLink="/dashboard">Dashboard</a></li>
+      <li class="navbar-menuitem" routerLinkActive="active"><a routerLink="/transactions">Lançamentos</a></li>
+      <li class="navbar-menuitem" routerLinkActive="active"><a routerLink="/persons">Pessoas</a></li>
+      <li class="navbar-menuitem" routerLinkActive="active"><a routerLink="/reports/transactions">Relatório</a></li>
+    </div>
+    <li class="navbar-menuitem"><a href="javascript:;" (click)="logout()">Sair</a></li>
+  </ul>
+</nav>

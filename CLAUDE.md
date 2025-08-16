@@ -37,11 +37,11 @@ O diretório `./docs/` é o **repositório oficial** de documentações técnica
 
 ## Visão Geral do Projeto
 
-Lançamentos é uma aplicação full-stack de gerenciamento financeiro construída com Spring Boot (backend) e Angular 9 (frontend). O sistema gerencia entradas financeiras (lançamentos) com débitos e créditos, apresentando segurança OAuth2, armazenamento de arquivos AWS S3, notificações por email e geração de relatórios em PDF.
+BC Finances é uma aplicação full-stack de gerenciamento financeiro construída com Spring Boot (backend) e Angular 9 (frontend). O sistema gerencia entradas financeiras (lançamentos) com débitos e créditos, apresentando segurança OAuth2, armazenamento de arquivos AWS S3, notificações por email e geração de relatórios em PDF.
 
 ## Arquitetura
 
-**Backend (lancamentos-api/):**
+**Backend (bc-finances-backend/):**
 - Spring Boot 2.3.7 com Java 8
 - Autenticação OAuth2 + JWT com suporte duplo de cliente (web + mobile)
 - Banco de dados PostgreSQL 16 com migrações Flyway
@@ -62,26 +62,31 @@ Lançamentos é uma aplicação full-stack de gerenciamento financeiro construí
 # Comando obrigatório de build (SEMPRE executar para verificar compilação)
 mvn clean compile
 
-# Iniciar servidor de desenvolvimento (de lancamentos-api/) - SOMENTE COM PERMISSÃO DO USUÁRIO
-./mvnw spring-boot:run
+# Iniciar servidor de desenvolvimento (de bc-finances-backend/) - SOMENTE COM PERMISSÃO DO USUÁRIO
+mvn spring-boot:run
 
 # Executar testes
-./mvnw test
+mvn test
 
 # Empacotar aplicação
-./mvnw package
+mvn package
 
 # Executar com perfil específico
-./mvnw spring-boot:run -Dspring.profiles.active=dev
+mvn spring-boot:run -Dspring.profiles.active=dev
 ```
 
 ### Desenvolvimento Frontend
+**IMPORTANTE:** Requer Node.js 10.x e npm 6.x (verificar com `node --version` e `npm --version`)
+
 ```bash
-# Instalar dependências (de lancamentos-ui/)
+# Instalar dependências (de bc-finances-frontend/)
 npm install
 
-# Iniciar servidor de desenvolvimento
-ng serve
+# Iniciar servidor de desenvolvimento (OBRIGATÓRIO para desenvolvimento local)
+npx ng serve
+
+# ATENÇÃO: npm start executa versão de produção (server.js)
+# Para desenvolvimento LOCAL sempre usar: npx ng serve
 
 # Build para produção
 ng build --prod
@@ -183,7 +188,7 @@ src/main/resources/db/migration/
 │   ├── 08/
 │   │   ├── 202508142205__create_categories_table.sql
 │   │   ├── 202508142210__create_users_table.sql
-│   │   └── 202508142215__create_launches_table.sql
+│   │   └── 202508142215__create_transactions_table.sql
 │   └── 09/
 │       └── 202509011200__add_index_to_users.sql
 └── 2026/
@@ -198,16 +203,16 @@ src/main/resources/db/migration/
 - **Exemplos**:
   - `202508142205__create_categories_table.sql`
   - `202508142210__add_email_index_to_users.sql`
-  - `202508142215__alter_launches_add_attachment_column.sql`
+  - `202508142215__alter_transactions_add_attachment_column.sql`
 
 ### Padrões de SQL
 - **Palavras-chave SQL**: SEMPRE em UPPERCASE (`CREATE`, `TABLE`, `INSERT`, `SELECT`, `WHERE`, etc.)
-- **Nomes de tabelas**: SEMPRE no plural (`users`, `categories`, `launches`, `permissions`)
+- **Nomes de tabelas**: SEMPRE no plural (`users`, `categories`, `transactions`, `permissions`)
 - **Nomes de colunas**: snake_case minúsculo (`user_id`, `created_at`, `full_name`)
-- **Constraints**: Nomenclatura clara (`fk_launches_user_id`, `idx_users_email`)
+- **Constraints**: Nomenclatura clara (`fk_transactions_user_id`, `idx_users_email`)
 
 ### Padrões de Tabelas
-- **Nomes no plural**: `user` → `users`, `category` → `categories`, `launch` → `launches`
+- **Nomes no plural**: `user` → `users`, `category` → `categories`, `launch` → `transactions`
 - **Chaves primárias**: `id BIGSERIAL PRIMARY KEY`
 - **Chaves estrangeiras**: `table_id BIGINT NOT NULL`
 - **Timestamps**: `created_at TIMESTAMP DEFAULT NOW()`, `updated_at TIMESTAMP`
@@ -296,7 +301,7 @@ INSERT INTO users (name, email, password) VALUES
 
 #### Estrutura do TODO.md
 ```markdown
-# TODO - Lançamentos
+# TODO - BC Finances
 
 ## Sprint Atual (Branch: nome-da-branch)
 - [ ] Tarefas da sprint/branch atual
@@ -343,7 +348,7 @@ INSERT INTO users (name, email, password) VALUES
 
 #### Quando Criar Arquivos Separados
 Apenas em casos excepcionais de módulos completamente independentes:
-- `lancamentos-api/TODO.md` e `lancamentos-ui/TODO.md` (se necessário)
+- `bc-finances-backend/TODO.md` e `lancamentos-ui/TODO.md` (se necessário)
 - Nunca por branch ou feature individual
 
 ### Padrões de Comentários
