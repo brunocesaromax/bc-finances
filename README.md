@@ -102,7 +102,9 @@ Pré-requisitos: Java 8, PostgreSQL 16
 
 ### Front end web
 
-Pré-requisitos: npm / node / angular-cli 
+**Pré-requisitos:** Node.js 10.x, npm 6.x, Angular CLI
+
+**IMPORTANTE:** O frontend requer Node.js versão 10 e npm compatível. Versões mais recentes podem causar incompatibilidade.
 
   1 - Clonar o repositório: 
   
@@ -114,7 +116,7 @@ Pré-requisitos: npm / node / angular-cli
   2 - Entrar na pasta do projeto front end: 
   
   ```bash 
-  cd lancamentos-ui
+  cd bc-finances-frontend
   ```
   
   3 - Instalar dependências
@@ -123,12 +125,13 @@ Pré-requisitos: npm / node / angular-cli
   npm install
   ```
   
-  4 - Executar o projeto:
-  
+  4 - Executar o projeto (DESENVOLVIMENTO):
   
   ```bash
-  ng serve
+  npx ng serve
   ```
+  
+  **Nota:** Use `npx ng serve` para desenvolvimento (conecta ao backend local). O comando `npm start` executa a versão de produção.
 # Autor
 
 Bruno César Vicente

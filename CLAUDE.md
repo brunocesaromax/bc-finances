@@ -76,12 +76,17 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 ```
 
 ### Desenvolvimento Frontend
+**IMPORTANTE:** Requer Node.js 10.x e npm 6.x (verificar com `node --version` e `npm --version`)
+
 ```bash
-# Instalar dependências (de lancamentos-ui/)
+# Instalar dependências (de bc-finances-frontend/)
 npm install
 
-# Iniciar servidor de desenvolvimento
-ng serve
+# Iniciar servidor de desenvolvimento (OBRIGATÓRIO para desenvolvimento local)
+npx ng serve
+
+# ATENÇÃO: npm start executa versão de produção (server.js)
+# Para desenvolvimento LOCAL sempre usar: npx ng serve
 
 # Build para produção
 ng build --prod
