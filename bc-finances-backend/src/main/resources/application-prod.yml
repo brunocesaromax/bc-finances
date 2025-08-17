@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: "{JDBC_DATABASE_URL}"
+    username: "{JDBC_DATABASE_USERNAME}"
+    password: "{JDBC_DATABASE_PASSWORD}"
+  flyway:
+    validate-on-migrate: true
+
+bcfinances:
+  security:
+    enable-https: true
+    front-end-client: ${FRONT_END_CLIENT}
+    front-end-password: ${FRONT_END_PASSWORD}
+    mobile-client: ${MOBILE_CLIENT}
+    mobile-password: ${MOBILE_PASSWORD}
+  origin-permitted: https://launchs-angular.herokuapp.com
+  i18n:
+    cache-seconds: -1
+  s3:
+    access-key-id: ${AWS_ACCESS_KEY_ID}
+    secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+    bucket: ${S3_BUCKET_NAME}
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
