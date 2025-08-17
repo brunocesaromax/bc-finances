@@ -14,6 +14,9 @@ public class ApiProperty {
     private String originPermitted;
 
     @Getter
+    private final I18n i18n = new I18n();
+
+    @Getter
     private final Security security = new Security();
 
     @Getter
@@ -31,6 +34,13 @@ public class ApiProperty {
         private String frontEndPassword;
         private String mobileClient;
         private String mobilePassword;
+    }
+
+    @Setter
+    @Getter
+    public static class I18n {
+
+        private int cacheSeconds;
     }
 
     @Setter

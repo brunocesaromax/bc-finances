@@ -97,7 +97,7 @@ Pré-requisitos: Java 8, PostgreSQL 16
   
   
   ```bash 
-  ./mvnw spring-boot:run
+  mvn spring-boot:run
   ```
 
 ### Front end web
