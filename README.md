@@ -31,9 +31,11 @@ Senha: admin
 ## Tecnologias utilizadas
 
 ### Back end
-- Java 8
-- Spring Boot 2.3.7
-- JPA/ Hibernate
+- Java 21
+- Spring Boot 3.5.4 LTS
+- JPA/ Hibernate 6.6.22
+- Spring Authorization Server (OAuth2)
+- AWS SDK v2 para integração S3
 - PostgreSQL 16 (database: bc-finances | username: postgres | password: postgres)
 - Maven 
 
@@ -76,7 +78,7 @@ Pré-requisitos: Docker e Docker Compose
 
 ### Back end (Desenvolvimento Local)
 
-Pré-requisitos: Java 8, PostgreSQL 16
+Pré-requisitos: Java 21, PostgreSQL 16
 
   1 - Clonar o repositório: 
   

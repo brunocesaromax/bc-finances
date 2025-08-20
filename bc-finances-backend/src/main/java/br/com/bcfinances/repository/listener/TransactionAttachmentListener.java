@@ -5,7 +5,7 @@ import br.com.bcfinances.model.Transaction;
 import br.com.bcfinances.storage.S3;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.PostLoad;
+import jakarta.persistence.PostLoad;
 
 public class TransactionAttachmentListener {
 

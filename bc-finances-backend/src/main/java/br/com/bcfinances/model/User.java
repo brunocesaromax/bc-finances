@@ -2,7 +2,7 @@ package br.com.bcfinances.model;
 
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 
 @Entity

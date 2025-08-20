@@ -3,10 +3,10 @@ package br.com.bcfinances.service;
 import br.com.bcfinances.model.Person;
 import br.com.bcfinances.model.Person_;
 import br.com.bcfinances.repository.PersonRepository;
+import br.com.bcfinances.repository.TransactionRepository;
 import br.com.bcfinances.service.exception.PersonExistentInTransactionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,12 +20,7 @@ import java.util.Optional;
 public class PersonService {
 
     private final PersonRepository personRepository;
-    private TransactionService transactionService;
-
-    @Autowired
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
+    private final TransactionRepository transactionRepository;
 
     @Transactional
     public Person save(Person person) {
@@ -39,7 +34,7 @@ public class PersonService {
 
         person.getContacts().forEach(c -> c.setPerson(person));
 
-        if (!personOptional.isPresent()) {
+        if (personOptional.isEmpty()) {
             throw new EmptyResultDataAccessException(1);
         }
 
@@ -55,18 +50,12 @@ public class PersonService {
 
         Optional<Person> pessoaBD = personRepository.findById(id);
 
-        if (!pessoaBD.isPresent()) {
+        if (pessoaBD.isEmpty()) {
             throw new EmptyResultDataAccessException(1);
         }
 
         pessoaBD.get().setActive(ativo);
         personRepository.save(pessoaBD.get());
-    }
-
-    @Transactional(readOnly = true)
-    public Person findById(Long id) {
-        Optional<Person> pessoa = personRepository.findById(id);
-        return pessoa.orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -76,7 +65,7 @@ public class PersonService {
 
     @Transactional
     public void deleteById(Long id) {
-        if (transactionService.existsWithPersonId(id)) {
+        if (transactionRepository.existsByPersonId(id)) {
             throw new PersonExistentInTransactionException();
         } else {
             personRepository.deleteById(id);

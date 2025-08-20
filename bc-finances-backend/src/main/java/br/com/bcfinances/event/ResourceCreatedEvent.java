@@ -3,7 +3,7 @@ package br.com.bcfinances.event;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class ResourceCreatedEvent extends ApplicationEvent {
 

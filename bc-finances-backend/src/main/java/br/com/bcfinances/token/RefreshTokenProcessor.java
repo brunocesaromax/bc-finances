@@ -10,58 +10,51 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
+/**
+ * NOTA: Esta classe foi temporariamente desabilitada durante a migração para Spring Authorization Server.
+ * O Spring Authorization Server usa um modelo diferente para tokens e refresh tokens.
+ * Esta funcionalidade precisará ser reimplementada usando os novos padrões do Spring Authorization Server.
+ */
 @Profile("oauth-security")
 @ControllerAdvice
-public class RefreshTokenProcessor implements ResponseBodyAdvice<OAuth2AccessToken> {
+public class RefreshTokenProcessor implements ResponseBodyAdvice<Object> {
 
     @Autowired
     private ApiProperty apiProperty;
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        /*beforeBodyWrite só será executado quando supports retornar true*/
-        return Objects.requireNonNull(returnType.getMethod()).getName().equals("postAccessToken");
+        // Temporariamente desabilitado durante migração para Spring Authorization Server
+        return false;
     }
 
     @Override
-    public OAuth2AccessToken beforeBodyWrite(OAuth2AccessToken body,
-                                             MethodParameter returnType,
-                                             MediaType selectedContentType,
-                                             Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                             ServerHttpRequest request,
-                                             ServerHttpResponse response) {
+    public Object beforeBodyWrite(Object body,
+                                 MethodParameter returnType,
+                                 MediaType selectedContentType,
+                                 Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                 ServerHttpRequest request,
+                                 ServerHttpResponse response) {
 
-        HttpServletRequest req = ((ServletServerHttpRequest) request).getServletRequest();
-        HttpServletResponse resp = ((ServletServerHttpResponse) response).getServletResponse();
-
-        DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) body;
-
-        String refreshToken = body.getRefreshToken().getValue();
-        addRefreshTokenInCookie(refreshToken, req, resp);
-        removeRefreshTokenOfBody(token);
-
+        // Implementação temporariamente desabilitada
+        // TODO: Reimplementar usando Spring Authorization Server APIs
         return body;
     }
 
-    private void removeRefreshTokenOfBody(DefaultOAuth2AccessToken token) {
-        token.setRefreshToken(null);
-    }
-
+    // Métodos de utilidade que podem ser reutilizados na nova implementação
     private void addRefreshTokenInCookie(String refreshToken, HttpServletRequest req, HttpServletResponse resp) {
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(apiProperty.getSecurity().isEnableHttps());
-        refreshTokenCookie.setPath(req.getContextPath()+"/oauth/token");
+        refreshTokenCookie.setPath(req.getContextPath()+"/oauth2/token");
         refreshTokenCookie.setMaxAge(2592000); //30 dias
         resp.addCookie(refreshTokenCookie);
     }

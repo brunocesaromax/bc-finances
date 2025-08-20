@@ -4,10 +4,11 @@ import br.com.bcfinances.dto.TransactionStatisticByDay;
 import br.com.bcfinances.dto.TransactionStatisticCategory;
 import br.com.bcfinances.dto.TransactionStatisticPerson;
 import br.com.bcfinances.mail.Mailer;
+import br.com.bcfinances.model.Person;
 import br.com.bcfinances.model.Transaction;
 import br.com.bcfinances.model.Transaction_;
-import br.com.bcfinances.model.Person;
 import br.com.bcfinances.model.User;
+import br.com.bcfinances.repository.PersonRepository;
 import br.com.bcfinances.repository.TransactionRepository;
 import br.com.bcfinances.repository.UserRepository;
 import br.com.bcfinances.repository.filter.TransactionFilter;
@@ -22,7 +23,6 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,7 +33,11 @@ import org.springframework.util.StringUtils;
 import java.io.InputStream;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -44,16 +48,10 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final PersonRepository personRepository;
 
     private final Mailer mailer;
     private final S3 s3;
-
-    private PersonService personService;
-
-    @Autowired
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
-    }
 
     public Page<Transaction> findAll(TransactionFilter transactionFilter, Pageable pageable) {
         return transactionRepository.filterOut(transactionFilter, pageable);
@@ -102,11 +100,13 @@ public class TransactionService {
     }
 
     private void validatePerson(Person person) {
-        if (Optional.ofNullable(person).map(Person::getId).isPresent()) {
-            person = personService.findById(person.getId());
+        if (person == null || person.getId() == null) {
+            throw new PersonInexistentOrInactiveException();
         }
 
-        if (!Optional.ofNullable(person).isPresent() || person.isInactive()) {
+        var personOpt = personRepository.findById(person.getId());
+
+        if (personOpt.isEmpty() || Boolean.TRUE.equals(personOpt.get().isInactive())) {
             throw new PersonInexistentOrInactiveException();
         }
     }
@@ -114,7 +114,7 @@ public class TransactionService {
     private Transaction findExistentTransaction(Long id) {
         Optional<Transaction> transactionBD = transactionRepository.findById(id);
 
-        if (!transactionBD.isPresent()) {
+        if (transactionBD.isEmpty()) {
             throw new IllegalArgumentException();
         } else {
             return transactionBD.get();
@@ -127,7 +127,7 @@ public class TransactionService {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("DT_BEGIN", Date.valueOf(start));
         parameters.put("DT_END", Date.valueOf(end));
-        parameters.put("REPORT_LOCALE", new Locale("pt", "BR"));
+        parameters.put("REPORT_LOCALE", Locale.of("pt", "BR"));
 
         InputStream inputStream = this.getClass().getResourceAsStream("/reports/launchs-by-person.jasper");
 

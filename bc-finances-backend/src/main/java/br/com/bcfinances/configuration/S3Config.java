@@ -1,23 +1,27 @@
 package br.com.bcfinances.configuration;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
-import com.amazonaws.services.s3.model.CreateBucketRequest;
-import com.amazonaws.services.s3.model.Tag;
-import com.amazonaws.services.s3.model.lifecycle.LifecycleFilter;
-import com.amazonaws.services.s3.model.lifecycle.LifecycleTagPredicate;
 import br.com.bcfinances.configuration.property.ApiProperty;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.i18n.LocaleContextHolder;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.BucketLifecycleConfiguration;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.ExpirationStatus;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.LifecycleExpiration;
+import software.amazon.awssdk.services.s3.model.LifecycleRule;
+import software.amazon.awssdk.services.s3.model.LifecycleRuleFilter;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.PutBucketLifecycleConfigurationRequest;
+import software.amazon.awssdk.services.s3.model.Tag;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class S3Config {
@@ -26,31 +30,74 @@ public class S3Config {
     private final MessageSource messageSource;
 
     @Bean
-    public AmazonS3 amazonS3() {
-        AWSCredentials credentials = new BasicAWSCredentials(
-                apiProperty.getS3().getAccessKeyId(), apiProperty.getS3().getSecretAccessKey());
+    public S3Client s3Client() {
+        // Verificar se as credenciais AWS estão configuradas com valores reais
+        String accessKeyId = apiProperty.getS3().getAccessKeyId();
+        String secretAccessKey = apiProperty.getS3().getSecretAccessKey();
 
-        AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(Regions.US_EAST_2)
-                .build();
+        // Verificar se são placeholders do .env.example
+        boolean isPlaceholder = isPlaceholderCredentials(accessKeyId, secretAccessKey);
 
-        //Criando e configurando o bucket de forma programada
-        if (!amazonS3.doesBucketExistV2(apiProperty.getS3().getBucket())) {
-            amazonS3.createBucket(new CreateBucketRequest(apiProperty.getS3().getBucket()));
+        if (accessKeyId == null || accessKeyId.isEmpty() ||
+            secretAccessKey == null || secretAccessKey.isEmpty() || isPlaceholder) {
 
-            BucketLifecycleConfiguration.Rule expireRule = new BucketLifecycleConfiguration.Rule()
-                    .withId(messageSource.getMessage("s3.expire.rule.id", null, LocaleContextHolder.getLocale()))
-                    .withFilter(new LifecycleFilter(new LifecycleTagPredicate(new Tag("expire", "true"))))
-                    .withExpirationInDays(1)
-                    .withStatus(BucketLifecycleConfiguration.ENABLED);
+            log.warn("AWS S3 não configurado (credenciais vazias ou placeholder).");
 
-            BucketLifecycleConfiguration configuration = new BucketLifecycleConfiguration()
-                    .withRules(expireRule);
-
-            amazonS3.setBucketLifecycleConfiguration(apiProperty.getS3().getBucket(), configuration);
+            // Retorna um cliente válido mas com credenciais placeholder para evitar falhas
+            return S3Client.builder()
+                    .region(Region.US_EAST_1)
+                    .credentialsProvider(StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create("placeholder", "placeholder")))
+                    .build();
         }
 
-        return amazonS3;
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKeyId, secretAccessKey);
+
+        return S3Client.builder()
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .region(Region.US_EAST_2)
+                .build();
+    }
+
+    private boolean isPlaceholderCredentials(String accessKeyId, String secretAccessKey) {
+        return "s3-access-key".equals(accessKeyId) ||
+               "s3-secret-key".equals(secretAccessKey) ||
+               "your-aws-access-key-id".equals(accessKeyId) ||
+               "your-aws-secret-access-key".equals(secretAccessKey) ||
+               "placeholder".equals(accessKeyId) ||
+               "placeholder".equals(secretAccessKey);
+    }
+
+    /**
+     * Método utilitário para configurar bucket sob demanda
+     */
+    public void ensureBucketExists(S3Client s3Client, String bucketName) {
+        try {
+            s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+        } catch (NoSuchBucketException e) {
+            // Bucket não existe, criar
+            s3Client.createBucket(CreateBucketRequest.builder()
+                    .bucket(bucketName)
+                    .build());
+
+            // Configurar regra de lifecycle
+            LifecycleRule expireRule = LifecycleRule.builder()
+                    .id("ExpireTemporaryFiles")
+                    .filter(LifecycleRuleFilter.builder()
+                            .tag(Tag.builder().key("expire").value("true").build())
+                            .build())
+                    .expiration(LifecycleExpiration.builder().days(1).build())
+                    .status(ExpirationStatus.ENABLED)
+                    .build();
+
+            BucketLifecycleConfiguration lifecycleConfiguration = BucketLifecycleConfiguration.builder()
+                    .rules(expireRule)
+                    .build();
+
+            s3Client.putBucketLifecycleConfiguration(PutBucketLifecycleConfigurationRequest.builder()
+                    .bucket(bucketName)
+                    .lifecycleConfiguration(lifecycleConfiguration)
+                    .build());
+        }
     }
 }

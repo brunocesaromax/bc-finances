@@ -9,31 +9,23 @@ Este arquivo fornece orientação para o Claude Code (claude.ai/code) ao trabalh
 1. **README.md** - Visão geral e instruções básicas do projeto
 2. **TODO.md** - Estado atual das tarefas e planejamento
 3. **CHANGELOG.md** - Histórico de mudanças e decisões técnicas
-4. **Diretório ./docs/** - TODAS as documentações e decisões importantes do projeto
+4. **Diretório ./docs/diagrams** - Diagramas importantes do projeto
+   5. Diagrama de classes
+   6. Diagrama de entidade relacionamento
 
 ## 🚨 REGRA CRÍTICA: DOCUMENTAÇÃO OBRIGATÓRIA
 
 **TODO.md e CHANGELOG.md DEVEM SER CRIADOS E ATUALIZADOS A CADA DEMANDA/BRANCH:**
 
 - **TODO.md**: OBRIGATÓRIO no início de qualquer nova demanda/branch
+  - Checar se existe no início, após primeira interação com usuário, caso não existir criar segundo a demanda passada
 - **CHANGELOG.md**: OBRIGATÓRIO para registrar todas as mudanças
+  - Checar se existe no início, após primeira interação com usuário, caso não existir criar segundo a demanda passada
 - **Atualização contínua**: A cada tarefa concluída ou mudança significativa
+  - Com termo 'tarefa' entenda: uma pequena etapa finalizada dentro da demanda maior passada, onde já se deve pausar a implementação 
+  e atualizar o TODO.md e CHANGELOG.md, e aguardar até o usuário pedir para continuar
 - **Foco na branch atual**: Documentar apenas a demanda em desenvolvimento
 - **Prompt de reforço**: SEMPRE verificar se estes arquivos existem e estão atualizados
-
-### Diretório ./docs como Centralizador
-O diretório `./docs/` é o **repositório oficial** de documentações técnicas e decisões de arquitetura:
-- **Architecture Decision Records (ADRs)** - Decisões arquiteturais importantes
-- **Especificações técnicas** - Documentos detalhados de funcionalidades
-- **Diagramas** - Modelos conceituais, fluxos e arquitetura
-- **Guias de desenvolvimento** - Padrões específicos do projeto
-- **Documentação de APIs** - Contratos e especificações de endpoints
-
-**Todo conteúdo em ./docs/ deve ser utilizado como contexto obrigatório para compreender:**
-- Decisões já tomadas no projeto
-- Padrões estabelecidos
-- Arquitetura atual
-- Especificações de funcionalidades
 
 ## Visão Geral do Projeto
 

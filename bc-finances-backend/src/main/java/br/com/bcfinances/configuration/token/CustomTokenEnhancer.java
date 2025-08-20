@@ -1,25 +1,25 @@
 package br.com.bcfinances.configuration.token;
 
 import br.com.bcfinances.security.UserSession;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimsContext;
+import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class CustomTokenEnhancer implements TokenEnhancer {
+@Component
+public class CustomTokenEnhancer implements OAuth2TokenCustomizer<OAuth2TokenClaimsContext> {
 
     @Override
-    public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
-
-        UserSession userSession = (UserSession) authentication.getPrincipal();// Pega usuário logado
-
-        Map<String, Object> addInfo = new HashMap<>();
-        addInfo.put("name", userSession.getUser().getName());
-
-        ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(addInfo);
-        return accessToken;
+    public void customize(OAuth2TokenClaimsContext context) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication != null && authentication.getPrincipal() instanceof UserSession) {
+            UserSession userSession = (UserSession) authentication.getPrincipal();
+            
+            context.getClaims().claim("name", userSession.getUser().getName());
+            context.getClaims().claim("user_id", userSession.getUser().getId());
+        }
     }
 }

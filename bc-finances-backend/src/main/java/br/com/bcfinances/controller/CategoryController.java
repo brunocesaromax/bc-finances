@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,13 +25,13 @@ public class CategoryController {
 
     //    @CrossOrigin(maxAge = 10) // Permitir que todas origens consiguem fazer essa requisição
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_CATEGORY') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_CATEGORY')")
     public List<Category> list() {
         return categoryRepository.findAll();
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_CREATE_CATEGORY') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE_CATEGORY')")
     public ResponseEntity<Category> save(@Valid @RequestBody Category category, HttpServletResponse response) {
         Category categorySave = categoryRepository.save(category);
         publisher.publishEvent(new ResourceCreatedEvent(this, response, categorySave.getId()));
@@ -41,7 +41,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_CATEGORY') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_CATEGORY')")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         Optional<Category> category = categoryRepository.findById(id);
         return category.isPresent() ? ResponseEntity.ok(category.get()) : ResponseEntity.notFound().build();
