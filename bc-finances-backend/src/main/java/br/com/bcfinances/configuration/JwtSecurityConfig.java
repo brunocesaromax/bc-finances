@@ -35,14 +35,12 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.UUID;
 
-@Profile("oauth-security")
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class JwtSecurityConfig {
 
-    private final UserDetailsService userDetailsService;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
     @Bean
