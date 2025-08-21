@@ -6,7 +6,7 @@ spring:
   flyway:
     validate-on-migrate: true
 
-bcfinances:
+bc-finances:
   security:
     enable-https: true
     front-end-client: ${FRONT_END_CLIENT}

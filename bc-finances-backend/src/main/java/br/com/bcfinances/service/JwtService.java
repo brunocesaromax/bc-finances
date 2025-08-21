@@ -31,7 +31,6 @@ public class JwtService {
                 .subject(userDetails.getUsername())
                 .issuedAt(now)
                 .expiresAt(now.plus(30, ChronoUnit.MINUTES))
-                .claim("scope", authorities)
                 .claim("authorities", authorities)
                 .build();
 

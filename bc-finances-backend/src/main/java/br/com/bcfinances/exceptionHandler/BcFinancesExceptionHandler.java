@@ -26,7 +26,7 @@ import java.util.List;
 
 // Captura exceções de ResponseEntities
 @ControllerAdvice // Observa toda a aplicação
-public class TransactionExceptionHandler extends ResponseEntityExceptionHandler {
+public class BcFinancesExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Qualifier("messageSource")
     @Autowired
@@ -35,7 +35,7 @@ public class TransactionExceptionHandler extends ResponseEntityExceptionHandler 
     // Capturar mensagens que não conseguiram ler
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-                                                                  HttpHeaders headers, 
+                                                                  HttpHeaders headers,
                                                                   org.springframework.http.HttpStatusCode status, 
                                                                   WebRequest request) {
         String msgUser = messageSorce.getMessage("msg.invalid", null, LocaleContextHolder.getLocale());

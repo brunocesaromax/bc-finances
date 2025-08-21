@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev,oauth-security
+    active: dev
   jpa:
     show-sql: false
   servlet:
