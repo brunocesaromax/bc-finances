@@ -20,13 +20,16 @@ Senha: admin
 ![img5.png](docs/main-pages/img5.png)
 ![img6.png](docs/main-pages/img6.png)
 
-## Modelo Conceitual
+## Documentação Técnica
 
-![Modelo Conceitual](docs/diagrams/class-diagram.png)
+Para documentação detalhada da arquitetura e diagramas, consulte:
 
-## Modelo de banco de dados
-
-![Modelo bd](docs/diagrams/entity-diagram.png)
+- **[Modelo de Classes](docs/diagrams/class-diagram.md)** - Estrutura das entidades e relacionamentos
+- **[Modelo de Dados](docs/diagrams/entity-relationship-diagram.md)** - Schema do banco PostgreSQL  
+- **[Autenticação](docs/security/authentication.md)** - Implementação JWT completa
+- **[Autorização](docs/security/authorization.md)** - Sistema de permissões e roles
+- **[Fluxo de Autenticação](docs/diagrams/authentication-flow.md)** - Diagramas de sequência
+- **[Fluxo de Autorização](docs/diagrams/authorization-flow.md)** - Controle de acesso detalhado
 
 ## Tecnologias utilizadas
 
@@ -34,7 +37,7 @@ Senha: admin
 - Java 21
 - Spring Boot 3.5.4 LTS
 - JPA/ Hibernate 6.6.22
-- Spring Authorization Server (OAuth2)
+- Spring Security 6 com JWT stateless
 - AWS SDK v2 para integração S3
 - PostgreSQL 16 (database: bc-finances | username: postgres | password: postgres)
 - Maven 
@@ -134,6 +137,27 @@ Pré-requisitos: Java 21, PostgreSQL 16
   ```
   
   **Nota:** Use `npx ng serve` para desenvolvimento (conecta ao backend local). O comando `npm start` executa a versão de produção.
+
+## Autenticação e Autorização
+
+A aplicação utiliza **JWT (JSON Web Token) stateless** para autenticação e autorização:
+
+### Backend
+- **Endpoint de login**: `POST /auth/login` (email/password → JWT)
+- **Autorização**: Spring Security 6 com método `@PreAuthorize` 
+- **JWT**: Token com authorities para controle de permissões
+- **Logout**: Client-side (remove token do localStorage)
+
+### Frontend
+- **Login**: Envio de credenciais via JSON para `/auth/login`
+- **Armazenamento**: Token JWT salvo no localStorage do navegador
+- **Interceptação**: Token enviado automaticamente no header `Authorization: Bearer <token>`
+- **Guards**: Proteção de rotas com verificação de token válido e permissões
+
+**Credenciais padrão**: admin@algamoney.com / admin
+
+Para documentação detalhada, consulte: `docs/security/`
+
 # Autor
 
 Bruno César Vicente
