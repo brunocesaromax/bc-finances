@@ -8,7 +8,7 @@ export const environment = {
 
   // Expressões regulares
   tokenAllowedDomains: [new RegExp('localhost:8080')], // Domínios permitidos para o token ser enviado
-  tokenDisallowedRoutes: [new RegExp('\/oauth\/token')] // Domínios não permitidos para o envio de token
+  tokenDisallowedRoutes: [new RegExp('\/auth\/login')] // Domínios não permitidos para o envio de token
 };
 
 /*
