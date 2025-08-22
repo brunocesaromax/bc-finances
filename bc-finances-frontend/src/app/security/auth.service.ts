@@ -10,33 +10,33 @@ export const TOKEN_NAME = 'token';
 @Injectable()
 export class AuthService {
 
-  oauthTokenUrl: string;
+  authLoginUrl: string;
   jwtPayload: any;
 
   constructor(private httpClient: HttpClient,
               private jwtHelperService: JwtHelperService) {
-    this.oauthTokenUrl = `${environment.apiUrl}/oauth/token`;
+    this.authLoginUrl = `${environment.apiUrl}/auth/login`;
     this.loadToken();
   }
 
-  login(username: string, password: string): Observable<any> {
-    let headers = new HttpHeaders();
-    const body = `username=${username}&password=${password}&grant_type=password`;
-
-    headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    // client and secret
-    headers = headers.append('Authorization', 'Basic YW5ndWxhcjoxMjM0NTY=');
+  login(email: string, password: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    const body = {
+      email: email,
+      password: password
+    };
 
     // Limpando o token atual para acrescentar um novo
     localStorage.clear();
 
-    // withCredentials = true para requisições cross-site (porta diferente)
-
-    return this.httpClient.post(this.oauthTokenUrl, body, {headers, withCredentials: true})
+    return this.httpClient.post(this.authLoginUrl, body, {headers})
       .pipe(
-        tap((response: any) => this.storeToken(response.access_token)),
+        tap((response: any) => this.storeToken(response.accessToken)),
         catchError(exception => {
-          if (exception.status === 400 && exception.error.error === 'invalid_grant') {
+          if (exception.status === 401) {
             return throwError('Usuário ou senha inválidos!');
           }
           return throwError(exception);
@@ -44,27 +44,6 @@ export class AuthService {
       );
   }
 
-  getNewAccessToken() {
-    // Removendo atual token inválido, para não envia-lo na requisição
-    this.clearAccessToken();
-
-    const headers = new HttpHeaders()
-      .append('Content-Type', 'application/x-www-form-urlencoded')
-      .append('Authorization', 'Basic YW5ndWxhcjoxMjM0NTY=');
-
-    const body = 'grant_type=refresh_token';
-
-    return this.httpClient.post<any>(this.oauthTokenUrl, body, {headers, withCredentials: true})
-      .toPromise()
-      .then(response => {
-        this.storeToken(response.access_token);
-        console.log('Novo acess token criado!');
-        return Promise.resolve(null);
-      }).catch(() => {
-        console.log('Erro ao renovar token.');
-        return Promise.resolve(null);
-      });
-  }
 
   isAccessTokenInvalid() {
     const token = localStorage.getItem(TOKEN_NAME);
@@ -93,16 +72,22 @@ export class AuthService {
   }
 
   private storeToken(token: string) {
-    this.jwtPayload = this.jwtHelperService.decodeToken(token);
-
-    // LocalStorage permite acessar um objeto de armazenamento que está guardado no navegador do usuário
-    localStorage.setItem(TOKEN_NAME, token);
+    if (!token) {
+      return;
+    }
+    
+    try {
+      this.jwtPayload = this.jwtHelperService.decodeToken(token);
+      localStorage.setItem(TOKEN_NAME, token);
+    } catch (error) {
+      console.error('Error decoding JWT token:', error);
+    }
   }
 
   private loadToken() {
     const token = localStorage.getItem(TOKEN_NAME);
 
-    if (token) {
+    if (token && token !== 'null' && token !== 'undefined') {
       this.storeToken(token);
     }
   }

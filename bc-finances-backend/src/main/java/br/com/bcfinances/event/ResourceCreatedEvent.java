@@ -3,11 +3,14 @@ package br.com.bcfinances.event;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.Serial;
 
 public class ResourceCreatedEvent extends ApplicationEvent {
 
-	private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 6854441885344283277L;
 
 	@Getter
 	private HttpServletResponse response;

@@ -4,7 +4,7 @@ import br.com.bcfinances.dto.Attachment;
 import br.com.bcfinances.dto.TransactionStatisticByDay;
 import br.com.bcfinances.dto.TransactionStatisticCategory;
 import br.com.bcfinances.event.ResourceCreatedEvent;
-import br.com.bcfinances.exceptionHandler.TransactionExceptionHandler.Error;
+import br.com.bcfinances.exceptionHandler.BcFinancesExceptionHandler.Error;
 import br.com.bcfinances.model.Transaction;
 import br.com.bcfinances.repository.filter.TransactionFilter;
 import br.com.bcfinances.repository.projection.TransactionSummary;
@@ -38,8 +38,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -57,13 +57,13 @@ public class TransactionController {
     private final S3 s3;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION')")
     public Page<Transaction> list(@ModelAttribute TransactionFilter transactionFilter, Pageable pageable) {
         return transactionService.findAll(transactionFilter, pageable);
     }
 
     @GetMapping(params = "summary")// Parametro de decisão para escolher este endpoint
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION')")
     public Page<TransactionSummary> sumUp(@ModelAttribute TransactionFilter transactionFilter, Pageable pageable) {
         return transactionService.sumUp(transactionFilter, pageable);
     }
@@ -72,19 +72,19 @@ public class TransactionController {
      * Retornar as estatísticas de lançamentos por categoria do mês atual
      * Poderia receber uma data como parâmetro e retornar com base nessa data
      * ******************************************************************/
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION')")
     @GetMapping("/statistics/category")
     public List<TransactionStatisticCategory> findByCategory() {
         return transactionService.findByCategory(LocalDate.now());
     }
 
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION')")
     @GetMapping("/statistics/day")
     public List<TransactionStatisticByDay> findByDay() {
         return transactionService.findByDay(LocalDate.now());
     }
 
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION')")
     @GetMapping("/reports/person")
     public ResponseEntity<byte[]> reportByPerson(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start,
                                                  @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) throws JRException {
@@ -95,14 +95,14 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION')")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         Optional<Transaction> launch = transactionService.findById(id);
         return launch.isPresent() ? ResponseEntity.ok(launch.get()) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION')")
     public ResponseEntity<Transaction> save(@Valid @RequestBody Transaction launch, HttpServletResponse response) {
         Transaction launchSave = transactionService.save(launch);
         publisher.publishEvent(new ResourceCreatedEvent(this, response, launchSave.getId()));
@@ -111,13 +111,13 @@ public class TransactionController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // Sucesso porém sem conteúdo
-    @PreAuthorize("hasAuthority('ROLE_REMOVE_TRANSACTION') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_REMOVE_TRANSACTION')")
     public void delete(@PathVariable Long id) {
         transactionService.delete(id);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION')")
     public ResponseEntity<Transaction> update(@PathVariable Long id, @Valid @RequestBody Transaction launch) {
         try {
             Transaction launchSaved = transactionService.update(id, launch);
@@ -129,7 +129,7 @@ public class TransactionController {
     }
 
     @PostMapping("/attachment")
-    @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION')")
     public Attachment uploadAttachment(@RequestParam MultipartFile attachment) throws IOException {
 //        OutputStream out = new FileOutputStream("/home/brunocesar/Documents/anexo--" + attachment.getOriginalFilename());
 //        out.write(attachment.getBytes());

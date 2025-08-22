@@ -26,7 +26,7 @@ import java.util.List;
 
 // Captura exceções de ResponseEntities
 @ControllerAdvice // Observa toda a aplicação
-public class TransactionExceptionHandler extends ResponseEntityExceptionHandler {
+public class BcFinancesExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Qualifier("messageSource")
     @Autowired
@@ -35,7 +35,9 @@ public class TransactionExceptionHandler extends ResponseEntityExceptionHandler 
     // Capturar mensagens que não conseguiram ler
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-                                                                  HttpHeaders headers, HttpStatus status, WebRequest request) {
+                                                                  HttpHeaders headers,
+                                                                  org.springframework.http.HttpStatusCode status, 
+                                                                  WebRequest request) {
         String msgUser = messageSorce.getMessage("msg.invalid", null, LocaleContextHolder.getLocale());
         String msgDev = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
         List<Error> errors = Collections.singletonList(new Error(msgUser, msgDev));
@@ -45,7 +47,9 @@ public class TransactionExceptionHandler extends ResponseEntityExceptionHandler 
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  HttpHeaders headers, HttpStatus status, WebRequest request) {
+                                                                  HttpHeaders headers, 
+                                                                  org.springframework.http.HttpStatusCode status, 
+                                                                  WebRequest request) {
         List<Error> errors = getErrorsList(ex.getBindingResult());
         return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request);
     }

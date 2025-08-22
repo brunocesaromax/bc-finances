@@ -15,7 +15,7 @@ spring:
     validate-on-migrate: false
     ignore-missing-migrations: true
 
-bcfinances:
+bc-finances:
   origin-permitted: http://localhost:4200
   i18n:
     cache-seconds: 0
@@ -28,8 +28,3 @@ bcfinances:
     access-key-id: ${env.AWS_S3_ACCESS_KEY_ID}
     secret-access-key: ${env.AWS_S3_SECRET_ACCESS_KEY}
     bucket: ${env.AWS_S3_BUCKET}
-  security:
-    front-end-client: ${env.FRONT_END_CLIENT}
-    front-end-password: ${env.FRONT_END_PASSWORD}
-    mobile-client: ${env.MOBILE_CLIENT}
-    mobile-password: ${env.MOBILE_PASSWORD}

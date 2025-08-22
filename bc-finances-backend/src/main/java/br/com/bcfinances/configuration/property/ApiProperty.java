@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "bcfinances")
+@ConfigurationProperties(prefix = "bc-finances")
 public class ApiProperty {
 
     @Setter

@@ -1,7 +1,7 @@
 package br.com.bcfinances.controller;
 
 import br.com.bcfinances.event.ResourceCreatedEvent;
-import br.com.bcfinances.exceptionHandler.TransactionExceptionHandler;
+import br.com.bcfinances.exceptionHandler.BcFinancesExceptionHandler;
 import br.com.bcfinances.model.Person;
 import br.com.bcfinances.repository.PersonRepository;
 import br.com.bcfinances.service.PersonService;
@@ -17,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,20 +34,20 @@ public class PersonController {
     private final MessageSource messageSource;
 
     @GetMapping(params = "pagination")
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON')")
     public Page<Person> pagination(@RequestParam(required = false) String name,
                                    Pageable pageable) {
         return personService.pagination(name, pageable);
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON')")
     public List<Person> list() {
         return personRepository.findAll();
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_CREATE_PERSON') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE_PERSON')")
     public ResponseEntity<Person> save(@Valid @RequestBody Person person, HttpServletResponse response) {
         Person personSave = personService.save(person);
         publisher.publishEvent(new ResourceCreatedEvent(this, response, personSave.getId()));
@@ -55,7 +55,7 @@ public class PersonController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON') and #oauth2.hasScope('read')")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON')")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         Optional<Person> person = personRepository.findById(id);
         return person.isPresent() ? ResponseEntity.ok(person.get()) : ResponseEntity.notFound().build();
@@ -63,13 +63,13 @@ public class PersonController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // Sucesso porém sem conteúdo
-    @PreAuthorize("hasAuthority('ROLE_REMOVE_PERSON') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_REMOVE_PERSON')")
     public void remover(@PathVariable Long id) {
         personService.deleteById(id);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_UPDATE_PERSON') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_UPDATE_PERSON')")
     public ResponseEntity<Person> update(@PathVariable Long id, @Valid @RequestBody Person person) {
         Person personBD = personService.update(id, person);
         return ResponseEntity.ok(personBD);
@@ -77,7 +77,7 @@ public class PersonController {
 
     @PutMapping("/{id}/active")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('ROLE_UPDATE_PERSON') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_UPDATE_PERSON')")
     public void updateFieldActive(@PathVariable Long id, @RequestBody Boolean value) {
         personService.updateFieldActive(id, value);
     }
@@ -86,7 +86,7 @@ public class PersonController {
     public ResponseEntity<Object> handlePersonExistentInTransactionException(PersonExistentInTransactionException ex) {
         String msgUser = messageSource.getMessage("person.existent.in.transaction", null, LocaleContextHolder.getLocale());
         String msgDev = Optional.ofNullable(ex.getCause()).isPresent() ? ex.getCause().toString() : ex.toString();
-        List<TransactionExceptionHandler.Error> errors = Collections.singletonList(new TransactionExceptionHandler.Error(msgUser, msgDev));
+        List<BcFinancesExceptionHandler.Error> errors = Collections.singletonList(new BcFinancesExceptionHandler.Error(msgUser, msgDev));
 
         return ResponseEntity.badRequest().body(errors);
     }

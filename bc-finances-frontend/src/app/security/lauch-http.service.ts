@@ -42,13 +42,11 @@ export class BcFinancesHttp extends HttpClient {
   // tslint:disable-next-line:ban-types
   private doRequest<T>(fn: Function): Observable<T> {
     if (this.authService.isAccessTokenInvalid()) {
-      console.log('Requisição HTTP com access token inválido. Obter novo token');
+      console.log('Requisição HTTP com access token inválido. Redirecionando para login.');
       localStorage.clear();
-      const newAccessTokenCall = this.authService.getNewAccessToken()
-        .then(() => {
-          return fn().toPromise();
-        });
-      return observableFromPromise(newAccessTokenCall);
+      // JWT stateless - não há refresh automático, redirecionar para login
+      window.location.href = '/login';
+      throw new Error('Token expirado');
     } else {
       return fn();
     }
