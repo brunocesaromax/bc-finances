@@ -1,5 +1,8 @@
 package br.com.bcfinances.controller;
 
+import com.nimbusds.jose.jwk.JWKMatcher;
+import com.nimbusds.jose.jwk.JWKSelector;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +20,9 @@ public class JwksController {
     @GetMapping("/.well-known/jwks.json")
     public Map<String, Object> jwks() {
         try {
-            com.nimbusds.jose.jwk.JWKSet jwkSet = new com.nimbusds.jose.jwk.JWKSet(jwkSource.get(null, null));
+            JWKMatcher matcher = new JWKMatcher.Builder().build();
+            JWKSelector selector = new JWKSelector(matcher);
+            JWKSet jwkSet = new JWKSet(jwkSource.get(selector, null));
             return jwkSet.toJSONObject();
         } catch (Exception e) {
             throw new RuntimeException("Erro ao obter JWK Set", e);
