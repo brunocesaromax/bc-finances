@@ -56,7 +56,7 @@ Pré-requisitos: Docker e Docker Compose
   1 - Clonar o repositório: 
   
   ```bash 
-  git clone https://github.com/brunocesaromax/lancamentos.git
+  git clone https://github.com/brunocesaromax/bc-finances.git
   cd lancamentos
   ```
   
@@ -121,7 +121,7 @@ Pré-requisitos: Java 21, PostgreSQL 16
   1 - Clonar o repositório: 
   
   ```bash 
-  git clone https://github.com/brunocesaromax/lancamentos.git
+  git clone https://github.com/brunocesaromax/bc-finances.git
   ```
   
   
@@ -149,7 +149,7 @@ Pré-requisitos: Java 21, PostgreSQL 16
   1 - Clonar o repositório: 
   
   ```bash 
-  git clone https://github.com/brunocesaromax/lancamentos.git
+  git clone https://github.com/brunocesaromax/bc-finances.git
   ```
   
   
