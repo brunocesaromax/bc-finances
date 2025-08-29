@@ -2,12 +2,25 @@ spring:
   profiles:
     active: dev
   jpa:
+    database: POSTGRESQL
     show-sql: false
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   flyway:
     locations: classpath:db/migration
     out-of-order: true
     baseline-on-migrate: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

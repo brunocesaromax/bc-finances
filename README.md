@@ -60,19 +60,54 @@ Pré-requisitos: Docker e Docker Compose
   cd lancamentos
   ```
   
-  2 - Subir os serviços (PostgreSQL + pgAdmin):
+  2 - Subir toda a aplicação (PostgreSQL + Backend + Frontend + pgAdmin):
   
   ```bash 
   docker-compose up -d
   ```
   
-  3 - Criar arquivo .env com as configurações (baseado no .env.example):
+  3 - Aguardar os serviços subirem e acessar:
+  
+  - **Frontend**: http://localhost:4200
+  - **Backend API**: http://localhost:8080
+  - **pgAdmin**: http://localhost:8081
+  - **Health Check**: http://localhost:8080/actuator/health
+  
+  4 - Para parar todos os serviços:
   
   ```bash 
-  cp .env.example .env
+  docker-compose down
   ```
   
-  4 - Entrar na pasta do projeto back end e executar:
+### Comandos Docker Úteis
+
+  ```bash
+  # Ver logs de todos os serviços
+  docker-compose logs -f
+  
+  # Ver logs de um serviço específico
+  docker-compose logs -f backend
+  docker-compose logs -f frontend
+  
+  # Rebuild containers após mudanças no código
+  docker-compose up -d --build
+  
+  # Parar e remover containers + volumes + networks
+  docker-compose down -v --remove-orphans
+  
+  # Ver status dos containers
+  docker-compose ps
+  ```
+
+### Executando apenas Banco de Dados com Docker
+
+  1 - Para subir apenas PostgreSQL + pgAdmin:
+  
+  ```bash 
+  docker-compose up -d postgres pgadmin
+  ```
+  
+  2 - Executar backend localmente:
   
   ```bash 
   cd bc-finances-backend

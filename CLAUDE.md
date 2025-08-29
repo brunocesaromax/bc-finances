@@ -24,7 +24,7 @@ Este arquivo fornece orientação para o Claude Code (claude.ai/code) ao trabalh
 - **Atualização contínua**: A cada tarefa concluída ou mudança significativa
   - Com termo 'tarefa' entenda: uma pequena etapa finalizada dentro da demanda maior passada, onde já se deve pausar a implementação 
   e atualizar o TODO.md e CHANGELOG.md, e aguardar até o usuário pedir para continuar
-- **Foco na branch atual**: Documentar apenas a demanda em desenvolvimento
+- **Foco estrito na branch atual**: Documentar EXCLUSIVAMENTE a demanda da branch ativa, sem incluir funcionalidades futuras ou outras branches
 - **Prompt de reforço**: SEMPRE verificar se estes arquivos existem e estão atualizados
 
 ## Visão Geral do Projeto
@@ -295,23 +295,21 @@ INSERT INTO users (name, email, password) VALUES
 ```markdown
 # TODO - BC Finances
 
-## Sprint Atual (Branch: nome-da-branch)
-- [ ] Tarefas da sprint/branch atual
-- [ ] Tarefas em desenvolvimento ativo
-
-## Próximas Funcionalidades
-### Backend
-- [ ] Tarefas planejadas para API
-### Frontend  
-- [ ] Tarefas planejadas para UI
+## Branch Atual (nome-da-branch)
+- [ ] Tarefas específicas da demanda da branch atual
+- [ ] Atividades em desenvolvimento ativo da branch
 
 ## Bugs Conhecidos
-- [ ] Problemas identificados pendentes
-- [ ] Issues reportados
+- [ ] Problemas identificados pendentes relacionados à branch atual
 
 ## Concluído
-- [x] Tarefas finalizadas com referência de versão
+- [x] Tarefas finalizadas da branch atual (atualizadas conforme progresso)
 ```
+
+**IMPORTANTE:** 
+- Focar APENAS na branch/demanda atual, não em funcionalidades futuras
+- Seção "Concluído" é preenchida progressivamente conforme tarefas são finalizadas
+- NÃO incluir seções de "Próximas Funcionalidades" - manter foco na demanda ativa
 
 #### Estrutura do CHANGELOG.md
 ```markdown
