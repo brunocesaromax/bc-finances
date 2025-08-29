@@ -18,6 +18,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - bc-finances-network
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -31,7 +33,48 @@ services:
       - postgres
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - bc-finances-network
+
+  backend:
+    build:
+      context: ./bc-finances-backend
+      dockerfile: Dockerfile
+    container_name: bc-finances-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/bc-finances
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - backend_logs:/app/logs
+    networks:
+      - bc-finances-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./bc-finances-frontend
+      dockerfile: Dockerfile
+    container_name: bc-finances-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - bc-finances-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
   pgadmin_data:
+  backend_logs:
+
+networks:
+  bc-finances-network:
+    driver: bridge

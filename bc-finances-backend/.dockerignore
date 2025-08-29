@@ -1,0 +1,38 @@
+# Maven
+target/
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.eclipse/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+docs/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Spring DevTools
+.spring-boot-devtools.properties
+
+# Testing
+test-results/
+coverage/
