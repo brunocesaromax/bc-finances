@@ -1,22 +1,59 @@
 package br.com.bcfinances.security;
 
+import br.com.bcfinances.domain.entities.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.util.Collection;
 
-public class UserSession extends User {
+public class UserSession implements UserDetails {
 
     @Serial
-    private static final long serialVersionUID = -8081779980837574807L;
+    private static final long serialVersionUID = -8081779980837574808L;
 
     @Getter
-    private br.com.bcfinances.model.User user;
+    private final User user;
+    private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserSession(br.com.bcfinances.model.User user, Collection<? extends GrantedAuthority> authorities) {
-        super(user.getEmail(), user.getPassword(), authorities);
+    public UserSession(User user, Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
+        this.authorities = authorities;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getEmail();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
