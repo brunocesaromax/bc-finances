@@ -19,9 +19,9 @@ import br.com.bcfinances.application.usecases.transaction.UpdateTransactionUseCa
 import br.com.bcfinances.domain.repositories.TransactionRepository;
 import br.com.bcfinances.domain.exceptions.PersonInactiveException;
 import br.com.bcfinances.infrastructure.persistence.Attachment;
-import br.com.bcfinances.storage.S3;
+import br.com.bcfinances.infrastructure.storage.S3;
 import org.springframework.context.ApplicationEventPublisher;
-import br.com.bcfinances.event.ResourceCreatedEvent;
+import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import net.sf.jasperreports.engine.JRException;

@@ -4,7 +4,7 @@ import br.com.bcfinances.domain.entities.Transaction;
 import br.com.bcfinances.domain.repositories.TransactionRepository;
 import br.com.bcfinances.domain.repositories.UserRepository;
 import br.com.bcfinances.domain.entities.User;
-import br.com.bcfinances.mail.Mailer;
+import br.com.bcfinances.infrastructure.mail.Mailer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package br.com.bcfinances.infrastructure.persistence.listener;
 
 import br.com.bcfinances.infrastructure.persistence.TransactionEntity;
-import br.com.bcfinances.storage.S3;
+import br.com.bcfinances.infrastructure.storage.S3;
 import jakarta.persistence.PostLoad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

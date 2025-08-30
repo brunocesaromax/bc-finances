@@ -1,4 +1,4 @@
-package br.com.bcfinances.exceptionHandler;
+package br.com.bcfinances.presentation.exception;
 
 import lombok.Data;
 import org.hibernate.exception.ConstraintViolationException;

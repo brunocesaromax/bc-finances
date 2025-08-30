@@ -1,4 +1,4 @@
-package br.com.bcfinances.mail;
+package br.com.bcfinances.infrastructure.mail;
 
 import br.com.bcfinances.domain.entities.Transaction;
 import br.com.bcfinances.domain.entities.User;

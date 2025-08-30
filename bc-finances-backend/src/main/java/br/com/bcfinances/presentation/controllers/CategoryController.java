@@ -6,7 +6,7 @@ import br.com.bcfinances.application.mappers.CategoryMapper;
 import br.com.bcfinances.application.usecases.CreateCategoryUseCase;
 import br.com.bcfinances.application.usecases.FindCategoryUseCase;
 import br.com.bcfinances.domain.entities.Category;
-import br.com.bcfinances.event.ResourceCreatedEvent;
+import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package br.com.bcfinances.security;
+package br.com.bcfinances.infrastructure.security;
 
 import br.com.bcfinances.domain.entities.User;
 import lombok.Getter;

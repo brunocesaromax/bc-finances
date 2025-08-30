@@ -2,7 +2,7 @@ package br.com.bcfinances.infrastructure.services;
 
 import br.com.bcfinances.domain.entities.User;
 import br.com.bcfinances.domain.services.AuthenticationService;
-import br.com.bcfinances.security.UserSession;
+import br.com.bcfinances.infrastructure.security.UserSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

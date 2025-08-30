@@ -7,7 +7,7 @@ import br.com.bcfinances.application.usecases.*;
 import br.com.bcfinances.application.usecases.transaction.CheckTransactionExistsByPersonUseCase;
 import br.com.bcfinances.domain.entities.Person;
 import br.com.bcfinances.domain.repositories.PersonRepository.PagedResult;
-import br.com.bcfinances.event.ResourceCreatedEvent;
+import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

@@ -10,7 +10,7 @@ import br.com.bcfinances.application.dto.transaction.TransactionRequest;
 import br.com.bcfinances.application.dto.transaction.TransactionResponse;
 import br.com.bcfinances.application.mappers.TransactionMapper;
 import br.com.bcfinances.domain.exceptions.PersonInactiveException;
-import br.com.bcfinances.storage.S3;
+import br.com.bcfinances.infrastructure.storage.S3;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

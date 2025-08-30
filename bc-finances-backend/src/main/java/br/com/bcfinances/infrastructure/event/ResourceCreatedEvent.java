@@ -1,4 +1,4 @@
-package br.com.bcfinances.event;
+package br.com.bcfinances.infrastructure.event;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;

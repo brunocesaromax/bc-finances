@@ -1,6 +1,6 @@
-package br.com.bcfinances.event.listener;
+package br.com.bcfinances.infrastructure.event.listener;
 
-import br.com.bcfinances.event.ResourceCreatedEvent;
+import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
