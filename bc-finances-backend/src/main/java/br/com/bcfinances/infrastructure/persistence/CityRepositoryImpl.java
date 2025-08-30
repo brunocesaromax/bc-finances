@@ -20,7 +20,7 @@ public class CityRepositoryImpl implements CityRepository {
     public List<City> findByStateId(Long stateId) {
         return cityJpaRepository.findByStateId(stateId).stream()
                 .map(this::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private City toDomainEntity(CityEntity cityEntity) {

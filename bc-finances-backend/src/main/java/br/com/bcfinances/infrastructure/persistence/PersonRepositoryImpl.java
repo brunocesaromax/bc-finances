@@ -27,7 +27,7 @@ public class PersonRepositoryImpl implements PersonRepository {
     public List<Person> findAll() {
         return personJpaRepository.findAll().stream()
                 .map(this::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         
         List<Person> persons = pagedResult.getContent().stream()
                 .map(this::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
         
         return new PagedResult<>(persons, pagedResult.getTotalElements(), page, size);
     }
@@ -69,7 +69,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         if (personEntity.getContacts() != null) {
             contacts = personEntity.getContacts().stream()
                     .map(this::toDomainContact)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return new Person(
@@ -91,7 +91,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         if (person.getContacts() != null) {
             contactEntities = person.getContacts().stream()
                     .map(contact -> toJpaContact(contact, null))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         PersonEntity personEntity = new PersonEntity(

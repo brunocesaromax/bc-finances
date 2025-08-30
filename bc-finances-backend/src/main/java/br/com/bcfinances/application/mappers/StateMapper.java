@@ -19,6 +19,6 @@ public class StateMapper {
     public List<StateResponse> toResponseList(List<State> states) {
         return states.stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -1,7 +1,7 @@
 package br.com.bcfinances.mail;
 
-import br.com.bcfinances.model.Transaction;
-import br.com.bcfinances.model.User;
+import br.com.bcfinances.domain.entities.Transaction;
+import br.com.bcfinances.domain.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -61,7 +61,7 @@ public class Mailer {
         Map<String, Object> variables = new HashMap<>();
         variables.put("transactions", transactions);
 
-        List<String> emails = recipients.stream().map(User::getEmail).collect(Collectors.toList());
+        List<String> emails = recipients.stream().map(User::getEmail).toList();
         this.sendEmail("brunocesar.dev.test.java@gmail.com",
                 emails,
                 "Lançamentos vencidos",

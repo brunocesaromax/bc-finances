@@ -19,7 +19,7 @@ public class StateRepositoryImpl implements StateRepository {
     public List<State> findAll() {
         return stateJpaRepository.findAll().stream()
                 .map(this::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private State toDomainEntity(StateEntity stateEntity) {

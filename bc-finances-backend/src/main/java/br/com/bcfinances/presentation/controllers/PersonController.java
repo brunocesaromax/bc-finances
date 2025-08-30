@@ -4,6 +4,7 @@ import br.com.bcfinances.application.dto.PersonRequest;
 import br.com.bcfinances.application.dto.PersonResponse;
 import br.com.bcfinances.application.mappers.PersonMapper;
 import br.com.bcfinances.application.usecases.*;
+import br.com.bcfinances.application.usecases.transaction.CheckTransactionExistsByPersonUseCase;
 import br.com.bcfinances.domain.entities.Person;
 import br.com.bcfinances.domain.repositories.PersonRepository.PagedResult;
 import br.com.bcfinances.event.ResourceCreatedEvent;
@@ -32,6 +33,7 @@ public class PersonController {
     private final UpdatePersonUseCase updatePersonUseCase;
     private final UpdatePersonActiveStatusUseCase updatePersonActiveStatusUseCase;
     private final DeletePersonUseCase deletePersonUseCase;
+    private final CheckTransactionExistsByPersonUseCase checkTransactionExistsByPersonUseCase;
     private final PersonMapper personMapper;
     private final ApplicationEventPublisher publisher;
 
@@ -42,6 +44,7 @@ public class PersonController {
                            UpdatePersonUseCase updatePersonUseCase,
                            UpdatePersonActiveStatusUseCase updatePersonActiveStatusUseCase,
                            DeletePersonUseCase deletePersonUseCase,
+                           CheckTransactionExistsByPersonUseCase checkTransactionExistsByPersonUseCase,
                            PersonMapper personMapper,
                            ApplicationEventPublisher publisher) {
         this.createPersonUseCase = createPersonUseCase;
@@ -51,6 +54,7 @@ public class PersonController {
         this.updatePersonUseCase = updatePersonUseCase;
         this.updatePersonActiveStatusUseCase = updatePersonActiveStatusUseCase;
         this.deletePersonUseCase = deletePersonUseCase;
+        this.checkTransactionExistsByPersonUseCase = checkTransactionExistsByPersonUseCase;
         this.personMapper = personMapper;
         this.publisher = publisher;
     }
@@ -93,8 +97,16 @@ public class PersonController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('ROLE_REMOVE_PERSON')")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        // Verificar se existem transações associadas antes de excluir
+        boolean hasTransactions = checkTransactionExistsByPersonUseCase.execute(id);
+        if (hasTransactions) {
+            return ResponseEntity.badRequest()
+                .body("Cannot delete person: there are transactions associated with this person");
+        }
+        
         deletePersonUseCase.execute(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")

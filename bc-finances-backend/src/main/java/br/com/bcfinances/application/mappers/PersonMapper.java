@@ -37,7 +37,7 @@ public class PersonMapper {
         if (person.getContacts() != null) {
             contactResponses = person.getContacts().stream()
                     .map(this::toContactResponse)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return new PersonResponse(
@@ -52,7 +52,7 @@ public class PersonMapper {
     public List<PersonResponse> toResponseList(List<Person> persons) {
         return persons.stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Person toEntity(PersonRequest personRequest) {
@@ -69,7 +69,7 @@ public class PersonMapper {
         if (personRequest.getContacts() != null) {
             contacts = personRequest.getContacts().stream()
                     .map(this::toContactEntity)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return new Person(

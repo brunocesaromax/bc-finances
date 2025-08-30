@@ -30,12 +30,20 @@ public class UserRepositoryImpl implements UserRepository {
                 .map(this::toDomainEntity);
     }
 
+    @Override
+    public List<User> findByPermissionsDescription(String permissionDescription) {
+        return userJpaRepository.findByPermissionsDescription(permissionDescription)
+                .stream()
+                .map(this::toDomainEntity)
+                .toList();
+    }
+
     private User toDomainEntity(UserEntity userEntity) {
         List<Permission> permissions = null;
         if (userEntity.getPermissions() != null) {
             permissions = userEntity.getPermissions().stream()
                     .map(this::toDomainPermission)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return new User(

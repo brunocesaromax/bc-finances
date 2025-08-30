@@ -1,0 +1,33 @@
+package br.com.bcfinances.infrastructure.persistence;
+
+import br.com.bcfinances.domain.valueobjects.TransactionType;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Setter
+@Getter
+public class TransactionSummary {
+
+    private Long id;
+    private String description;
+    private LocalDate dueDay;
+    private LocalDate payday;
+    private BigDecimal value;
+    private TransactionType type;
+    private String category;
+    private String person;
+
+    public TransactionSummary(Long id, String description, LocalDate dueDay, LocalDate payday, BigDecimal value, TransactionType type, String category, String person) {
+        this.id = id;
+        this.description = description;
+        this.dueDay = dueDay;
+        this.payday = payday;
+        this.value = value;
+        this.type = type;
+        this.category = category;
+        this.person = person;
+    }
+}

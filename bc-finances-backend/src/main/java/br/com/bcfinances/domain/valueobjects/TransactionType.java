@@ -1,6 +1,10 @@
 package br.com.bcfinances.domain.valueobjects;
 
+import lombok.Getter;
+
+@Getter
 public enum TransactionType {
+
     RECIPE("Receita"),
     EXPENSE("Despesa");
 
@@ -10,7 +14,4 @@ public enum TransactionType {
         this.description = description;
     }
 
-    public String getDescription() {
-        return description;
-    }
 }
