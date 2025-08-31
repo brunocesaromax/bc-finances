@@ -17,7 +17,7 @@ import br.com.bcfinances.application.usecases.transaction.FindTransactionsUseCas
 import br.com.bcfinances.application.usecases.transaction.GenerateTransactionReportByPersonUseCase;
 import br.com.bcfinances.application.usecases.transaction.UpdateTransactionUseCase;
 import br.com.bcfinances.domain.repositories.TransactionRepository;
-import br.com.bcfinances.domain.exceptions.PersonInactiveException;
+import br.com.bcfinances.person.domain.exceptions.PersonInactiveException;
 import br.com.bcfinances.infrastructure.persistence.Attachment;
 import br.com.bcfinances.infrastructure.storage.S3;
 import org.springframework.context.ApplicationEventPublisher;

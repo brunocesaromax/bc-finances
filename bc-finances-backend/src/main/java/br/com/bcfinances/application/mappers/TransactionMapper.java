@@ -4,7 +4,7 @@ import br.com.bcfinances.application.dto.transaction.TransactionRequest;
 import br.com.bcfinances.application.dto.transaction.TransactionResponse;
 import br.com.bcfinances.category.application.mappers.CategoryMapper;
 import br.com.bcfinances.category.domain.entities.Category;
-import br.com.bcfinances.domain.entities.Person;
+import br.com.bcfinances.person.domain.entities.Person;
 import br.com.bcfinances.domain.entities.Transaction;
 import br.com.bcfinances.domain.valueobjects.TransactionType;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class TransactionMapper {
 
     private final CategoryMapper categoryMapper;
-    private final PersonMapper personMapper;
+    private final br.com.bcfinances.person.application.mappers.PersonMapper personMapper;
 
     public Transaction toEntity(TransactionRequest request, Category category, Person person) {
         if (request == null) {

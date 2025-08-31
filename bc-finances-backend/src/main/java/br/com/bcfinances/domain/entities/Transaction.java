@@ -17,7 +17,7 @@ public class Transaction {
     private String observation;
     private TransactionType type;
     private Category category;
-    private Person person;
+    private br.com.bcfinances.person.domain.entities.Person person;
     private String attachment;
     private String urlAttachment;
 
@@ -25,7 +25,7 @@ public class Transaction {
 
     public Transaction(String description, LocalDate dueDay, LocalDate payday, 
                       BigDecimal value, String observation, TransactionType type,
-                      Category category, Person person, String attachment) {
+                      Category category, br.com.bcfinances.person.domain.entities.Person person, String attachment) {
         this.description = description;
         this.dueDay = dueDay;
         this.payday = payday;
@@ -39,7 +39,7 @@ public class Transaction {
     }
 
     public Transaction(String description, LocalDate dueDay, BigDecimal value, 
-                      TransactionType type, Category category, Person person) {
+                      TransactionType type, Category category, br.com.bcfinances.person.domain.entities.Person person) {
         this(description, dueDay, null, value, null, type, category, person, null);
     }
 
@@ -143,11 +143,11 @@ public class Transaction {
         this.category = category;
     }
 
-    public Person getPerson() {
+    public br.com.bcfinances.person.domain.entities.Person getPerson() {
         return person;
     }
 
-    public void setPerson(Person person) {
+    public void setPerson(br.com.bcfinances.person.domain.entities.Person person) {
         if (person == null) {
             throw new IllegalArgumentException("Person is required");
         }

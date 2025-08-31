@@ -1,6 +1,6 @@
 package br.com.bcfinances.infrastructure.persistence;
 
-import br.com.bcfinances.domain.entities.Person;
+import br.com.bcfinances.person.domain.entities.Person;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

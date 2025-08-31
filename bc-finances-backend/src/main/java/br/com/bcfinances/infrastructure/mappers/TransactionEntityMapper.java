@@ -15,7 +15,7 @@ public class TransactionEntityMapper {
     private CategoryEntityMapper categoryEntityMapper;
 
     @Autowired
-    private PersonEntityMapper personEntityMapper;
+    private br.com.bcfinances.person.infrastructure.mappers.PersonEntityMapper personEntityMapper;
 
     public TransactionEntity toEntity(Transaction domain) {
         if (domain == null) {

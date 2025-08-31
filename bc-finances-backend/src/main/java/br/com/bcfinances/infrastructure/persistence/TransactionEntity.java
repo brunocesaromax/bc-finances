@@ -45,7 +45,7 @@ public class TransactionEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")
-    private PersonEntity person;
+    private br.com.bcfinances.person.infrastructure.persistence.PersonEntity person;
 
     private String attachment;
 
@@ -56,7 +56,7 @@ public class TransactionEntity {
 
     public TransactionEntity(String description, LocalDate dueDay, LocalDate payday,
                            BigDecimal value, String observation, TransactionTypeEntity type,
-                           CategoryEntity category, PersonEntity person, String attachment) {
+                           CategoryEntity category, br.com.bcfinances.person.infrastructure.persistence.PersonEntity person, String attachment) {
         this.description = description;
         this.dueDay = dueDay;
         this.payday = payday;
@@ -132,11 +132,11 @@ public class TransactionEntity {
         this.category = category;
     }
 
-    public PersonEntity getPerson() {
+    public br.com.bcfinances.person.infrastructure.persistence.PersonEntity getPerson() {
         return person;
     }
 
-    public void setPerson(PersonEntity person) {
+    public void setPerson(br.com.bcfinances.person.infrastructure.persistence.PersonEntity person) {
         this.person = person;
     }
 
