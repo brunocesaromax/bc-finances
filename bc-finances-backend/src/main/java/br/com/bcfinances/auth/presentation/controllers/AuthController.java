@@ -1,10 +1,10 @@
-package br.com.bcfinances.presentation.controllers;
+package br.com.bcfinances.auth.presentation.controllers;
 
-import br.com.bcfinances.application.dto.LoginRequest;
-import br.com.bcfinances.application.dto.LoginResponse;
-import br.com.bcfinances.application.mappers.AuthMapper;
-import br.com.bcfinances.application.usecases.LoginUseCase;
-import br.com.bcfinances.application.usecases.LoginUseCase.LoginResult;
+import br.com.bcfinances.auth.application.dto.LoginRequest;
+import br.com.bcfinances.auth.application.dto.LoginResponse;
+import br.com.bcfinances.auth.application.mappers.AuthMapper;
+import br.com.bcfinances.auth.application.usecases.LoginUseCase;
+import br.com.bcfinances.auth.application.usecases.LoginUseCase.LoginResult;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

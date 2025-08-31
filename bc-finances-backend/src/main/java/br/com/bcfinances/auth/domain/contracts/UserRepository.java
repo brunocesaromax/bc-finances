@@ -1,6 +1,7 @@
-package br.com.bcfinances.domain.repositories;
+package br.com.bcfinances.auth.domain.contracts;
 
-import br.com.bcfinances.domain.entities.User;
+import br.com.bcfinances.auth.domain.entities.User;
+
 import java.util.List;
 import java.util.Optional;
 

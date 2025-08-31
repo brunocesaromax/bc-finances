@@ -1,13 +1,12 @@
-package br.com.bcfinances.infrastructure.persistence;
+package br.com.bcfinances.auth.infrastructure.persistence;
 
-import br.com.bcfinances.domain.entities.User;
-import br.com.bcfinances.domain.repositories.UserRepository;
-import br.com.bcfinances.domain.valueobjects.Permission;
+import br.com.bcfinances.auth.domain.contracts.UserRepository;
+import br.com.bcfinances.auth.domain.entities.User;
+import br.com.bcfinances.auth.domain.valueobjects.Permission;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {

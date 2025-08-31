@@ -1,8 +1,8 @@
-package br.com.bcfinances.infrastructure.services;
+package br.com.bcfinances.auth.infrastructure.services;
 
-import br.com.bcfinances.domain.entities.User;
-import br.com.bcfinances.domain.services.AuthenticationService;
-import br.com.bcfinances.infrastructure.security.UserSession;
+import br.com.bcfinances.auth.domain.entities.User;
+import br.com.bcfinances.auth.domain.services.AuthenticationService;
+import br.com.bcfinances.auth.infrastructure.security.UserSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

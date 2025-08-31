@@ -1,8 +1,8 @@
 package br.com.bcfinances.infrastructure.services;
 
-import br.com.bcfinances.domain.entities.User;
-import br.com.bcfinances.domain.services.JwtService;
-import br.com.bcfinances.domain.valueobjects.Permission;
+import br.com.bcfinances.auth.domain.entities.User;
+import br.com.bcfinances.auth.domain.services.JwtService;
+import br.com.bcfinances.auth.domain.valueobjects.Permission;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;

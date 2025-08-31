@@ -1,4 +1,4 @@
-package br.com.bcfinances.infrastructure.security.util;
+package br.com.bcfinances.auth.infrastructure.security.util;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

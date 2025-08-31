@@ -1,6 +1,6 @@
-package br.com.bcfinances.infrastructure.security;
+package br.com.bcfinances.auth.infrastructure.security;
 
-import br.com.bcfinances.domain.entities.User;
+import br.com.bcfinances.auth.domain.entities.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

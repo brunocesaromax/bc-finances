@@ -1,8 +1,8 @@
-package br.com.bcfinances.application.usecases;
+package br.com.bcfinances.auth.application.usecases;
 
-import br.com.bcfinances.domain.entities.User;
-import br.com.bcfinances.domain.services.AuthenticationService;
-import br.com.bcfinances.domain.services.JwtService;
+import br.com.bcfinances.auth.domain.entities.User;
+import br.com.bcfinances.auth.domain.services.AuthenticationService;
+import br.com.bcfinances.auth.domain.services.JwtService;
 import org.springframework.stereotype.Service;
 
 @Service

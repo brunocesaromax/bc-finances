@@ -1,7 +1,7 @@
 package br.com.bcfinances.infrastructure.mail;
 
 import br.com.bcfinances.domain.entities.Transaction;
-import br.com.bcfinances.domain.entities.User;
+import br.com.bcfinances.auth.domain.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;

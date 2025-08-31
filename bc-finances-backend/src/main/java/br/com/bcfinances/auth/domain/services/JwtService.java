@@ -1,6 +1,6 @@
-package br.com.bcfinances.domain.services;
+package br.com.bcfinances.auth.domain.services;
 
-import br.com.bcfinances.domain.entities.User;
+import br.com.bcfinances.auth.domain.entities.User;
 
 public interface JwtService {
     

@@ -1,4 +1,4 @@
-package br.com.bcfinances.infrastructure.config;
+package br.com.bcfinances.auth.infrastructure.config;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

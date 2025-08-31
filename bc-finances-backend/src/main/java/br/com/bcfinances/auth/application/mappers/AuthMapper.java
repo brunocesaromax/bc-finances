@@ -1,7 +1,7 @@
-package br.com.bcfinances.application.mappers;
+package br.com.bcfinances.auth.application.mappers;
 
-import br.com.bcfinances.application.dto.LoginResponse;
-import br.com.bcfinances.application.usecases.LoginUseCase.LoginResult;
+import br.com.bcfinances.auth.application.dto.LoginResponse;
+import br.com.bcfinances.auth.application.usecases.LoginUseCase.LoginResult;
 import org.springframework.stereotype.Component;
 
 @Component
