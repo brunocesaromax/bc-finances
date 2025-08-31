@@ -1,10 +1,10 @@
-package br.com.bcfinances.application.mappers;
+package br.com.bcfinances.location.application.mappers;
 
-import br.com.bcfinances.application.dto.CityResponse;
-import br.com.bcfinances.domain.entities.City;
+import br.com.bcfinances.location.application.dto.CityResponse;
+import br.com.bcfinances.location.domain.entities.City;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class CityMapper {

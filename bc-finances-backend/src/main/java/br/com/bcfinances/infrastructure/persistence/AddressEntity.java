@@ -1,5 +1,6 @@
 package br.com.bcfinances.infrastructure.persistence;
 
+import br.com.bcfinances.location.infrastructure.persistence.CityEntity;
 import lombok.Getter;
 import lombok.Setter;
 import jakarta.persistence.Column;

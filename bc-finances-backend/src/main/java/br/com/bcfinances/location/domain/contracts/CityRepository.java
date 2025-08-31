@@ -1,6 +1,6 @@
-package br.com.bcfinances.domain.repositories;
+package br.com.bcfinances.location.domain.contracts;
 
-import br.com.bcfinances.domain.entities.City;
+import br.com.bcfinances.location.domain.entities.City;
 import java.util.List;
 
 public interface CityRepository {

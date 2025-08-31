@@ -1,8 +1,10 @@
 package br.com.bcfinances.infrastructure.persistence;
 
-import br.com.bcfinances.domain.entities.City;
+import br.com.bcfinances.location.domain.entities.City;
+import br.com.bcfinances.location.domain.entities.State;
+import br.com.bcfinances.location.infrastructure.persistence.CityEntity;
+import br.com.bcfinances.location.infrastructure.persistence.StateEntity;
 import br.com.bcfinances.domain.entities.Person;
-import br.com.bcfinances.domain.entities.State;
 import br.com.bcfinances.domain.repositories.PersonRepository;
 import br.com.bcfinances.domain.valueobjects.Address;
 import br.com.bcfinances.domain.valueobjects.Contact;

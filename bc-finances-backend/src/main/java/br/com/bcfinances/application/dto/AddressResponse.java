@@ -1,5 +1,7 @@
 package br.com.bcfinances.application.dto;
 
+import br.com.bcfinances.location.application.dto.CityResponse;
+
 public class AddressResponse {
 
     private String street;

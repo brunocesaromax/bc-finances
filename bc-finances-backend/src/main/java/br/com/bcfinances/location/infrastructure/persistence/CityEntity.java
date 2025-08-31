@@ -1,4 +1,4 @@
-package br.com.bcfinances.infrastructure.persistence;
+package br.com.bcfinances.location.infrastructure.persistence;
 
 import lombok.Getter;
 import lombok.Setter;

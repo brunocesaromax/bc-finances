@@ -1,8 +1,8 @@
-package br.com.bcfinances.presentation.controllers;
+package br.com.bcfinances.location.presentation.controllers;
 
-import br.com.bcfinances.application.dto.CityResponse;
-import br.com.bcfinances.application.mappers.CityMapper;
-import br.com.bcfinances.application.usecases.FindCitiesByStateIdUseCase;
+import br.com.bcfinances.location.application.dto.CityResponse;
+import br.com.bcfinances.location.application.mappers.CityMapper;
+import br.com.bcfinances.location.application.usecases.FindCitiesByStateIdUseCase;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

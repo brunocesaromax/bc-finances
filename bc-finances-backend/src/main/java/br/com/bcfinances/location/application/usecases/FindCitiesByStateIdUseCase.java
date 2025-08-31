@@ -1,7 +1,7 @@
-package br.com.bcfinances.application.usecases;
+package br.com.bcfinances.location.application.usecases;
 
-import br.com.bcfinances.domain.entities.City;
-import br.com.bcfinances.domain.repositories.CityRepository;
+import br.com.bcfinances.location.domain.entities.City;
+import br.com.bcfinances.location.domain.contracts.CityRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package br.com.bcfinances.domain.valueobjects;
 
-import br.com.bcfinances.domain.entities.City;
+import br.com.bcfinances.location.domain.entities.City;
 
 public class Address {
 

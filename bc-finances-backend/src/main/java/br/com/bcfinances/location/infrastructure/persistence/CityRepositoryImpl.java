@@ -1,11 +1,11 @@
-package br.com.bcfinances.infrastructure.persistence;
+package br.com.bcfinances.location.infrastructure.persistence;
 
-import br.com.bcfinances.domain.entities.City;
-import br.com.bcfinances.domain.entities.State;
-import br.com.bcfinances.domain.repositories.CityRepository;
+import br.com.bcfinances.location.domain.contracts.CityRepository;
+import br.com.bcfinances.location.domain.entities.City;
+import br.com.bcfinances.location.domain.entities.State;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class CityRepositoryImpl implements CityRepository {
