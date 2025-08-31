@@ -1,7 +1,7 @@
 package br.com.bcfinances.person.application.usecases;
 
 import br.com.bcfinances.person.domain.contracts.PersonRepository;
-import br.com.bcfinances.domain.repositories.TransactionRepository;
+import br.com.bcfinances.transaction.domain.contracts.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,13 +1,21 @@
 package br.com.bcfinances.person.presentation.controllers;
 
+import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
 import br.com.bcfinances.person.application.dto.PersonRequest;
 import br.com.bcfinances.person.application.dto.PersonResponse;
 import br.com.bcfinances.person.application.mappers.PersonMapper;
-import br.com.bcfinances.person.application.usecases.*;
-import br.com.bcfinances.application.usecases.transaction.CheckTransactionExistsByPersonUseCase;
-import br.com.bcfinances.person.domain.entities.Person;
+import br.com.bcfinances.person.application.usecases.CreatePersonUseCase;
+import br.com.bcfinances.person.application.usecases.DeletePersonUseCase;
+import br.com.bcfinances.person.application.usecases.FindAllPersonsUseCase;
+import br.com.bcfinances.person.application.usecases.FindPersonByIdUseCase;
+import br.com.bcfinances.person.application.usecases.FindPersonsPaginatedUseCase;
+import br.com.bcfinances.person.application.usecases.UpdatePersonActiveStatusUseCase;
+import br.com.bcfinances.person.application.usecases.UpdatePersonUseCase;
 import br.com.bcfinances.person.domain.contracts.PersonRepository.PagedResult;
-import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
+import br.com.bcfinances.person.domain.entities.Person;
+import br.com.bcfinances.transaction.application.usecases.CheckTransactionExistsByPersonUseCase;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,10 +23,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
