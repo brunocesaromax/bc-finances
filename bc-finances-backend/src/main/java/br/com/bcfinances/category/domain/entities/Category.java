@@ -1,4 +1,4 @@
-package br.com.bcfinances.domain.entities;
+package br.com.bcfinances.category.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

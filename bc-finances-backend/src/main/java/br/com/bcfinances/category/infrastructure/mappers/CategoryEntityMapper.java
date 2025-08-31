@@ -1,7 +1,7 @@
-package br.com.bcfinances.infrastructure.mappers;
+package br.com.bcfinances.category.infrastructure.mappers;
 
-import br.com.bcfinances.domain.entities.Category;
-import br.com.bcfinances.infrastructure.persistence.CategoryEntity;
+import br.com.bcfinances.category.domain.entities.Category;
+import br.com.bcfinances.category.infrastructure.persistence.CategoryEntity;
 import org.springframework.stereotype.Component;
 
 @Component

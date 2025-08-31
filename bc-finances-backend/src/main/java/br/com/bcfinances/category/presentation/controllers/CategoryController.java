@@ -1,11 +1,11 @@
-package br.com.bcfinances.presentation.controllers;
+package br.com.bcfinances.category.presentation.controllers;
 
-import br.com.bcfinances.application.dto.CategoryRequest;
-import br.com.bcfinances.application.dto.CategoryResponse;
-import br.com.bcfinances.application.mappers.CategoryMapper;
-import br.com.bcfinances.application.usecases.CreateCategoryUseCase;
-import br.com.bcfinances.application.usecases.FindCategoryUseCase;
-import br.com.bcfinances.domain.entities.Category;
+import br.com.bcfinances.category.application.dto.CategoryRequest;
+import br.com.bcfinances.category.application.dto.CategoryResponse;
+import br.com.bcfinances.category.application.mappers.CategoryMapper;
+import br.com.bcfinances.category.application.usecases.CreateCategoryUseCase;
+import br.com.bcfinances.category.application.usecases.FindCategoryUseCase;
+import br.com.bcfinances.category.domain.entities.Category;
 import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

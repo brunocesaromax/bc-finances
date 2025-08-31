@@ -1,5 +1,6 @@
 package br.com.bcfinances.domain.entities;
 
+import br.com.bcfinances.category.domain.entities.Category;
 import br.com.bcfinances.domain.valueobjects.TransactionType;
 
 import java.math.BigDecimal;

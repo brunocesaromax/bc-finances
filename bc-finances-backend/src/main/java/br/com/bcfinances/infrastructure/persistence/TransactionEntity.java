@@ -1,5 +1,6 @@
 package br.com.bcfinances.infrastructure.persistence;
 
+import br.com.bcfinances.category.infrastructure.persistence.CategoryEntity;
 import br.com.bcfinances.infrastructure.persistence.listener.TransactionAttachmentListener;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

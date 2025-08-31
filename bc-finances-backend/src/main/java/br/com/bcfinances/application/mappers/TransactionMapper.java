@@ -2,7 +2,8 @@ package br.com.bcfinances.application.mappers;
 
 import br.com.bcfinances.application.dto.transaction.TransactionRequest;
 import br.com.bcfinances.application.dto.transaction.TransactionResponse;
-import br.com.bcfinances.domain.entities.Category;
+import br.com.bcfinances.category.application.mappers.CategoryMapper;
+import br.com.bcfinances.category.domain.entities.Category;
 import br.com.bcfinances.domain.entities.Person;
 import br.com.bcfinances.domain.entities.Transaction;
 import br.com.bcfinances.domain.valueobjects.TransactionType;

@@ -1,4 +1,4 @@
-package br.com.bcfinances.application.dto;
+package br.com.bcfinances.category.application.dto;
 
 import lombok.Data;
 

@@ -1,8 +1,8 @@
-package br.com.bcfinances.application.mappers;
+package br.com.bcfinances.category.application.mappers;
 
-import br.com.bcfinances.application.dto.CategoryRequest;
-import br.com.bcfinances.application.dto.CategoryResponse;
-import br.com.bcfinances.domain.entities.Category;
+import br.com.bcfinances.category.application.dto.CategoryRequest;
+import br.com.bcfinances.category.application.dto.CategoryResponse;
+import br.com.bcfinances.category.domain.entities.Category;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

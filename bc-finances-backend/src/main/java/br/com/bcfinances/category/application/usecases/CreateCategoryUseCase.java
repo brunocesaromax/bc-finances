@@ -1,7 +1,7 @@
-package br.com.bcfinances.application.usecases;
+package br.com.bcfinances.category.application.usecases;
 
-import br.com.bcfinances.domain.entities.Category;
-import br.com.bcfinances.domain.repositories.CategoryRepository;
+import br.com.bcfinances.category.domain.entities.Category;
+import br.com.bcfinances.category.domain.contracts.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

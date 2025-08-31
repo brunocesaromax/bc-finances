@@ -1,5 +1,6 @@
 package br.com.bcfinances.infrastructure.mappers;
 
+import br.com.bcfinances.category.infrastructure.mappers.CategoryEntityMapper;
 import br.com.bcfinances.domain.entities.Transaction;
 import br.com.bcfinances.domain.valueobjects.TransactionType;
 import br.com.bcfinances.infrastructure.persistence.TransactionEntity;

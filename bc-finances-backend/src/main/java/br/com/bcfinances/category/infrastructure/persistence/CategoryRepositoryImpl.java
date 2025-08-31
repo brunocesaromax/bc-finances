@@ -1,7 +1,7 @@
-package br.com.bcfinances.infrastructure.persistence;
+package br.com.bcfinances.category.infrastructure.persistence;
 
-import br.com.bcfinances.domain.entities.Category;
-import br.com.bcfinances.domain.repositories.CategoryRepository;
+import br.com.bcfinances.category.domain.contracts.CategoryRepository;
+import br.com.bcfinances.category.domain.entities.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -32,15 +32,5 @@ public class CategoryRepositoryImpl implements CategoryRepository {
         return jpaRepository.findAll().stream()
                 .map(entity -> new Category(entity.getId(), entity.getName()))
                 .toList();
-    }
-    
-    @Override
-    public void deleteById(Long id) {
-        jpaRepository.deleteById(id);
-    }
-    
-    @Override
-    public boolean existsById(Long id) {
-        return jpaRepository.existsById(id);
     }
 }

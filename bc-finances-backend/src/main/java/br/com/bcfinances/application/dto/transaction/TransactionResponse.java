@@ -1,6 +1,6 @@
 package br.com.bcfinances.application.dto.transaction;
 
-import br.com.bcfinances.application.dto.CategoryResponse;
+import br.com.bcfinances.category.application.dto.CategoryResponse;
 import br.com.bcfinances.application.dto.PersonResponse;
 
 import java.math.BigDecimal;

@@ -1,4 +1,4 @@
-package br.com.bcfinances.infrastructure.persistence;
+package br.com.bcfinances.category.infrastructure.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
