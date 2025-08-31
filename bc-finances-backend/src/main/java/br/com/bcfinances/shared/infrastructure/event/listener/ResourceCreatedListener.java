@@ -1,11 +1,11 @@
-package br.com.bcfinances.infrastructure.event.listener;
+package br.com.bcfinances.shared.infrastructure.event.listener;
 
-import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
+import br.com.bcfinances.shared.infrastructure.event.ResourceCreatedEvent;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.net.URI;
 
 @Component

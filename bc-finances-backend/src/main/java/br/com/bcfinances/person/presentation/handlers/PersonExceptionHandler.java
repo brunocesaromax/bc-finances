@@ -2,7 +2,7 @@ package br.com.bcfinances.person.presentation.handlers;
 
 import br.com.bcfinances.person.domain.exceptions.PersonExistentInTransactionException;
 import br.com.bcfinances.person.domain.exceptions.PersonNotFoundException;
-import br.com.bcfinances.presentation.exception.BcFinancesExceptionHandler;
+import br.com.bcfinances.shared.presentation.exception.BcFinancesExceptionHandler;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package br.com.bcfinances.infrastructure.config.property;
+package br.com.bcfinances.shared.infrastructure.config.property;
 
 
 import lombok.Getter;

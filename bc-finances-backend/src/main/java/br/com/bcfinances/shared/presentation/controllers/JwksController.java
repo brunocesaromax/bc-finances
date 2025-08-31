@@ -1,4 +1,4 @@
-package br.com.bcfinances.presentation.controllers;
+package br.com.bcfinances.shared.presentation.controllers;
 
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;

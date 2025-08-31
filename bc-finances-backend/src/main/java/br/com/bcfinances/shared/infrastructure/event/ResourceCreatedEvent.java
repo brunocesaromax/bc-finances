@@ -1,9 +1,8 @@
-package br.com.bcfinances.infrastructure.event;
-
-import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
+package br.com.bcfinances.shared.infrastructure.event;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
+import org.springframework.context.ApplicationEvent;
 
 import java.io.Serial;
 

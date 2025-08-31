@@ -1,6 +1,6 @@
 package br.com.bcfinances.person.presentation.controllers;
 
-import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
+import br.com.bcfinances.shared.infrastructure.event.ResourceCreatedEvent;
 import br.com.bcfinances.person.application.dto.PersonRequest;
 import br.com.bcfinances.person.application.dto.PersonResponse;
 import br.com.bcfinances.person.application.mappers.PersonMapper;

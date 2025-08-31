@@ -1,8 +1,8 @@
-package br.com.bcfinances.presentation.exception;
+package br.com.bcfinances.shared.presentation.exception;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -26,11 +26,11 @@ import java.util.List;
 
 // Captura exceções de ResponseEntities
 @ControllerAdvice // Observa toda a aplicação
+@RequiredArgsConstructor
 public class BcFinancesExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Qualifier("messageSource")
-    @Autowired
-    private MessageSource messageSorce;
+    private final MessageSource messageSorce;
 
     // Capturar mensagens que não conseguiram ler
     @Override

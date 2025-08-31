@@ -2,7 +2,7 @@ package br.com.bcfinances.transaction.application.usecases;
 
 import br.com.bcfinances.category.domain.contracts.CategoryRepository;
 import br.com.bcfinances.category.domain.entities.Category;
-import br.com.bcfinances.infrastructure.storage.S3;
+import br.com.bcfinances.shared.infrastructure.storage.S3Service;
 import br.com.bcfinances.person.domain.contracts.PersonRepository;
 import br.com.bcfinances.person.domain.entities.Person;
 import br.com.bcfinances.person.domain.exceptions.PersonInactiveException;
@@ -24,7 +24,7 @@ public class UpdateTransactionUseCase {
     private final CategoryRepository categoryRepository;
     private final PersonRepository personRepository;
     private final TransactionMapper transactionMapper;
-    private final S3 s3;
+    private final S3Service s3Service;
 
     @Transactional
     public TransactionResponse execute(Long id, TransactionRequest request) {
@@ -46,9 +46,9 @@ public class UpdateTransactionUseCase {
         String newAttachment = request.getAttachment();
 
         if (!StringUtils.hasText(newAttachment) && StringUtils.hasText(oldAttachment)) {
-            s3.delete(oldAttachment);
+            s3Service.delete(oldAttachment);
         } else if (StringUtils.hasText(newAttachment) && !newAttachment.equals(oldAttachment)) {
-            s3.update(oldAttachment, newAttachment);
+            s3Service.update(oldAttachment, newAttachment);
         }
 
         transactionMapper.updateEntity(existingTransaction, request, category, person);

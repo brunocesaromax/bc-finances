@@ -1,6 +1,6 @@
 package br.com.bcfinances;
 
-import br.com.bcfinances.infrastructure.config.property.ApiProperty;
+import br.com.bcfinances.shared.infrastructure.config.property.ApiProperty;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

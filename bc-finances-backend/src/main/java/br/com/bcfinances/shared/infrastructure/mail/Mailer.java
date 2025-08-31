@@ -1,7 +1,9 @@
-package br.com.bcfinances.infrastructure.mail;
+package br.com.bcfinances.shared.infrastructure.mail;
 
-import br.com.bcfinances.transaction.domain.entities.Transaction;
 import br.com.bcfinances.auth.domain.entities.User;
+import br.com.bcfinances.transaction.domain.entities.Transaction;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -9,13 +11,10 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor

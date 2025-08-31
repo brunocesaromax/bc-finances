@@ -1,9 +1,9 @@
 package br.com.bcfinances.transaction.presentation.controllers;
 
-import br.com.bcfinances.infrastructure.event.ResourceCreatedEvent;
-import br.com.bcfinances.infrastructure.persistence.Attachment;
-import br.com.bcfinances.infrastructure.storage.S3;
 import br.com.bcfinances.person.domain.exceptions.PersonInactiveException;
+import br.com.bcfinances.shared.infrastructure.event.ResourceCreatedEvent;
+import br.com.bcfinances.shared.infrastructure.storage.S3Service;
+import br.com.bcfinances.transaction.application.dto.AttachmentDto;
 import br.com.bcfinances.transaction.application.dto.TransactionFilterDto;
 import br.com.bcfinances.transaction.application.dto.TransactionStatisticByDayDto;
 import br.com.bcfinances.transaction.application.dto.TransactionStatisticCategoryDto;
@@ -71,7 +71,7 @@ public class TransactionController {
     private final FindOverdueTransactionsUseCase findOverdueTransactionsUseCase;
     private final GenerateTransactionReportByPersonUseCase generateReportByPersonUseCase;
     private final TransactionRepository transactionRepository;
-    private final S3 s3;
+    private final S3Service s3Service;
     private final ApplicationEventPublisher publisher;
     private final MessageSource messageSource;
 
@@ -156,9 +156,9 @@ public class TransactionController {
 
     @PostMapping("/attachment")
     @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION')")
-    public Attachment uploadAttachment(@RequestParam MultipartFile attachment) throws IOException {
-        String name = s3.saveTemp(attachment);
-        return new Attachment(name, s3.configureUrl(name));
+    public AttachmentDto uploadAttachment(@RequestParam MultipartFile attachment) {
+        String name = s3Service.saveTemp(attachment);
+        return new AttachmentDto(name, s3Service.configureUrl(name));
     }
 
     @ExceptionHandler({PersonInactiveException.class})

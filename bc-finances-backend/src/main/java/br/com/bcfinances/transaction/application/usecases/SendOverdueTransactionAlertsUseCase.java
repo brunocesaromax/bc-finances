@@ -2,7 +2,7 @@ package br.com.bcfinances.transaction.application.usecases;
 
 import br.com.bcfinances.auth.domain.contracts.UserRepository;
 import br.com.bcfinances.auth.domain.entities.User;
-import br.com.bcfinances.infrastructure.mail.Mailer;
+import br.com.bcfinances.shared.infrastructure.mail.Mailer;
 import br.com.bcfinances.transaction.domain.contracts.TransactionRepository;
 import br.com.bcfinances.transaction.domain.entities.Transaction;
 import lombok.RequiredArgsConstructor;

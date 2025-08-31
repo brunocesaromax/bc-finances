@@ -1,4 +1,4 @@
-package br.com.bcfinances.infrastructure.persistence;
+package br.com.bcfinances.transaction.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Attachment {
+public class AttachmentDto {
     
     private String name;
     private String url;

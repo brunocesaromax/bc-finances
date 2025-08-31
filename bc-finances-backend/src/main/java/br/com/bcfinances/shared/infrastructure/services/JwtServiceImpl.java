@@ -1,4 +1,4 @@
-package br.com.bcfinances.infrastructure.services;
+package br.com.bcfinances.shared.infrastructure.services;
 
 import br.com.bcfinances.auth.domain.entities.User;
 import br.com.bcfinances.auth.domain.services.JwtService;
