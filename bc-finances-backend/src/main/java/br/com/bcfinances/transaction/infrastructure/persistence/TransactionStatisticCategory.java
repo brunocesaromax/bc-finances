@@ -1,6 +1,6 @@
 package br.com.bcfinances.transaction.infrastructure.persistence;
 
-import br.com.bcfinances.category.domain.entities.Category;
+import br.com.bcfinances.category.infrastructure.persistence.CategoryEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +14,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class TransactionStatisticCategory {
     
-    private Category category;
+    private CategoryEntity category;
     private BigDecimal total;
 }

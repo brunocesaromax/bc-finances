@@ -1,6 +1,5 @@
 package br.com.bcfinances.transaction.infrastructure.persistence;
 
-import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class TransactionStatisticDay {
     
-    private TransactionType type;
+    private TransactionTypeEntity type;
     private LocalDate day;
     private BigDecimal total;
 }

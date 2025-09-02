@@ -5,6 +5,7 @@ import br.com.bcfinances.person.domain.valueobjects.Contact;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -32,7 +33,6 @@ public class Person {
     }
 
     public void updateContacts(List<Contact> contacts) {
-        this.getContacts().clear();
-        this.getContacts().addAll(contacts);
+        this.contacts = new ArrayList<>(contacts != null ? contacts : java.util.Collections.emptyList());
     }
 }

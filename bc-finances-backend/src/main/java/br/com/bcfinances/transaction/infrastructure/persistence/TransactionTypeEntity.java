@@ -1,5 +1,8 @@
 package br.com.bcfinances.transaction.infrastructure.persistence;
 
+import lombok.Getter;
+
+@Getter
 public enum TransactionTypeEntity {
     RECIPE("Receita"),
     EXPENSE("Despesa");
@@ -10,7 +13,4 @@ public enum TransactionTypeEntity {
         this.description = description;
     }
 
-    public String getDescription() {
-        return description;
-    }
 }

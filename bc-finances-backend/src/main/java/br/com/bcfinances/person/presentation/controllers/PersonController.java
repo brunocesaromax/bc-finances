@@ -125,7 +125,7 @@ public class PersonController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_UPDATE_PERSON')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE_PERSON')")
     public ResponseEntity<PersonResponse> update(@PathVariable Long id, @Valid @RequestBody PersonRequest personRequest) {
         Person person = personMapper.toEntity(personRequest);
         Person updatedPerson = updatePersonUseCase.execute(id, person);
@@ -135,7 +135,7 @@ public class PersonController {
 
     @PutMapping("/{id}/active")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('ROLE_UPDATE_PERSON')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE_PERSON')")
     public void updateFieldActive(@PathVariable Long id, @RequestBody Boolean value) {
         updatePersonActiveStatusUseCase.execute(id, value);
     }

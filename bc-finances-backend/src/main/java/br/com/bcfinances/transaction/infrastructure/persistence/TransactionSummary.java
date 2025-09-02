@@ -1,6 +1,6 @@
 package br.com.bcfinances.transaction.infrastructure.persistence;
 
-import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
+import br.com.bcfinances.transaction.infrastructure.persistence.TransactionTypeEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,11 +16,11 @@ public class TransactionSummary {
     private LocalDate dueDay;
     private LocalDate payday;
     private BigDecimal value;
-    private TransactionType type;
+    private TransactionTypeEntity type;
     private String category;
     private String person;
 
-    public TransactionSummary(Long id, String description, LocalDate dueDay, LocalDate payday, BigDecimal value, TransactionType type, String category, String person) {
+    public TransactionSummary(Long id, String description, LocalDate dueDay, LocalDate payday, BigDecimal value, TransactionTypeEntity type, String category, String person) {
         this.id = id;
         this.description = description;
         this.dueDay = dueDay;

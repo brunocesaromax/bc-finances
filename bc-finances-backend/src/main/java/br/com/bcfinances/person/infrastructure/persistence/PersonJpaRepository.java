@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface PersonJpaRepository extends JpaRepository<PersonEntity, Long> {
 
     @Query("select p from PersonEntity p " +
-            "where (:name is null or p.name like concat('%', :name, '%') )")
+            "where (:name is null or lower(p.name) like lower(concat('%', cast(:name as string), '%')) )")
     Page<PersonEntity> findAllByName(String name, Pageable pageable);
 }

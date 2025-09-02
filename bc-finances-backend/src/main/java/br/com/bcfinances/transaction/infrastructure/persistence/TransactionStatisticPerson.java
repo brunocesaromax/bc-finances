@@ -1,6 +1,6 @@
 package br.com.bcfinances.transaction.infrastructure.persistence;
 
-import br.com.bcfinances.person.domain.entities.Person;
+import br.com.bcfinances.person.infrastructure.persistence.PersonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +14,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class TransactionStatisticPerson {
     
-    private Person person;
+    private PersonEntity person;
     private BigDecimal total;
 }

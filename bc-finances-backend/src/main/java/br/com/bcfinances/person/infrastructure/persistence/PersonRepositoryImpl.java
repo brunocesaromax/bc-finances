@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.*;
+
 @Repository
 public class PersonRepositoryImpl implements PersonRepository {
 
@@ -28,7 +30,7 @@ public class PersonRepositoryImpl implements PersonRepository {
     public List<Person> findAll() {
         return personJpaRepository.findAll().stream()
                 .map(this::toDomainEntity)
-                .toList();
+                .collect(toList());
     }
 
     @Override
@@ -55,7 +57,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         
         List<Person> persons = pagedResult.getContent().stream()
                 .map(this::toDomainEntity)
-                .toList();
+                .collect(toList());
         
         return new PagedResult<>(persons, pagedResult.getTotalElements(), page, size);
     }
@@ -70,7 +72,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         if (personEntity.getContacts() != null) {
             contacts = personEntity.getContacts().stream()
                     .map(this::toDomainContact)
-                    .toList();
+                    .collect(toList());
         }
 
         return new Person(
@@ -92,7 +94,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         if (person.getContacts() != null) {
             contactEntities = person.getContacts().stream()
                     .map(contact -> toJpaContact(contact, null))
-                    .toList();
+                    .collect(toList());
         }
 
         PersonEntity personEntity = new PersonEntity(

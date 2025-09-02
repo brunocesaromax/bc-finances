@@ -2,6 +2,7 @@ package br.com.bcfinances.person.application.usecases;
 
 import br.com.bcfinances.person.domain.entities.Person;
 import br.com.bcfinances.person.domain.contracts.PersonRepository;
+import br.com.bcfinances.person.domain.exceptions.PersonNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
@@ -18,7 +19,7 @@ public class UpdatePersonUseCase {
         Optional<Person> existingPerson = personRepository.findById(id);
         
         if (existingPerson.isEmpty()) {
-            throw new br.com.bcfinances.person.domain.exceptions.PersonNotFoundException(id);
+            throw new PersonNotFoundException(id);
         }
 
         Person personToUpdate = existingPerson.get();
