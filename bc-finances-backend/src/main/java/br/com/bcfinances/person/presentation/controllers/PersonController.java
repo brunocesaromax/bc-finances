@@ -1,0 +1,142 @@
+package br.com.bcfinances.person.presentation.controllers;
+
+import br.com.bcfinances.shared.infrastructure.event.ResourceCreatedEvent;
+import br.com.bcfinances.person.application.dto.PersonRequest;
+import br.com.bcfinances.person.application.dto.PersonResponse;
+import br.com.bcfinances.person.application.mappers.PersonMapper;
+import br.com.bcfinances.person.application.usecases.CreatePersonUseCase;
+import br.com.bcfinances.person.application.usecases.DeletePersonUseCase;
+import br.com.bcfinances.person.application.usecases.FindAllPersonsUseCase;
+import br.com.bcfinances.person.application.usecases.FindPersonByIdUseCase;
+import br.com.bcfinances.person.application.usecases.FindPersonsPaginatedUseCase;
+import br.com.bcfinances.person.application.usecases.UpdatePersonActiveStatusUseCase;
+import br.com.bcfinances.person.application.usecases.UpdatePersonUseCase;
+import br.com.bcfinances.person.domain.contracts.PersonRepository.PagedResult;
+import br.com.bcfinances.person.domain.entities.Person;
+import br.com.bcfinances.transaction.application.usecases.CheckTransactionExistsByPersonUseCase;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/persons")
+public class PersonController {
+
+    private final CreatePersonUseCase createPersonUseCase;
+    private final FindAllPersonsUseCase findAllPersonsUseCase;
+    private final FindPersonByIdUseCase findPersonByIdUseCase;
+    private final FindPersonsPaginatedUseCase findPersonsPaginatedUseCase;
+    private final UpdatePersonUseCase updatePersonUseCase;
+    private final UpdatePersonActiveStatusUseCase updatePersonActiveStatusUseCase;
+    private final DeletePersonUseCase deletePersonUseCase;
+    private final CheckTransactionExistsByPersonUseCase checkTransactionExistsByPersonUseCase;
+    private final PersonMapper personMapper;
+    private final ApplicationEventPublisher publisher;
+
+    public PersonController(CreatePersonUseCase createPersonUseCase,
+                           FindAllPersonsUseCase findAllPersonsUseCase,
+                           FindPersonByIdUseCase findPersonByIdUseCase,
+                           FindPersonsPaginatedUseCase findPersonsPaginatedUseCase,
+                           UpdatePersonUseCase updatePersonUseCase,
+                           UpdatePersonActiveStatusUseCase updatePersonActiveStatusUseCase,
+                           DeletePersonUseCase deletePersonUseCase,
+                           CheckTransactionExistsByPersonUseCase checkTransactionExistsByPersonUseCase,
+                           PersonMapper personMapper,
+                           ApplicationEventPublisher publisher) {
+        this.createPersonUseCase = createPersonUseCase;
+        this.findAllPersonsUseCase = findAllPersonsUseCase;
+        this.findPersonByIdUseCase = findPersonByIdUseCase;
+        this.findPersonsPaginatedUseCase = findPersonsPaginatedUseCase;
+        this.updatePersonUseCase = updatePersonUseCase;
+        this.updatePersonActiveStatusUseCase = updatePersonActiveStatusUseCase;
+        this.deletePersonUseCase = deletePersonUseCase;
+        this.checkTransactionExistsByPersonUseCase = checkTransactionExistsByPersonUseCase;
+        this.personMapper = personMapper;
+        this.publisher = publisher;
+    }
+
+    @GetMapping(params = "pagination")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON')")
+    public Page<PersonResponse> pagination(@RequestParam(required = false) String name, Pageable pageable) {
+        PagedResult<Person> result = findPersonsPaginatedUseCase.execute(name, pageable.getPageNumber(), pageable.getPageSize());
+        
+        List<PersonResponse> content = personMapper.toResponseList(result.content());
+        return new PageImpl<>(content, pageable, result.totalElements());
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON')")
+    public List<PersonResponse> list() {
+        List<Person> persons = findAllPersonsUseCase.execute();
+        return personMapper.toResponseList(persons);
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_CREATE_PERSON')")
+    public ResponseEntity<PersonResponse> save(@Valid @RequestBody PersonRequest personRequest, HttpServletResponse response) {
+        Person person = personMapper.toEntity(personRequest);
+        Person savedPerson = createPersonUseCase.execute(person);
+        PersonResponse personResponse = personMapper.toResponse(savedPerson);
+        
+        publisher.publishEvent(new ResourceCreatedEvent(this, response, savedPerson.getId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(personResponse);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PERSON')")
+    public ResponseEntity<PersonResponse> findById(@PathVariable Long id) {
+        Optional<Person> person = findPersonByIdUseCase.execute(id);
+        return person.map(p -> ResponseEntity.ok(personMapper.toResponse(p)))
+                    .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ROLE_REMOVE_PERSON')")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        // Verificar se existem transações associadas antes de excluir
+        boolean hasTransactions = checkTransactionExistsByPersonUseCase.execute(id);
+        if (hasTransactions) {
+            return ResponseEntity.badRequest()
+                .body("Cannot delete person: there are transactions associated with this person");
+        }
+        
+        deletePersonUseCase.execute(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_CREATE_PERSON')")
+    public ResponseEntity<PersonResponse> update(@PathVariable Long id, @Valid @RequestBody PersonRequest personRequest) {
+        Person person = personMapper.toEntity(personRequest);
+        Person updatedPerson = updatePersonUseCase.execute(id, person);
+        PersonResponse personResponse = personMapper.toResponse(updatedPerson);
+        return ResponseEntity.ok(personResponse);
+    }
+
+    @PutMapping("/{id}/active")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ROLE_CREATE_PERSON')")
+    public void updateFieldActive(@PathVariable Long id, @RequestBody Boolean value) {
+        updatePersonActiveStatusUseCase.execute(id, value);
+    }
+}
