@@ -298,12 +298,12 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                         "%" + filter.getDescription().toLowerCase() + "%"));
             }
 
-            if (filter.getDueDayFrom() != null) {
-                predicates.add(builder.greaterThanOrEqualTo(root.get("dueDay"), filter.getDueDayFrom()));
+            if (filter.getDueDayStart() != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("dueDay"), filter.getDueDayStart()));
             }
 
-            if (filter.getDueDayTo() != null) {
-                predicates.add(builder.lessThanOrEqualTo(root.get("dueDay"), filter.getDueDayTo()));
+            if (filter.getDueDayEnd() != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("dueDay"), filter.getDueDayEnd()));
             }
         }
 
@@ -340,7 +340,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     private TransactionStatisticPersonDto convertPersonStatisticToDto(TransactionStatisticPerson stat) {
         return new TransactionStatisticPersonDto(
                 "TOTAL", // Tipo fixo para estatística por pessoa
-                stat.getPerson().getName(),
+                stat.getPerson(),
                 stat.getTotal()
         );
     }

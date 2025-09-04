@@ -1,5 +1,7 @@
 package br.com.bcfinances.transaction.application.dto;
 
+import br.com.bcfinances.person.infrastructure.persistence.PersonEntity;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,16 +9,11 @@ import java.math.BigDecimal;
 
 @Setter
 @Getter
+@AllArgsConstructor
 public class TransactionStatisticPersonDto {
 
     private String type;
-    private String personName;
-    private BigDecimal totalValue;
-
-    public TransactionStatisticPersonDto(String type, String personName, BigDecimal totalValue) {
-        this.type = type;
-        this.personName = personName;
-        this.totalValue = totalValue;
-    }
-
+    private PersonEntity person;
+    private BigDecimal total;
+    
 }

@@ -1,5 +1,6 @@
-package br.com.bcfinances.transaction.application.dto.transaction;
+package br.com.bcfinances.transaction.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TransactionRequest {
 
     private String description;
@@ -16,8 +18,23 @@ public class TransactionRequest {
     private BigDecimal value;
     private String observation;
     private String type;
-    private Long categoryId;
-    private Long personId;
+    private CategoryRequest category;
+    private PersonRequest person;
     private String attachment;
 
+    @Setter
+    @Getter
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class PersonRequest {
+        private Long id;
+        private String name;
+    }
+
+    @Setter
+    @Getter
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CategoryRequest {
+        private Long id;
+        private String name;
+    }
 }

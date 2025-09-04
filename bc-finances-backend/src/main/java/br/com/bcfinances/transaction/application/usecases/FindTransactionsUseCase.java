@@ -1,7 +1,7 @@
 package br.com.bcfinances.transaction.application.usecases;
 
 import br.com.bcfinances.transaction.application.dto.TransactionFilterDto;
-import br.com.bcfinances.transaction.application.dto.transaction.TransactionResponse;
+import br.com.bcfinances.transaction.application.dto.TransactionResponse;
 import br.com.bcfinances.transaction.application.mappers.TransactionMapper;
 import br.com.bcfinances.transaction.domain.contracts.TransactionRepository;
 import br.com.bcfinances.transaction.domain.entities.Transaction;

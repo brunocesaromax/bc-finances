@@ -2,12 +2,12 @@ package br.com.bcfinances.transaction.application.usecases;
 
 import br.com.bcfinances.category.domain.contracts.CategoryRepository;
 import br.com.bcfinances.category.domain.entities.Category;
-import br.com.bcfinances.shared.infrastructure.storage.S3Service;
 import br.com.bcfinances.person.domain.contracts.PersonRepository;
 import br.com.bcfinances.person.domain.entities.Person;
 import br.com.bcfinances.person.domain.exceptions.PersonInactiveException;
-import br.com.bcfinances.transaction.application.dto.transaction.TransactionRequest;
-import br.com.bcfinances.transaction.application.dto.transaction.TransactionResponse;
+import br.com.bcfinances.shared.infrastructure.storage.S3Service;
+import br.com.bcfinances.transaction.application.dto.TransactionRequest;
+import br.com.bcfinances.transaction.application.dto.TransactionResponse;
 import br.com.bcfinances.transaction.application.mappers.TransactionMapper;
 import br.com.bcfinances.transaction.domain.contracts.TransactionRepository;
 import br.com.bcfinances.transaction.domain.entities.Transaction;
@@ -31,14 +31,14 @@ public class UpdateTransactionUseCase {
         Transaction existingTransaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Category category = categoryRepository.findById(request.getCategory().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        Person person = validatePerson(request.getPersonId());
+        Person person = validatePerson(request.getPerson().getId());
 
         // Validar pessoa apenas se mudou
         if (!person.getId().equals(existingTransaction.getPerson().getId())) {
-            validatePerson(request.getPersonId());
+            validatePerson(request.getPerson().getId());
         }
 
         // Gerenciar anexos S3

@@ -10,8 +10,8 @@ import java.time.LocalDate;
 public class TransactionFilterDto {
 
     private String description;
-    private LocalDate dueDayFrom;
-    private LocalDate dueDayTo;
+    private LocalDate dueDayStart;
+    private LocalDate dueDayEnd;
     private String personName;
     private String categoryName;
 

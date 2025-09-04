@@ -1,4 +1,4 @@
-package br.com.bcfinances.transaction.application.dto.transaction;
+package br.com.bcfinances.transaction.application.dto;
 
 import br.com.bcfinances.category.application.dto.CategoryResponse;
 import br.com.bcfinances.person.application.dto.PersonResponse;
