@@ -270,6 +270,28 @@ INSERT INTO users (name, email, password) VALUES
 
 ## Padrões de Desenvolvimento
 
+### 🚨 REGRA CRÍTICA: PROIBIÇÃO DOCKER SYSTEM PRUNE
+**NUNCA EXECUTAR:** `docker system prune -f` ou variações
+- ⚠️ **EXTREMAMENTE PERIGOSO** - Remove TODOS os recursos Docker não utilizados
+- 💥 **DESTRUTIVO** - Apaga imagens, containers, networks, volumes, cache
+- 📦 **IMPACTO SEVERO** - Perde trabalho de outros projetos, re-downloads massivos
+- 🕐 **LENTIDÃO** - Builds futuros muito mais lentos (cache perdido)
+
+**Alternativas seguras:**
+```bash
+# Limpar apenas containers parados
+docker container prune
+
+# Limpar apenas imagens não utilizadas  
+docker image prune
+
+# Limpar apenas networks órfãos
+docker network prune
+
+# Ver espaço usado antes de limpar
+docker system df
+```
+
 ### 🚨 REGRA CRÍTICA DE BUILD
 **COMANDO OBRIGATÓRIO:** `mvn clean compile`
 - **SEMPRE executar** antes de qualquer tarefa ou mudança
