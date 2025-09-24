@@ -1,20 +1,17 @@
 package br.com.bcfinances.location.domain.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class City {
 
     private Long id;
     private String name;
     private State state;
-
-    public City(Long id, String name, State state) {
-        this.id = id;
-        this.name = name;
-        this.state = state;
-    }
-
 }

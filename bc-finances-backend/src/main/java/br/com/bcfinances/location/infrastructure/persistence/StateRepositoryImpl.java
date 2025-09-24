@@ -2,10 +2,12 @@ package br.com.bcfinances.location.infrastructure.persistence;
 
 import br.com.bcfinances.location.domain.contracts.StateRepository;
 import br.com.bcfinances.location.domain.entities.State;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 public class StateRepositoryImpl implements StateRepository {
 
@@ -17,6 +19,7 @@ public class StateRepositoryImpl implements StateRepository {
 
     @Override
     public List<State> findAll() {
+        log.info("Utilizando delegate");
         return stateJpaRepository.findAll().stream()
                 .map(this::toDomainEntity)
                 .toList();
