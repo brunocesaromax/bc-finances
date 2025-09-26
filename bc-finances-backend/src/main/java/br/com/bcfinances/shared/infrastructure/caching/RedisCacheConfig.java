@@ -1,23 +1,17 @@
-package br.com.bcfinances.shared.infrastructure.config;
+package br.com.bcfinances.shared.infrastructure.caching;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 public class RedisCacheConfig {
@@ -34,34 +28,14 @@ public class RedisCacheConfig {
         return new GenericJackson2JsonRedisSerializer(mapper);
     }
 
+    // Configuração base a ser reutilizada pelos módulos via RedisCacheManagerBuilderCustomizer
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    public RedisCacheConfiguration redisCacheConfiguration() {
         GenericJackson2JsonRedisSerializer valueSerializer = jsonSerializer();
-
-        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration
+        return RedisCacheConfiguration
                 .defaultCacheConfig()
                 .serializeKeysWith(SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(SerializationPair.fromSerializer(valueSerializer));
-
-        Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
-
-        // Categories
-        cacheConfigs.put("categories:all", defaultConfig);
-        cacheConfigs.put("categories:byId", defaultConfig);
-
-        // Location
-        cacheConfigs.put("states:all", defaultConfig);
-        cacheConfigs.put("cities:byState", defaultConfig);
-
-        // Persons (TTLs específicos)
-        cacheConfigs.put("persons:byId", defaultConfig.entryTtl(Duration.ofMinutes(10)));
-        cacheConfigs.put("persons:all", defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        cacheConfigs.put("persons:search", defaultConfig.entryTtl(Duration.ofMinutes(2)));
-
-        return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(defaultConfig)
-                .withInitialCacheConfigurations(cacheConfigs)
-                .build();
     }
 
     @Bean

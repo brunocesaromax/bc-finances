@@ -1,6 +1,6 @@
-package br.com.bcfinances.shared.infrastructure.config;
+package br.com.bcfinances.shared.infrastructure.storage;
 
-import br.com.bcfinances.shared.infrastructure.config.property.ApiProperty;
+import br.com.bcfinances.shared.infrastructure.property.ApiProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
