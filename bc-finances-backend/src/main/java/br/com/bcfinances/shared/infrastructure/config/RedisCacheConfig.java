@@ -15,6 +15,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,10 +44,19 @@ public class RedisCacheConfig {
                 .serializeValuesWith(SerializationPair.fromSerializer(valueSerializer));
 
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
+
+        // Categories
         cacheConfigs.put("categories:all", defaultConfig);
         cacheConfigs.put("categories:byId", defaultConfig);
+
+        // Location
         cacheConfigs.put("states:all", defaultConfig);
         cacheConfigs.put("cities:byState", defaultConfig);
+
+        // Persons (TTLs específicos)
+        cacheConfigs.put("persons:byId", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+        cacheConfigs.put("persons:all", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigs.put("persons:search", defaultConfig.entryTtl(Duration.ofMinutes(2)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
