@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,9 +22,11 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateToken(User user) {
+    public GeneratedToken generateToken(User user) {
         Instant now = Instant.now();
-        
+        Instant expiresAt = now.plusSeconds(getExpirationTime());
+        String sessionId = UUID.randomUUID().toString();
+
         String authorities = user.getPermissions() != null 
             ? user.getPermissions()
                 .stream()
@@ -36,12 +38,14 @@ public class JwtServiceImpl implements JwtService {
                 .issuer("bc-finances")
                 .subject(user.getEmail())
                 .issuedAt(now)
-                .expiresAt(now.plus(30, ChronoUnit.MINUTES))
+                .expiresAt(expiresAt)
+                .id(sessionId)
                 .claim("authorities", authorities)
                 .claim("name", user.getName())
                 .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        return new GeneratedToken(token, sessionId, now, expiresAt);
     }
 
     @Override
