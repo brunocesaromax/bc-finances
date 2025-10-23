@@ -2,15 +2,15 @@
 
 ## Visão Geral
 
-O BC Finances utiliza **JWT (JSON Web Token) stateless** para autenticação de usuários.
+O BC Finances utiliza um modelo híbrido de autenticação com **JWT (JSON Web Token)** validado pelo backend e **controle de sessão em Redis** para permitir revogação antecipada de tokens.
 
 ## Arquitetura JWT
 
 ### Características
-- **Stateless**: Servidor não mantém estado de sessão
-- **Self-contained**: Token contém todas as informações necessárias
-- **Seguro**: Assinado com RS256 (RSA + SHA-256)
-- **Expiração**: Tokens têm tempo de vida limitado
+- **JWT assinado**: Tokens possuem claims necessários e são assinados com RS256 (RSA + SHA-256)
+- **Sessão cacheada**: Cada login gera uma sessão (`AuthSession`) persistida no Redis com o mesmo TTL do token
+- **Expiração controlada**: Sessões e tokens expiram simultaneamente; sessões inválidas são removidas do cache
+- **Revogação via logout**: O endpoint de logout remove a sessão do Redis e invalida o token associado
 
 ## Fluxo de Autenticação
 
@@ -29,6 +29,7 @@ sequenceDiagram
     
     Backend->>JWT: Gerar token JWT
     JWT-->>Backend: Token assinado
+    Backend->>Redis: Persistir AuthSession com TTL
     
     Backend-->>Frontend: LoginResponse
     Note over Backend,Frontend: { accessToken, tokenType, expiresIn }
@@ -40,6 +41,8 @@ sequenceDiagram
     
     Backend->>JWT: Validar token
     JWT-->>Backend: Token válido + authorities
+    Backend->>Redis: Buscar sessão pelo jti
+    Redis-->>Backend: Sessão encontrada (ou expirada)
     
     Backend-->>Frontend: Recurso protegido
 ```
@@ -172,14 +175,30 @@ JwtModule.forRoot({
 
 ## Logout
 
-O logout é **client-side** para arquitetura stateless:
+### Backend
+- **Endpoint**: `DELETE /auth/logout`
+- **Autenticação**: Obrigatória (token válido no header)
+- **Comportamento**:
+  1. Extrai o `jti` (ID do token) do JWT autenticado
+  2. Remove a sessão correspondente do Redis
+  3. Responde com `204 No Content`
+  4. Se o token já estiver expirado ou a sessão não existir, o fluxo continua idempotente
+
+### Frontend
 
 ```typescript
 logout() {
-  this.auth.clearAccessToken(); // Remove do localStorage
-  return Promise.resolve();
+  return this.httpClient.delete<void>(`${environment.apiUrl}/auth/logout`)
+    .pipe(
+      catchError(error => [401, 403, 404].includes(error?.status) ? of(null) : throwError(error))
+    )
+    .toPromise()
+    .finally(() => this.auth.clearAccessToken());
 }
 ```
+
+- A promessa é resolvida mesmo quando o backend indica que a sessão já estava inválida (401/403/404), garantindo UX consistente.
+- `AuthService.clearAccessToken()` remove o token do `localStorage` e limpa o payload carregado em memória.
 
 ## Configuração de Ambiente
 
