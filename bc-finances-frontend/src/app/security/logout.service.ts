@@ -1,17 +1,33 @@
-import {Injectable} from '@angular/core';
-import {AuthService} from './auth.service';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
+import { catchError, mapTo } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LogoutService {
 
-  constructor(private auth: AuthService) {
+  private readonly logoutUrl = `${environment.apiUrl}/auth/logout`;
+
+  constructor(private httpClient: HttpClient,
+              private auth: AuthService) {
   }
 
-  // Logout client-side para JWT stateless - apenas remove token do localStorage
   logout() {
-    this.auth.clearAccessToken();
-    return Promise.resolve();
+    return this.httpClient.delete<void>(this.logoutUrl)
+      .pipe(
+        mapTo(null),
+        catchError(error => {
+          if ([401, 403, 404].includes(error?.status)) {
+            return of(null);
+          }
+          return throwError(error);
+        })
+      )
+      .toPromise()
+      .finally(() => this.auth.clearAccessToken());
   }
 }

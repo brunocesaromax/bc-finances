@@ -2,10 +2,12 @@ package br.com.bcfinances.person.domain.valueobjects;
 
 import br.com.bcfinances.location.domain.entities.City;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
+@NoArgsConstructor
 public class Address {
 
     private String street;

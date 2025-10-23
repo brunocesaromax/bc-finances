@@ -1,13 +1,32 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:8.2.1-alpine
+    container_name: bc-finances-redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-bcfinances2024!}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass "${REDIS_PASSWORD:-bcfinances2024!}" --appendonly yes --appendfsync everysec
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-bcfinances2024!}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bc-finances-network
+    restart: unless-stopped
+
   postgres:
     image: postgres:16-alpine
     container_name: bc-finances-db
     environment:
-      POSTGRES_DB: bc-finances
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-bc-finances}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5435:5432"
     volumes:
@@ -25,8 +44,8 @@ services:
     image: dpage/pgadmin4:latest
     container_name: bc-finances-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@lancamentos.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@lancamentos.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
     ports:
       - "8081:80"
     depends_on:
@@ -42,14 +61,19 @@ services:
       dockerfile: Dockerfile
     container_name: bc-finances-backend
     environment:
-      SPRING_PROFILES_ACTIVE: dev
-      DB_URL: jdbc:postgresql://postgres:5432/bc-finances
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bc-finances}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-bcfinances2024!}
     ports:
       - "8080:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - backend_logs:/app/logs
@@ -71,6 +95,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  redis_data:
   postgres_data:
   pgadmin_data:
   backend_logs:

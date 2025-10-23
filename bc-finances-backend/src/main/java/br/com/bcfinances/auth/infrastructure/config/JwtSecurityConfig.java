@@ -26,8 +26,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import br.com.bcfinances.auth.infrastructure.caching.RedisRsaKeyStore;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
@@ -40,6 +40,7 @@ import java.util.UUID;
 public class JwtSecurityConfig {
 
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
+    private final RedisRsaKeyStore redisRsaKeyStore;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -77,7 +78,7 @@ public class JwtSecurityConfig {
 
     @Bean
     public KeyPair keyPair() {
-        return generateRsaKey();
+        return redisRsaKeyStore.getOrCreateKeyPair();
     }
 
     @Bean
@@ -118,17 +119,5 @@ public class JwtSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    private static KeyPair generateRsaKey() {
-        KeyPair keyPair;
-        try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            keyPair = keyPairGenerator.generateKeyPair();
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
-        }
-        return keyPair;
     }
 }

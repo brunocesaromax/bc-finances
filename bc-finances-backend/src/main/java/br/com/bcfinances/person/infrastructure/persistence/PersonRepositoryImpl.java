@@ -15,8 +15,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.*;
-
 @Repository
 public class PersonRepositoryImpl implements PersonRepository {
 
@@ -30,7 +28,7 @@ public class PersonRepositoryImpl implements PersonRepository {
     public List<Person> findAll() {
         return personJpaRepository.findAll().stream()
                 .map(this::toDomainEntity)
-                .collect(toList());
+                .toList();
     }
 
     @Override
@@ -57,7 +55,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         
         List<Person> persons = pagedResult.getContent().stream()
                 .map(this::toDomainEntity)
-                .collect(toList());
+                .toList();
         
         return new PagedResult<>(persons, pagedResult.getTotalElements(), page, size);
     }
@@ -72,7 +70,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         if (personEntity.getContacts() != null) {
             contacts = personEntity.getContacts().stream()
                     .map(this::toDomainContact)
-                    .collect(toList());
+                    .toList();
         }
 
         return new Person(
@@ -93,8 +91,8 @@ public class PersonRepositoryImpl implements PersonRepository {
         List<ContactEntity> contactEntities = null;
         if (person.getContacts() != null) {
             contactEntities = person.getContacts().stream()
-                    .map(contact -> toJpaContact(contact, null))
-                    .collect(toList());
+                    .map(this::toJpaContact)
+                    .toList();
         }
 
         PersonEntity personEntity = new PersonEntity(
@@ -176,13 +174,13 @@ public class PersonRepositoryImpl implements PersonRepository {
         );
     }
 
-    private ContactEntity toJpaContact(Contact contact, PersonEntity personEntity) {
+    private ContactEntity toJpaContact(Contact contact) {
         return new ContactEntity(
             contact.getId(),
             contact.getName(),
             contact.getEmail(),
             contact.getPhone(),
-            personEntity
+                null
         );
     }
 }
