@@ -22,18 +22,23 @@ Senha: admin
 
 Para documentação detalhada da arquitetura e diagramas, consulte:
 
-### Arquitetura
+### Backend
+
+#### Arquitetura
 - **[Clean Architecture](docs/architecture/clean-architecture.md)** - Documentação completa da arquitetura atual com diagramas Mermaid
 
-### Diagramas e Modelagem  
+#### Diagramas e Modelagem  
 - **[Modelo de Classes](docs/diagrams/class-diagram.md)** - Estrutura das entidades e relacionamentos
 - **[Modelo de Dados](docs/diagrams/entity-relationship-diagram.md)** - Schema do banco PostgreSQL  
 
-### Segurança
+#### Segurança
 - **[Autenticação](docs/security/authentication.md)** - Implementação JWT completa
 - **[Autorização](docs/security/authorization.md)** - Sistema de permissões e roles
 - **[Fluxo de Autenticação](docs/diagrams/authentication-flow.md)** - Diagramas de sequência
 - **[Fluxo de Autorização](docs/diagrams/authorization-flow.md)** - Controle de acesso detalhado
+
+### Frontend
+- **[Guia do Frontend](docs/frontend/README.md)** - Padrões de arquitetura, código e convenções do projeto
 
 ## Tecnologias utilizadas
 
