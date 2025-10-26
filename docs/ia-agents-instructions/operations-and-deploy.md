@@ -19,9 +19,9 @@ docker-compose down       # encerrar serviços
 
 ## Deploy (Heroku)
 
-- O frontend utiliza `server.js` (Express) para servir o bundle de produção.
-- `postinstall` executa o build de produção automaticamente.
-- Engines configuradas: Node.js 10.19.0 / npm 6.14.11.
+- O frontend React gera bundle estático em `dist/` via `npm run build` (Vite). Utilize servidor leve (Express, Nginx ou plataforma estática) apontando para esse diretório.
+- Ajuste os scripts de deploy para Node.js 20 LTS e npm 10+.
+- Caso utilize Express, atualize o `server.js` para servir os assets de Vite.
 - Backend possui `Procfile` pronto para deploy; valide variáveis de ambiente antes de publicar.
 
 ## Boas Práticas Operacionais

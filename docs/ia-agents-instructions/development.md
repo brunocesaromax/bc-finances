@@ -6,29 +6,31 @@
 - **Nunca** inicie aplicações ou serviços sem permissão explícita do usuário.
 - Ao concluir uma tarefa parcial, pause e atualize `TODO.md` e `CHANGELOG.md` antes de seguir.
 
-## Fluxo Backend (Spring Boot 2.3.7 / Java 8)
+## Fluxo Backend (Spring Boot 3.5.4 / Java 21)
 
 ```bash
-mvn clean compile            # obrigatório para validar a base do projeto
-mvn spring-boot:run          # somente com autorização do usuário
-mvn test                     # executar suites quando aplicável
-mvn package                  # empacotar quando solicitado
+mvn clean compile              # obrigatório para validar a base do projeto
+mvn spring-boot:run            # somente com autorização do usuário
+mvn test                       # executar suites quando aplicável
+mvn package                    # empacotar quando solicitado
 mvn spring-boot:run -Dspring.profiles.active=dev
 ```
 
-## Fluxo Frontend (Angular 9 / Node.js 10.x)
+## Fluxo Frontend (React 19 / Vite / Node.js 20+)
 
 ```bash
-npm install                  # instalar dependências em bc-finances-frontend/
-npx ng serve                 # desenvolvimento local (não use npm start)
-ng build --prod              # builds de produção quando requisitado
-ng test | ng lint | ng e2e   # qualidade e automação conforme necessidade
+npm install                    # instalar dependências em bc-finances-frontend/
+npm run dev                    # desenvolvimento local
+npm run build                  # build de produção
+npm run preview                # pré-visualização do bundle gerado
+npm run lint                   # verifica estilo e padrões via ESLint
 ```
 
 ### Requisitos de Ambiente Frontend
 
-- Node.js 10.x e npm 6.x são obrigatórios (`node --version`, `npm --version`).
-- Chart.js, PrimeNG e @auth0/angular-jwt são dependências críticas – verifique compatibilidade antes de upgrades.
+- Node.js 20 LTS (ou superior) e npm 10+ (`node --version`, `npm --version`).
+- Projeto baseado em React 19 + Vite 7 + Tailwind CSS 4.
+- Utiliza Axios, React Hook Form, Zod, React Router DOM e React Hot Toast.
 
 ## Padrões Principais de Código
 
@@ -40,9 +42,10 @@ ng test | ng lint | ng e2e   # qualidade e automação conforme necessidade
   - Integrações dedicadas para email (`/mail`) e armazenamento S3.
 
 - **Frontend**
-  - Modularização por domínio (launches, persons, categories, reports, dashboard).
-  - Serviços centralizados para requisições HTTP e guards em `/security`.
-  - Uso consistente de componentes compartilhados e padrões Angular.
+  - Organização modular por domínio (`/pages`, `/components`, `/services`, `/contexts`, `/hooks`).
+  - Serviços centralizados em `src/services` com Axios e interceptadores de autenticação.
+  - Contexto global de Auth e rotas protegidas via React Router.
+  - Componentes shared estilizados com Tailwind CSS; manter coerência de design tokens definidos em `src/index.css`.
 
 ## Princípios Essenciais
 
@@ -53,7 +56,7 @@ ng test | ng lint | ng e2e   # qualidade e automação conforme necessidade
 ## Testes e Qualidade
 
 - **Backend**: JUnit + Spring Boot Test, com foco em integração de repositórios e serviços.
-- **Frontend**: Jasmine/Karma para unit tests, Protractor para e2e, TSLint obrigatório.
+- **Frontend**: Utilizar ESLint (`npm run lint`) e considerar Vitest/Testing Library em novos testes.
 - Tenha certeza de que suites relevantes foram executadas após mudanças significativas.
 - Credenciais padrão para verificação rápida: `admin@algamoney.com / admin` (utilize somente em ambientes de teste).
 

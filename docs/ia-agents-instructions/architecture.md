@@ -4,8 +4,8 @@
 
 BC Finances é um sistema full-stack para gerenciamento financeiro, combinando:
 
-- **Backend**: Spring Boot 2.3.7 (Java 8) com autenticação OAuth2/JWT, JasperReports para PDFs, integração AWS S3 e notificações via e-mail.
-- **Frontend**: Angular 9 com PrimeNG, Chart.js e gestão de tokens com `@auth0/angular-jwt`.
+- **Backend**: Spring Boot 3.5.4 (Java 21) com autenticação OAuth2/JWT, integração AWS S3 e notificações via e-mail.
+- **Frontend**: React 19 (Vite + Tailwind) com gestão de autenticação via contexto, Axios e React Router.
 
 Os diagramas atualizados residem em `docs/diagrams` (classes e entidade-relacionamento) e devem ser consultados a cada nova demanda.
 
@@ -18,10 +18,11 @@ Os diagramas atualizados residem em `docs/diagrams` (classes e entidade-relacion
 
 ## Componentes Frontend
 
-- Módulos organizados por contexto funcional (lançamentos, pessoas, categorias, relatórios, dashboard).
-- Módulo compartilhado para componentes reutilizáveis.
-- Guards e serviços de segurança em `security/`.
-- Serviços especializados para comunicação com a API, respeitando padrões Angular.
+- Estrutura modular por domínio em `src/pages`, com layout compartilhado em `src/components`.
+- `src/contexts/AuthContext` provê controle de sessão e permissões.
+- Hooks utilitários (`src/hooks`) concentram lógicas reutilizáveis (ex.: debounce, autenticação).
+- Serviços HTTP em `src/services` usam Axios com interceptadores de token e cancelamento.
+- Estilização via Tailwind CSS 4 e design tokens declarados em `src/index.css`.
 
 ## Modelagem de Dados
 

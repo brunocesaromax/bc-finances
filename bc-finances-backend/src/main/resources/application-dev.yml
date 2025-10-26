@@ -15,7 +15,7 @@ spring:
     validate-on-migrate: false
 
 bc-finances:
-  origin-permitted: http://localhost:4200
+  origin-permitted: http://localhost:5173
   i18n:
     cache-seconds: 0
   mail:

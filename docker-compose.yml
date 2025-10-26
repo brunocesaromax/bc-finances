@@ -68,6 +68,13 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-bcfinances2024!}
+      MAIL_HOST: ${MAIL_HOST:-smtp.example.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      AWS_S3_ACCESS_KEY_ID: ${AWS_S3_ACCESS_KEY_ID:-dummy-access-key}
+      AWS_S3_SECRET_ACCESS_KEY: ${AWS_S3_SECRET_ACCESS_KEY:-dummy-secret-key}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-dummy-bucket}
     ports:
       - "8080:8080"
     depends_on:
@@ -83,13 +90,16 @@ services:
 
   frontend:
     build:
-      context: ./bc-finances-frontend
+      context: bc-finances-frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
     container_name: bc-finances-frontend
     ports:
-      - "4200:80"
+      - "5173:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     networks:
       - bc-finances-network
     restart: unless-stopped

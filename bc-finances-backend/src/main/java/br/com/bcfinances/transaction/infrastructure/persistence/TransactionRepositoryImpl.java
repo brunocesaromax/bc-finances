@@ -1,9 +1,6 @@
 package br.com.bcfinances.transaction.infrastructure.persistence;
 
 import br.com.bcfinances.transaction.application.dto.TransactionFilterDto;
-import br.com.bcfinances.transaction.application.dto.TransactionStatisticByDayDto;
-import br.com.bcfinances.transaction.application.dto.TransactionStatisticCategoryDto;
-import br.com.bcfinances.transaction.application.dto.TransactionStatisticPersonDto;
 import br.com.bcfinances.transaction.application.dto.TransactionSummaryDto;
 import br.com.bcfinances.transaction.domain.contracts.TransactionRepository;
 import br.com.bcfinances.transaction.domain.entities.Transaction;
@@ -61,119 +58,6 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     }
 
     @Override
-    public List<Transaction> findAll() {
-        return jpaRepository.findAll().stream()
-                .map(entityMapper::toDomain)
-                .toList();
-    }
-
-    @Override
-    public List<Transaction> findAll(TransactionFilterDto filter) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TransactionEntity> criteriaQuery = builder.createQuery(TransactionEntity.class);
-        Root<TransactionEntity> root = criteriaQuery.from(TransactionEntity.class);
-
-        Predicate[] predicates = getRestrictions(filter, builder, root);
-        criteriaQuery.where(predicates);
-
-        TypedQuery<TransactionEntity> query = entityManager.createQuery(criteriaQuery);
-
-        return query.getResultList().stream()
-                .map(entityMapper::toDomain)
-                .toList();
-    }
-
-    @Override
-    public List<Transaction> findAllPaged(TransactionFilterDto filter, int page, int size) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TransactionEntity> criteriaQuery = builder.createQuery(TransactionEntity.class);
-        Root<TransactionEntity> root = criteriaQuery.from(TransactionEntity.class);
-
-        Predicate[] predicates = getRestrictions(filter, builder, root);
-        criteriaQuery.where(predicates);
-
-        TypedQuery<TransactionEntity> query = entityManager.createQuery(criteriaQuery);
-        query.setFirstResult(page * size);
-        query.setMaxResults(size);
-
-        return query.getResultList().stream()
-                .map(entityMapper::toDomain)
-                .toList();
-    }
-
-    @Override
-    public long count(TransactionFilterDto filter) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
-        Root<TransactionEntity> root = criteriaQuery.from(TransactionEntity.class);
-
-        Predicate[] predicates = getRestrictions(filter, builder, root);
-        criteriaQuery.where(predicates);
-        criteriaQuery.select(builder.count(root));
-
-        return entityManager.createQuery(criteriaQuery).getSingleResult();
-    }
-
-    @Override
-    public List<TransactionSummaryDto> findSummary(TransactionFilterDto filter) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TransactionSummary> criteriaQuery = builder.createQuery(TransactionSummary.class);
-        Root<TransactionEntity> root = criteriaQuery.from(TransactionEntity.class);
-
-        criteriaQuery.select(builder.construct(TransactionSummary.class,
-                root.get("id"),
-                root.get("description"),
-                root.get("dueDay"),
-                root.get("payday"),
-                root.get("value"),
-                root.get("type"),
-                root.get("category").get("name"),
-                root.get("person").get("name")));
-
-        Predicate[] predicates = getRestrictions(filter, builder, root);
-        criteriaQuery.where(predicates);
-
-        TypedQuery<TransactionSummary> query = entityManager.createQuery(criteriaQuery);
-
-        return query.getResultList().stream()
-                .map(this::convertSummaryToDto)
-                .toList();
-    }
-
-    @Override
-    public List<TransactionSummaryDto> findSummaryPaged(TransactionFilterDto filter, int page, int size) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TransactionSummary> criteriaQuery = builder.createQuery(TransactionSummary.class);
-        Root<TransactionEntity> root = criteriaQuery.from(TransactionEntity.class);
-
-        criteriaQuery.select(builder.construct(TransactionSummary.class,
-                root.get("id"),
-                root.get("description"),
-                root.get("dueDay"),
-                root.get("payday"),
-                root.get("value"),
-                root.get("type"),
-                root.get("category").get("name"),
-                root.get("person").get("name")));
-
-        Predicate[] predicates = getRestrictions(filter, builder, root);
-        criteriaQuery.where(predicates);
-
-        TypedQuery<TransactionSummary> query = entityManager.createQuery(criteriaQuery);
-        query.setFirstResult(page * size);
-        query.setMaxResults(size);
-
-        return query.getResultList().stream()
-                .map(this::convertSummaryToDto)
-                .toList();
-    }
-
-    @Override
-    public long countSummary(TransactionFilterDto filter) {
-        return count(filter);
-    }
-
-    @Override
     public boolean existsByPersonId(Long personId) {
         return jpaRepository.existsByPersonId(personId);
     }
@@ -205,7 +89,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                 .map(this::convertSummaryToDto)
                 .toList();
 
-        return new PageImpl<>(results, pageable, count(filter));
+        return new PageImpl<>(results, pageable, countTransactions(filter));
     }
 
     @Override
@@ -215,77 +99,16 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                 .toList();
     }
 
-    @Override
-    public List<TransactionStatisticCategoryDto> findStatisticsByCategory(LocalDate monthReference) {
+    private long countTransactions(TransactionFilterDto filter) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TransactionStatisticCategory> criteriaQuery = builder.createQuery(TransactionStatisticCategory.class);
+        CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
         Root<TransactionEntity> root = criteriaQuery.from(TransactionEntity.class);
 
-        criteriaQuery.select(builder.construct(TransactionStatisticCategory.class,
-                root.get("category"),
-                builder.sum(root.get("value"))));
+        Predicate[] predicates = getRestrictions(filter, builder, root);
+        criteriaQuery.where(predicates);
+        criteriaQuery.select(builder.count(root));
 
-        LocalDate firstDay = monthReference.withDayOfMonth(1);
-        LocalDate lastDay = monthReference.withDayOfMonth(monthReference.lengthOfMonth());
-
-        criteriaQuery.where(
-                builder.greaterThanOrEqualTo(root.get("dueDay"), firstDay),
-                builder.lessThanOrEqualTo(root.get("dueDay"), lastDay)
-        );
-
-        criteriaQuery.groupBy(root.get("category"));
-
-        return entityManager.createQuery(criteriaQuery).getResultList().stream()
-                .map(this::convertCategoryStatisticToDto)
-                .toList();
-    }
-
-    @Override
-    public List<TransactionStatisticByDayDto> findStatisticsByDay(LocalDate monthReference) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TransactionStatisticDay> criteriaQuery = builder.createQuery(TransactionStatisticDay.class);
-        Root<TransactionEntity> root = criteriaQuery.from(TransactionEntity.class);
-
-        criteriaQuery.select(builder.construct(TransactionStatisticDay.class,
-                root.get("type"),
-                root.get("dueDay"),
-                builder.sum(root.get("value"))));
-
-        LocalDate firstDay = monthReference.withDayOfMonth(1);
-        LocalDate lastDay = monthReference.withDayOfMonth(monthReference.lengthOfMonth());
-
-        criteriaQuery.where(
-                builder.greaterThanOrEqualTo(root.get("dueDay"), firstDay),
-                builder.lessThanOrEqualTo(root.get("dueDay"), lastDay)
-        );
-
-        criteriaQuery.groupBy(root.get("type"), root.get("dueDay"));
-
-        return entityManager.createQuery(criteriaQuery).getResultList().stream()
-                .map(this::convertDayStatisticToDto)
-                .toList();
-    }
-
-    @Override
-    public List<TransactionStatisticPersonDto> findStatisticsByPerson(LocalDate startDate, LocalDate endDate) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TransactionStatisticPerson> criteriaQuery = builder.createQuery(TransactionStatisticPerson.class);
-        Root<TransactionEntity> root = criteriaQuery.from(TransactionEntity.class);
-
-        criteriaQuery.select(builder.construct(TransactionStatisticPerson.class,
-                root.get("person"),
-                builder.sum(root.get("value"))));
-
-        criteriaQuery.where(
-                builder.greaterThanOrEqualTo(root.get("dueDay"), startDate),
-                builder.lessThanOrEqualTo(root.get("dueDay"), endDate)
-        );
-
-        criteriaQuery.groupBy(root.get("person"));
-
-        return entityManager.createQuery(criteriaQuery).getResultList().stream()
-                .map(this::convertPersonStatisticToDto)
-                .toList();
+        return entityManager.createQuery(criteriaQuery).getSingleResult();
     }
 
     private Predicate[] getRestrictions(TransactionFilterDto filter, CriteriaBuilder builder, Root<TransactionEntity> root) {
@@ -323,25 +146,4 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         );
     }
 
-    private TransactionStatisticCategoryDto convertCategoryStatisticToDto(TransactionStatisticCategory stat) {
-        return new TransactionStatisticCategoryDto(
-                stat.getCategory().getName(),
-                stat.getTotal()
-        );
-    }
-
-    private TransactionStatisticByDayDto convertDayStatisticToDto(TransactionStatisticDay stat) {
-        return new TransactionStatisticByDayDto(
-                stat.getDay(),
-                stat.getTotal()
-        );
-    }
-
-    private TransactionStatisticPersonDto convertPersonStatisticToDto(TransactionStatisticPerson stat) {
-        return new TransactionStatisticPersonDto(
-                "TOTAL", // Tipo fixo para estatística por pessoa
-                stat.getPerson(),
-                stat.getTotal()
-        );
-    }
 }
