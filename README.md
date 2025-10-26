@@ -3,8 +3,6 @@
 
 # Sobre o projeto
 
-BC Finances é uma aplicação full stack web construída durante o acompanhamento do curso __Full Stack Angular and Spring__ da Algaworks.
-
 A aplicação consiste no gerenciamento financeiro do usuário, através de lançamentos de débitos e créditos.
 
 ## Acesso 
@@ -49,9 +47,10 @@ Para documentação detalhada da arquitetura e diagramas, consulte:
 - Maven 
 
 ### Front end
-- HTML / SASS / JS / Typescript
-- PrimeNg
-- Angular 9
+- React 19 (Vite)
+- TypeScript 5.9
+- Tailwind CSS 4
+- Axios, React Hook Form, Zod, React Router DOM
 
 ## Como executar o projeto
 
@@ -74,7 +73,7 @@ Pré-requisitos: Docker e Docker Compose
   
   3 - Aguardar os serviços subirem e acessar:
   
-  - **Frontend**: http://localhost:4200
+  - **Frontend**: http://localhost:5173
   - **Backend API**: http://localhost:8080
   - **pgAdmin**: http://localhost:8081
   - **Health Check**: http://localhost:8080/actuator/health
@@ -146,38 +145,45 @@ Pré-requisitos: Java 21, PostgreSQL 16
   mvn spring-boot:run
   ```
 
-### Front end web
+### Front end web (React)
 
-**Pré-requisitos:** Node.js 10.x, npm 6.x, Angular CLI
+**Pré-requisitos:** Node.js 20+ (LTS), npm 10+
 
-**IMPORTANTE:** O frontend requer Node.js versão 10 e npm compatível. Versões mais recentes podem causar incompatibilidade.
+1 - Clonar o repositório:
 
-  1 - Clonar o repositório: 
-  
-  ```bash 
-  git clone https://github.com/brunocesaromax/bc-finances.git
-  ```
-  
-  
-  2 - Entrar na pasta do projeto front end: 
-  
-  ```bash 
-  cd bc-finances-frontend
-  ```
-  
-  3 - Instalar dependências
-  
-  ```bash 
-  npm install
-  ```
-  
-  4 - Executar o projeto (DESENVOLVIMENTO):
-  
-  ```bash
-  npx ng serve
-  ```
-  
-  **Nota:** Use `npx ng serve` para desenvolvimento (conecta ao backend local). O comando `npm start` executa a versão de produção.
+```bash
+git clone https://github.com/brunocesaromax/bc-finances.git
+```
+
+2 - Entrar na pasta do frontend React:
+
+```bash
+cd bc-finances-frontend
+```
+
+3 - Instalar dependências
+
+```bash
+npm install
+```
+
+4 - Executar o projeto (desenvolvimento):
+
+```bash
+npm run dev
+```
+
+5 - Gerar build de produção:
+
+```bash
+npm run build
+```
+
+Para pré-visualizar o bundle:
+
+```bash
+npm run preview
+```
 
 ## Autenticação e Autorização
 

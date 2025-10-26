@@ -16,7 +16,7 @@ O BC Finances utiliza um modelo híbrido de autenticação com **JWT (JSON Web T
 
 ```mermaid
 sequenceDiagram
-    participant Frontend as Angular Frontend
+    participant Frontend as React Frontend
     participant Backend as Spring Boot API
     participant DB as PostgreSQL
     participant JWT as JWT Service
@@ -117,60 +117,75 @@ public class JwtService {
 
 ### AuthService
 
-```typescript
-@Injectable()
-export class AuthService {
-  
-  login(email: string, password: string): Observable<any> {
-    const body = { email, password };
-    
-    return this.httpClient.post(this.authLoginUrl, body, {headers})
-      .pipe(
-        tap((response: any) => this.storeToken(response.accessToken))
-      );
-  }
-  
-  private storeToken(token: string) {
-    this.jwtPayload = this.jwtHelperService.decodeToken(token);
-    localStorage.setItem(TOKEN_NAME, token);
-  }
+```ts
+// src/services/authService.ts
+import { apiClient } from '@/services/apiClient'
+
+export async function login(payload: { email: string; password: string }) {
+  const { data } = await apiClient.post('/auth/login', payload)
+  return data
+}
+
+export async function logout() {
+  await apiClient.delete('/auth/logout')
 }
 ```
 
-### AuthGuard
+### Proteção de Rotas e Contexto
 
-```typescript
-@Injectable()
-export class AuthGuard implements CanActivate {
-  
-  canActivate(route: ActivatedRouteSnapshot): boolean {
-    if (this.auth.isAccessTokenInvalid()) {
-      this.router.navigate(['/login']);
-      return false;
-    }
-    
-    if (route.data.roles && !this.auth.hasAnyPermission(route.data.roles)) {
-      this.router.navigate(['/not-authorized']);
-      return false;
-    }
-    
-    return true;
+```tsx
+// src/hooks/useAuth.ts
+import { useContext } from 'react'
+import { AuthContext } from '@/contexts/AuthContext'
+
+export const useAuth = () => useContext(AuthContext)
+```
+
+```tsx
+// src/routes/PrivateRoute.tsx
+import { Navigate, Outlet } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+
+export function PrivateRoute({ roles = [] }: { roles?: string[] }) {
+  const { isAuthenticated, hasAnyPermission } = useAuth()
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
   }
+
+  if (roles.length > 0 && !hasAnyPermission(roles)) {
+    return <Navigate to="/not-authorized" replace />
+  }
+
+  return <Outlet />
 }
 ```
 
 ## Interceptação HTTP
 
-O token JWT é automaticamente incluído em todas as requisições HTTP através do `JwtModule`:
+O token JWT é automaticamente incluído em todas as requisições Axios através do `apiClient`:
 
-```typescript
-JwtModule.forRoot({
-  config: {
-    tokenGetter: () => localStorage.getItem('token'),
-    allowedDomains: environment.tokenAllowedDomains,
-    disallowedRoutes: environment.tokenDisallowedRoutes
+```ts
+// src/services/apiClient.ts
+apiClient.interceptors.request.use((config) => {
+  const token = authStorage.getToken()
+  if (token) {
+    config.headers = config.headers ?? {}
+    config.headers.Authorization = `Bearer ${token}`
   }
+  return config
 })
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      authStorage.clearToken()
+      unauthorizedHandler?.()
+    }
+    return Promise.reject(error)
+  },
+)
 ```
 
 ## Logout
@@ -186,39 +201,7 @@ JwtModule.forRoot({
 
 ### Frontend
 
-```typescript
-logout() {
-  return this.httpClient.delete<void>(`${environment.apiUrl}/auth/logout`)
-    .pipe(
-      catchError(error => [401, 403, 404].includes(error?.status) ? of(null) : throwError(error))
-    )
-    .toPromise()
-    .finally(() => this.auth.clearAccessToken());
-}
-```
-
-- A promessa é resolvida mesmo quando o backend indica que a sessão já estava inválida (401/403/404), garantindo UX consistente.
-- `AuthService.clearAccessToken()` remove o token do `localStorage` e limpa o payload carregado em memória.
-
-## Configuração de Ambiente
-
-### Development
-```typescript
-export const environment = {
-  apiUrl: 'http://localhost:8080',
-  tokenAllowedDomains: [new RegExp('localhost:8080')],
-  tokenDisallowedRoutes: [new RegExp('/auth/login')]
-};
-```
-
-### Production
-```typescript
-export const environment = {
-  apiUrl: 'https://launchs-api.herokuapp.com',
-  tokenAllowedDomains: [new RegExp('launchs-api.herokuapp.com')],
-  tokenDisallowedRoutes: [new RegExp('/auth/login')]
-};
-```
+- `AuthContext` remove tokens expirados automaticamente e registra um `unauthorizedHandler` para tratar respostas 401 sem interromper a experiência do usuário.
 
 ## Segurança
 

@@ -262,7 +262,7 @@ Esta abordagem permitiu manter a aplicação funcionando durante todo o processo
 
 ```mermaid
 sequenceDiagram
-    participant UI as Frontend (Angular)
+    participant UI as Frontend (React)
     participant C as Controller
     participant UC as UseCase
     participant M as Mapper

@@ -9,7 +9,7 @@ Este documento descreve o fluxo completo de autenticação JWT no sistema BC Fin
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant F as Angular Frontend
+    participant F as React Frontend
     participant A as AuthController
     participant AM as AuthManager
     participant US as UserService
@@ -54,7 +54,7 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant F as Angular Frontend
+    participant F as React Frontend
     participant I as HTTP Interceptor
     participant AG as AuthGuard
     participant C as Spring Controller
@@ -105,7 +105,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant F as Angular Frontend
+    participant F as React Frontend
     participant LS as LocalStorage
     participant AS as AuthService
 
@@ -145,40 +145,48 @@ public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest logi
 
 ### 2. AuthService (Frontend)
 
-```typescript
-login(email: string, password: string): Observable<any> {
-    const body = { email, password };
-    
-    return this.httpClient.post(this.authLoginUrl, body, {headers})
-        .pipe(
-            tap((response: any) => this.storeToken(response.accessToken)),
-            catchError(exception => {
-                if (exception.status === 401) {
-                    return throwError('Usuário ou senha inválidos!');
-                }
-                return throwError(exception);
-            })
-        );
+```ts
+// src/services/authService.ts
+import { apiClient } from '@/services/apiClient'
+
+export type LoginPayload = {
+  email: string
+  password: string
+}
+
+export async function login(payload: LoginPayload) {
+  const { data } = await apiClient.post('/auth/login', payload)
+  return data
 }
 ```
 
-### 3. AuthGuard (Frontend)
+### 3. Roteamento Protegido (Frontend)
 
-```typescript
-canActivate(route: ActivatedRouteSnapshot): boolean {
-    // Verificar token válido
-    if (this.auth.isAccessTokenInvalid()) {
-        this.router.navigate(['/login']);
-        return false;
-    }
-    
-    // Verificar permissões da rota
-    if (route.data.roles && !this.auth.hasAnyPermission(route.data.roles)) {
-        this.router.navigate(['/not-authorized']);
-        return false;
-    }
-    
-    return true;
+```tsx
+// src/routes/PrivateRoute.tsx
+import { Navigate, Outlet } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+
+type PrivateRouteProps = {
+  requiredPermissions?: string[]
+}
+
+export function PrivateRoute({ requiredPermissions }: PrivateRouteProps) {
+  const { isAuthenticated, hasAnyPermission } = useAuth()
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (
+    requiredPermissions &&
+    requiredPermissions.length > 0 &&
+    !hasAnyPermission(requiredPermissions)
+  ) {
+    return <Navigate to="/not-authorized" replace />
+  }
+
+  return <Outlet />
 }
 ```
 
