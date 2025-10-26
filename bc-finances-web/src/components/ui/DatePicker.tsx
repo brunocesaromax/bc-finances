@@ -167,14 +167,13 @@ export const DatePicker = ({
   value,
   onChange,
   onBlur,
-  placeholder = 'dd/mm/aaaa',
+  placeholder,
   disabled = false,
   hasError = false,
   required = false,
   className,
 }: DatePickerProps) => {
   const selectedDate = useMemo(() => parseDateValue(value), [value])
-
   const handleChange = (date: Date | null) => {
     if (onChange) {
       onChange(date ? format(date, 'yyyy-MM-dd') : null)
@@ -190,8 +189,13 @@ export const DatePicker = ({
     }
   }
 
+  const placeholderValue = useMemo(
+    () => format(new Date(), 'dd/MM/yyyy'),
+    [],
+  )
+
   return (
-    <div className={clsx('relative w-full', className)}>
+    <div className={clsx('w-full', className)}>
       <ReactDatePicker
         id={id}
         selected={selectedDate}
@@ -199,20 +203,21 @@ export const DatePicker = ({
         dateFormat="dd/MM/yyyy"
         locale={ptBR}
         disabled={disabled}
-        placeholderText={placeholder}
-      customInput={
-        <DatePickerInput
-          value={selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''}
-          placeholder={placeholder}
-          disabled={disabled}
-          hasError={hasError}
-          inputId={id}
-          onClear={handleClear}
-        />
+        placeholderText={placeholder ?? placeholderValue}
+        customInput={
+          <DatePickerInput
+            value={selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''}
+            placeholder={placeholder ?? placeholderValue}
+            disabled={disabled}
+            hasError={hasError}
+            inputId={id}
+            onClear={handleClear}
+          />
         }
         showPopperArrow={false}
         calendarClassName="date-picker-calendar"
         popperClassName="date-picker-popper"
+        wrapperClassName="date-picker-wrapper"
         shouldCloseOnSelect
       />
 

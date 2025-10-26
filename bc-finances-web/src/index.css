@@ -133,3 +133,9 @@ button,
 .date-picker-calendar {
   font-family: var(--font-sans);
 }
+
+.date-picker-wrapper,
+.date-picker-wrapper .react-datepicker__input-container,
+.date-picker-wrapper .react-datepicker__input-container input {
+  width: 100%;
+}

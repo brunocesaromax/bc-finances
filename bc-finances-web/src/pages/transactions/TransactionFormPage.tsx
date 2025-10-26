@@ -279,34 +279,36 @@ export const TransactionFormPage = () => {
               <Controller
                 control={control}
                 name="dueDay"
-                render={({ field }) => (
-                  <DatePicker
-                    id="dueDay"
-                    value={field.value || null}
-                    onChange={(value) => field.onChange(value ?? '')}
-                    onBlur={field.onBlur}
-                    hasError={Boolean(errors.dueDay)}
-                    required
-                  />
-                )}
+            render={({ field }) => (
+              <DatePicker
+                id="dueDay"
+                value={field.value || null}
+                onChange={(value) => field.onChange(value ?? '')}
+                onBlur={field.onBlur}
+                hasError={Boolean(errors.dueDay)}
+                required
+                className="w-full"
               />
-              {errors.dueDay ? <FormError>{errors.dueDay.message}</FormError> : null}
-            </div>
+            )}
+          />
+          {errors.dueDay ? <FormError>{errors.dueDay.message}</FormError> : null}
+        </div>
             <div>
               <FormLabel htmlFor="payday">Data de pagamento</FormLabel>
               <Controller
                 control={control}
                 name="payday"
                 render={({ field }) => (
-                  <DatePicker
-                    id="payday"
-                    value={field.value || null}
-                    onChange={(value) => field.onChange(value ?? '')}
-                    onBlur={field.onBlur}
-                  />
-                )}
+              <DatePicker
+                id="payday"
+                value={field.value || null}
+                onChange={(value) => field.onChange(value ?? '')}
+                onBlur={field.onBlur}
+                className="w-full"
               />
-            </div>
+            )}
+          />
+        </div>
 
             <div>
               <FormLabel htmlFor="personId" requiredIndicator>

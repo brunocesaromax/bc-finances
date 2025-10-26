@@ -216,6 +216,7 @@ export const TransactionsListPage = () => {
             onChange={(value) =>
               setFilterForm((prev) => ({ ...prev, dueDayStart: value }))
             }
+            className="max-w-full"
           />
         </div>
         <div>
@@ -226,6 +227,7 @@ export const TransactionsListPage = () => {
             onChange={(value) =>
               setFilterForm((prev) => ({ ...prev, dueDayEnd: value }))
             }
+            className="max-w-full"
           />
         </div>
         <div className="md:col-span-4 flex flex-col justify-end gap-2 md:flex-row">
