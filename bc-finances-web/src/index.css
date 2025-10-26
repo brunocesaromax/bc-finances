@@ -45,4 +45,79 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+  cursor: pointer;
+}
+
+button,
+[type='button'],
+[type='submit'],
+[role='button'] {
+  cursor: pointer;
+}
+
+.rdp {
+  --rdp-accent-color: var(--color-brand-600);
+  --rdp-accent-background-color: var(--color-brand-600);
+  --rdp-day-width: 36px;
+  --rdp-day-height: 36px;
+  --rdp-outline: 2px solid var(--color-brand-200);
+  --rdp-outline-selected: 2px solid var(--color-brand-400);
+  margin: 0;
+  font-family: var(--font-sans);
+  color: #1f2937;
+}
+
+.rdp-caption {
+  @apply flex items-center justify-between px-1;
+}
+
+.rdp-nav_button {
+  @apply flex h-8 w-8 items-center justify-center rounded-full border border-transparent text-slate-500 transition hover:border-slate-200 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-200;
+}
+
+.rdp-month {
+  @apply space-y-2;
+}
+
+.rdp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rdp-head_row {
+  @apply text-xs font-semibold uppercase tracking-wide text-slate-400;
+}
+
+.rdp-head_cell {
+  @apply pb-2 text-center;
+}
+
+.rdp-row {
+  @apply flex justify-between;
+}
+
+.rdp-cell {
+  @apply flex-1;
+}
+
+.rdp-day {
+  @apply mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium text-slate-600 transition hover:bg-brand-50 focus:outline-none focus:ring-2 focus:ring-brand-200;
+}
+
+.rdp-day_selected,
+.rdp-day_selected:focus-visible,
+.rdp-day_selected:hover {
+  @apply bg-brand-600 text-white hover:bg-brand-600 focus:bg-brand-600;
+}
+
+.rdp-day_today {
+  @apply border border-brand-300 text-brand-600;
+}
+
+.rdp-day_outside {
+  @apply text-slate-300;
+}
+
+.rdp-day_disabled {
+  @apply text-slate-300 opacity-70 hover:bg-transparent cursor-not-allowed;
 }

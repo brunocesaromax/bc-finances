@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useForm, type Resolver } from 'react-hook-form'
+import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -10,21 +10,25 @@ import { personService } from '@/services/personService'
 import type { Category } from '@/types/category'
 import type { PersonMinimal } from '@/types/person'
 import type { Transaction } from '@/types/transaction'
-import { Input } from '@/components/ui/Input'
 import { FormLabel } from '@/components/ui/FormLabel'
 import { FormError } from '@/components/ui/FormError'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
-import { formatCurrencyBRL, parseDateInputValue } from '@/utils/formatters'
+import { DatePicker } from '@/components/ui/DatePicker'
+import { CurrencyInput } from '@/components/ui/CurrencyInput'
+import { Input } from '@/components/ui/Input'
+import { parseDateInputValue } from '@/utils/formatters'
+
+const currencySchema = z.coerce
+  .number()
+  .refine((value) => Number.isFinite(value), 'Informe o valor')
+  .refine((value) => value > 0, 'O valor deve ser maior que zero')
 
 const transactionSchema = z.object({
   description: z.string().min(5, 'Informe a descrição (mínimo 5 caracteres)'),
-  value: z.coerce
-    .number()
-    .refine((val) => !Number.isNaN(val), 'Informe o valor')
-    .refine((val) => val > 0, 'O valor deve ser maior que zero'),
+  value: currencySchema,
   type: z.enum(['RECIPE', 'EXPENSE']),
   dueDay: z.string().min(1, 'Informe a data de vencimento'),
   payday: z.string().optional(),
@@ -39,7 +43,7 @@ type TransactionFormValues = z.infer<typeof transactionSchema>
 
 const DEFAULT_VALUES: TransactionFormValues = {
   description: '',
-  value: 0,
+  value: undefined as unknown as number,
   type: 'RECIPE',
   dueDay: '',
   payday: '',
@@ -65,15 +69,14 @@ export const TransactionFormPage = () => {
     register,
     handleSubmit,
     reset,
-    watch,
     setValue,
+    watch,
+    control,
     formState: { errors },
   } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema) as Resolver<TransactionFormValues>,
     defaultValues: DEFAULT_VALUES,
   })
-
-  const currentValue = watch('value')
 
   const loadResources = useMemo(
     () =>
@@ -137,7 +140,7 @@ export const TransactionFormPage = () => {
       value: Number(values.value),
       type: values.type,
       dueDay: values.dueDay,
-      payday: values.payday || null,
+      payday: values.payday ? values.payday : null,
       observation: values.observation ?? '',
       person: {
         id: Number(values.personId),
@@ -194,6 +197,9 @@ export const TransactionFormPage = () => {
     setValue('urlAttachment', null)
   }
 
+  const currentAttachment = watch('attachment')
+  const currentAttachmentUrl = watch('urlAttachment')
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -218,7 +224,9 @@ export const TransactionFormPage = () => {
           <h2 className="text-lg font-semibold text-slate-900">Informações básicas</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <FormLabel htmlFor="description">Descrição</FormLabel>
+              <FormLabel htmlFor="description" requiredIndicator>
+                Descrição
+              </FormLabel>
               <Input
                 id="description"
                 hasError={Boolean(errors.description)}
@@ -230,23 +238,34 @@ export const TransactionFormPage = () => {
             </div>
 
             <div>
-              <FormLabel htmlFor="value">Valor</FormLabel>
-              <Input
-                id="value"
-                type="number"
-                step="0.01"
-                min="0"
-                hasError={Boolean(errors.value)}
-                {...register('value', { valueAsNumber: true })}
+              <FormLabel htmlFor="value" requiredIndicator>
+                Valor
+              </FormLabel>
+              <Controller
+                control={control}
+                name="value"
+                render={({ field }) => (
+                  <CurrencyInput
+                    id="value"
+                    value={
+                      typeof field.value === 'number' && !Number.isNaN(field.value)
+                        ? field.value
+                        : null
+                    }
+                    hasError={Boolean(errors.value)}
+                    onChange={(nextValue) => field.onChange(nextValue ?? undefined)}
+                    onBlur={field.onBlur}
+                    required
+                  />
+                )}
               />
               {errors.value ? <FormError>{errors.value.message}</FormError> : null}
-              <p className="mt-1 text-xs text-slate-400">
-                Valor atual: {formatCurrencyBRL(Number(currentValue) || 0)}
-              </p>
             </div>
 
             <div>
-              <FormLabel htmlFor="type">Tipo</FormLabel>
+              <FormLabel htmlFor="type" requiredIndicator>
+                Tipo
+              </FormLabel>
               <Select id="type" {...register('type')}>
                 <option value="RECIPE">Receita</option>
                 <option value="EXPENSE">Despesa</option>
@@ -254,22 +273,45 @@ export const TransactionFormPage = () => {
             </div>
 
             <div>
-              <FormLabel htmlFor="dueDay">Data de vencimento</FormLabel>
-              <Input
-                id="dueDay"
-                type="date"
-                hasError={Boolean(errors.dueDay)}
-                {...register('dueDay')}
+              <FormLabel htmlFor="dueDay" requiredIndicator>
+                Data de vencimento
+              </FormLabel>
+              <Controller
+                control={control}
+                name="dueDay"
+                render={({ field }) => (
+                  <DatePicker
+                    id="dueDay"
+                    value={field.value || null}
+                    onChange={(value) => field.onChange(value ?? '')}
+                    onBlur={field.onBlur}
+                    hasError={Boolean(errors.dueDay)}
+                    required
+                  />
+                )}
               />
               {errors.dueDay ? <FormError>{errors.dueDay.message}</FormError> : null}
             </div>
             <div>
               <FormLabel htmlFor="payday">Data de pagamento</FormLabel>
-              <Input id="payday" type="date" {...register('payday')} />
+              <Controller
+                control={control}
+                name="payday"
+                render={({ field }) => (
+                  <DatePicker
+                    id="payday"
+                    value={field.value || null}
+                    onChange={(value) => field.onChange(value ?? '')}
+                    onBlur={field.onBlur}
+                  />
+                )}
+              />
             </div>
 
             <div>
-              <FormLabel htmlFor="personId">Pessoa</FormLabel>
+              <FormLabel htmlFor="personId" requiredIndicator>
+                Pessoa
+              </FormLabel>
               <Select
                 id="personId"
                 hasError={Boolean(errors.personId)}
@@ -286,7 +328,9 @@ export const TransactionFormPage = () => {
             </div>
 
             <div>
-              <FormLabel htmlFor="categoryId">Categoria</FormLabel>
+              <FormLabel htmlFor="categoryId" requiredIndicator>
+                Categoria
+              </FormLabel>
               <Select
                 id="categoryId"
                 hasError={Boolean(errors.categoryId)}
@@ -328,15 +372,13 @@ export const TransactionFormPage = () => {
               {uploadingAttachment ? 'Enviando...' : 'Selecionar arquivo'}
             </label>
 
-            {watch('attachment') ? (
+            {currentAttachment ? (
               <div className="flex flex-1 flex-col gap-1 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="font-semibold text-slate-800">
-                    {watch('attachment')}
-                  </p>
-                  {watch('urlAttachment') ? (
+                  <p className="font-semibold text-slate-800">{currentAttachment}</p>
+                  {currentAttachmentUrl ? (
                     <a
-                      href={watch('urlAttachment') ?? undefined}
+                      href={currentAttachmentUrl ?? undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-brand-600 hover:underline"

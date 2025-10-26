@@ -13,12 +13,54 @@ import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { Spinner } from '@/components/ui/Spinner'
 
-const contactSchema = z.object({
-  id: z.number().optional(),
-  name: z.string().min(1, 'Informe o nome do contato'),
-  email: z.string().email('E-mail inválido'),
-  phone: z.string().min(1, 'Informe o telefone'),
-})
+const contactSchema = z
+  .object({
+    id: z.number().optional(),
+    name: z.string().optional(),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+  })
+  .superRefine((contact, ctx) => {
+    const name = contact.name?.trim() ?? ''
+    const email = contact.email?.trim() ?? ''
+    const phone = contact.phone?.trim() ?? ''
+
+    const hasAnyValue = Boolean(name || email || phone)
+
+    if (!hasAnyValue) {
+      return
+    }
+
+    if (!name) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Informe o nome do contato',
+        path: ['name'],
+      })
+    }
+
+    if (!email) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Informe o e-mail do contato',
+        path: ['email'],
+      })
+    } else if (!z.string().email().safeParse(email).success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'E-mail inválido',
+        path: ['email'],
+      })
+    }
+
+    if (!phone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Informe o telefone do contato',
+        path: ['phone'],
+      })
+    }
+  })
 
 const personSchema = z.object({
   name: z.string().min(5, 'Informe o nome completo (mínimo 5 caracteres)'),
@@ -29,9 +71,7 @@ const personSchema = z.object({
   zipCode: z.string().min(1, 'Informe o CEP'),
   stateId: z.string().min(1, 'Selecione o estado'),
   cityId: z.string().min(1, 'Selecione a cidade'),
-  contacts: z
-    .array(contactSchema)
-    .min(1, 'Adicione pelo menos um contato para a pessoa'),
+  contacts: z.array(contactSchema),
 })
 
 type PersonFormValues = z.infer<typeof personSchema>
@@ -77,6 +117,7 @@ export const PersonFormPage = () => {
   })
 
   const selectedStateId = watch('stateId')
+
   const createBlankContact = () => ({
     name: '',
     email: '',
@@ -133,7 +174,7 @@ export const PersonFormPage = () => {
       loadPerson(Number(id))
     } else {
       setIsLoading(false)
-      replace([createBlankContact()])
+      replace([])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isEditing])
@@ -177,7 +218,7 @@ export const PersonFormPage = () => {
     if (person.contacts?.length) {
       replace(person.contacts)
     } else {
-      replace([createBlankContact()])
+      replace([])
     }
   }
 
@@ -187,6 +228,20 @@ export const PersonFormPage = () => {
     }
 
     setIsSubmitting(true)
+
+    const filteredContacts = values.contacts
+      .filter((contact) => {
+        const name = contact.name?.trim() ?? ''
+        const email = contact.email?.trim() ?? ''
+        const phone = contact.phone?.trim() ?? ''
+        return Boolean(name || email || phone)
+      })
+      .map((contact) => ({
+        id: contact.id,
+        name: contact.name?.trim() ?? '',
+        email: contact.email?.trim() ?? '',
+        phone: contact.phone?.trim() ?? '',
+      }))
 
     const payload: Person = {
       id: personId ?? undefined,
@@ -204,12 +259,7 @@ export const PersonFormPage = () => {
           state: { id: Number(values.stateId), name: '' },
         },
       },
-      contacts: values.contacts.map((contact) => ({
-        id: contact.id,
-        name: contact.name,
-        email: contact.email,
-        phone: contact.phone,
-      })),
+      contacts: filteredContacts,
     }
 
     try {
@@ -255,13 +305,17 @@ export const PersonFormPage = () => {
           <h2 className="text-lg font-semibold text-slate-900">Dados pessoais</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <FormLabel htmlFor="name">Nome</FormLabel>
+              <FormLabel htmlFor="name" requiredIndicator>
+                Nome
+              </FormLabel>
               <Input id="name" hasError={Boolean(errors.name)} {...register('name')} />
               {errors.name ? <FormError>{errors.name.message}</FormError> : null}
             </div>
 
             <div>
-              <FormLabel htmlFor="street">Logradouro</FormLabel>
+              <FormLabel htmlFor="street" requiredIndicator>
+                Logradouro
+              </FormLabel>
               <Input
                 id="street"
                 hasError={Boolean(errors.street)}
@@ -278,7 +332,9 @@ export const PersonFormPage = () => {
               <Input id="complement" {...register('complement')} />
             </div>
             <div>
-              <FormLabel htmlFor="neighborhood">Bairro</FormLabel>
+              <FormLabel htmlFor="neighborhood" requiredIndicator>
+                Bairro
+              </FormLabel>
               <Input
                 id="neighborhood"
                 hasError={Boolean(errors.neighborhood)}
@@ -289,7 +345,9 @@ export const PersonFormPage = () => {
               ) : null}
             </div>
             <div>
-              <FormLabel htmlFor="zipCode">CEP</FormLabel>
+              <FormLabel htmlFor="zipCode" requiredIndicator>
+                CEP
+              </FormLabel>
               <Input
                 id="zipCode"
                 placeholder="00000-000"
@@ -299,7 +357,9 @@ export const PersonFormPage = () => {
               {errors.zipCode ? <FormError>{errors.zipCode.message}</FormError> : null}
             </div>
             <div>
-              <FormLabel htmlFor="stateId">Estado</FormLabel>
+              <FormLabel htmlFor="stateId" requiredIndicator>
+                Estado
+              </FormLabel>
               <Select
                 id="stateId"
                 hasError={Boolean(errors.stateId)}
@@ -316,7 +376,9 @@ export const PersonFormPage = () => {
               {errors.stateId ? <FormError>{errors.stateId.message}</FormError> : null}
             </div>
             <div>
-              <FormLabel htmlFor="cityId">Cidade</FormLabel>
+              <FormLabel htmlFor="cityId" requiredIndicator>
+                Cidade
+              </FormLabel>
               <Select
                 id="cityId"
                 hasError={Boolean(errors.cityId)}
@@ -351,13 +413,12 @@ export const PersonFormPage = () => {
             </Button>
           </div>
 
-          {errors.contacts?.root ? (
-            <FormError className="mt-3">
-              {errors.contacts.root.message}
-            </FormError>
-          ) : null}
-
           <div className="mt-6 space-y-4">
+            {fields.length === 0 ? (
+              <p className="text-sm text-slate-500">
+                Nenhum contato adicionado. Clique em &quot;Novo contato&quot; para cadastrar.
+              </p>
+            ) : null}
             {fields.map((field, index) => (
               <div
                 key={field.id}
@@ -367,20 +428,18 @@ export const PersonFormPage = () => {
                   <p className="text-sm font-semibold text-slate-700">
                     Contato {index + 1}
                   </p>
-                  {fields.length > 1 ? (
-                    <button
-                      type="button"
-                      className="text-xs font-semibold text-red-600"
-                      onClick={() => remove(index)}
-                    >
-                      Remover
-                    </button>
-                  ) : null}
+                  <button
+                    type="button"
+                    className="text-xs font-semibold text-red-600"
+                    onClick={() => remove(index)}
+                  >
+                    Remover
+                  </button>
                 </div>
 
                 <div className="mt-4 grid gap-3 md:grid-cols-3">
                   <div className="md:col-span-1">
-                    <FormLabel htmlFor={`contacts.${index}.name`}>
+                    <FormLabel htmlFor={`contacts.${index}.name`} requiredIndicator>
                       Nome
                     </FormLabel>
                     <Input
@@ -395,7 +454,7 @@ export const PersonFormPage = () => {
                     ) : null}
                   </div>
                   <div className="md:col-span-1">
-                    <FormLabel htmlFor={`contacts.${index}.email`}>
+                    <FormLabel htmlFor={`contacts.${index}.email`} requiredIndicator>
                       E-mail
                     </FormLabel>
                     <Input
@@ -410,7 +469,7 @@ export const PersonFormPage = () => {
                     ) : null}
                   </div>
                   <div className="md:col-span-1">
-                    <FormLabel htmlFor={`contacts.${index}.phone`}>
+                    <FormLabel htmlFor={`contacts.${index}.phone`} requiredIndicator>
                       Telefone
                     </FormLabel>
                     <Input

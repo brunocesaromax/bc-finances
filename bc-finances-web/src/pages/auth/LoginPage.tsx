@@ -24,6 +24,7 @@ export const LoginPage = () => {
   const { login, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const isDev = import.meta.env.DEV
   const [isSubmitting, setIsSubmitting] = useState(false)
   const {
     register,
@@ -79,20 +80,24 @@ export const LoginPage = () => {
           noValidate
         >
           <div>
-            <FormLabel htmlFor="email">E-mail</FormLabel>
-            <Input
-              id="email"
-              type="email"
-              placeholder="admin@algamoney.com"
-              hasError={Boolean(errors.email)}
-              autoComplete="email"
-              {...register('email')}
-            />
+          <FormLabel htmlFor="email" requiredIndicator>
+            E-mail
+          </FormLabel>
+          <Input
+            id="email"
+            type="email"
+            placeholder="Informe seu e-mail"
+            hasError={Boolean(errors.email)}
+            autoComplete="email"
+            {...register('email')}
+          />
             {errors.email ? <FormError>{errors.email.message}</FormError> : null}
           </div>
 
           <div>
-            <FormLabel htmlFor="password">Senha</FormLabel>
+          <FormLabel htmlFor="password" requiredIndicator>
+            Senha
+          </FormLabel>
             <Input
               id="password"
               type="password"
@@ -115,9 +120,11 @@ export const LoginPage = () => {
             Entrar
           </Button>
 
-          <p className="text-center text-xs text-slate-400">
-            Use admin@algamoney.com / admin para um login rápido em ambientes de teste.
-          </p>
+          {isDev ? (
+            <p className="text-center text-xs text-slate-400">
+              Use admin@algamoney.com / admin para um login rápido em ambientes de teste.
+            </p>
+          ) : null}
         </form>
       </div>
     </div>

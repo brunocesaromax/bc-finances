@@ -31,7 +31,7 @@ const NavItems = ({ onNavigate }: { onNavigate?: () => void }) => {
             to={item.to}
             className={({ isActive }) =>
               clsx(
-                'rounded-full px-4 py-2 text-sm font-semibold transition',
+                'cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition',
                 isActive
                   ? 'bg-brand-100 text-brand-700 shadow-sm'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-brand-700',

@@ -9,9 +9,14 @@ import type {
 } from '@/types/person'
 import type { PageableResponse } from '@/types/common'
 
+type RequestOptions = {
+  signal?: AbortSignal
+}
+
 export const personService = {
   async search(
     filter: PersonFilter,
+    options?: RequestOptions,
   ): Promise<PageableResponse<PersonSummary>> {
     const params: Record<string, string> = {
       page: filter.page.toString(),
@@ -29,6 +34,7 @@ export const personService = {
           ...params,
           pagination: '',
         },
+        signal: options?.signal,
       },
     )
 

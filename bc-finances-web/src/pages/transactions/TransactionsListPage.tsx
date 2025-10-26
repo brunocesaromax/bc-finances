@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import type { AxiosError } from 'axios'
 import { transactionService } from '@/services/transactionService'
 import type { TransactionSummary } from '@/types/transaction'
-import { Input } from '@/components/ui/Input'
-import { FormLabel } from '@/components/ui/FormLabel'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -13,13 +12,17 @@ import { Pagination } from '@/components/ui/Pagination'
 import { formatCurrencyBRL, formatDate } from '@/utils/formatters'
 import { useAuth } from '@/hooks/useAuth'
 import { PERMISSIONS } from '@/utils/permissions'
+import { FormLabel } from '@/components/ui/FormLabel'
+import { Input } from '@/components/ui/Input'
+import { DatePicker } from '@/components/ui/DatePicker'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 
 const PAGE_SIZE = 6
 
-type FilterState = {
+type FilterFormState = {
   description: string
-  dueDayStart: string
-  dueDayEnd: string
+  dueDayStart: string | null
+  dueDayEnd: string | null
 }
 
 type FetchState = {
@@ -27,12 +30,20 @@ type FetchState = {
   totalElements: number
 }
 
+const truncateText = (value: string, maxChars: number) =>
+  value.length > maxChars ? `${value.slice(0, maxChars).trimEnd()}…` : value
+
 export const TransactionsListPage = () => {
   const { hasPermission } = useAuth()
-  const [filters, setFilters] = useState<FilterState>({
+  const [filterForm, setFilterForm] = useState<FilterFormState>({
     description: '',
-    dueDayStart: '',
-    dueDayEnd: '',
+    dueDayStart: null,
+    dueDayEnd: null,
+  })
+  const [appliedFilters, setAppliedFilters] = useState<FilterFormState>({
+    description: '',
+    dueDayStart: null,
+    dueDayEnd: null,
   })
   const [page, setPage] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -40,49 +51,105 @@ export const TransactionsListPage = () => {
     content: [],
     totalElements: 0,
   })
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const canCreate = hasPermission(PERMISSIONS.CREATE_TRANSACTION)
   const canDelete = hasPermission(PERMISSIONS.REMOVE_TRANSACTION)
 
-  const loadTransactions = useMemo(
-    () =>
-      async (pageIndex: number, filtersState: FilterState) => {
-        setIsLoading(true)
-        try {
-          const response = await transactionService.search({
-            page: pageIndex,
-            size: PAGE_SIZE,
-            description: filtersState.description || undefined,
-            dueDayStart: filtersState.dueDayStart || undefined,
-            dueDayEnd: filtersState.dueDayEnd || undefined,
-          })
+  const debouncedDescription = useDebouncedValue(filterForm.description, 400)
 
-          setFetchState({
-            content: response.content,
-            totalElements: response.totalElements,
-          })
-        } catch (error) {
-          toast.error('Não foi possível carregar os lançamentos.')
-        } finally {
-          setIsLoading(false)
-        }
-      },
-    [],
-  )
+  const normalizedDescription = useMemo(() => {
+    const trimmed = debouncedDescription.trim()
+    return trimmed.length >= 3 ? trimmed : ''
+  }, [debouncedDescription])
 
   useEffect(() => {
-    loadTransactions(page, filters)
-  }, [filters, loadTransactions, page])
+    setAppliedFilters((previous) => {
+      if (previous.description === normalizedDescription) {
+        return previous
+      }
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setFilters((prev) => ({ ...prev, [name]: value }))
+      setPage(0)
+      return {
+        ...previous,
+        description: normalizedDescription,
+      }
+    })
+  }, [normalizedDescription])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const fetchData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await transactionService.search(
+          {
+            page,
+            size: PAGE_SIZE,
+            description: appliedFilters.description || undefined,
+            dueDayStart: appliedFilters.dueDayStart ?? undefined,
+            dueDayEnd: appliedFilters.dueDayEnd ?? undefined,
+          },
+          { signal: controller.signal },
+        )
+
+        setFetchState({
+          content: response.content,
+          totalElements: response.totalElements,
+        })
+      } catch (error) {
+        const axiosError = error as AxiosError
+        if (axiosError?.code === 'ERR_CANCELED') {
+          return
+        }
+        toast.error('Não foi possível carregar os lançamentos.')
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchData()
+
+    return () => {
+      controller.abort()
+    }
+  }, [
+    appliedFilters.description,
+    appliedFilters.dueDayEnd,
+    appliedFilters.dueDayStart,
+    page,
+    refreshKey,
+  ])
+
+  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target
+    setFilterForm((prev) => ({ ...prev, description: value }))
   }
 
   const handleFilterSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setPage(0)
-    loadTransactions(0, filters)
+    setAppliedFilters((prev) => ({
+      ...prev,
+      dueDayStart: filterForm.dueDayStart,
+      dueDayEnd: filterForm.dueDayEnd,
+    }))
+  }
+
+  const handleResetFilters = () => {
+    setFilterForm({
+      description: '',
+      dueDayStart: null,
+      dueDayEnd: null,
+    })
+    setAppliedFilters({
+      description: '',
+      dueDayStart: null,
+      dueDayEnd: null,
+    })
+    setPage(0)
   }
 
   const handleDelete = async (transaction: TransactionSummary) => {
@@ -97,7 +164,7 @@ export const TransactionsListPage = () => {
     try {
       await transactionService.delete(transaction.id)
       toast.success('Lançamento removido com sucesso!')
-      loadTransactions(page, filters)
+      setRefreshKey((prev) => prev + 1)
     } catch (error) {
       toast.error('Não foi possível remover o lançamento.')
     }
@@ -120,7 +187,7 @@ export const TransactionsListPage = () => {
         {canCreate ? (
           <Link
             to="/transactions/new"
-            className="inline-flex items-center justify-center rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+            className="inline-flex cursor-pointer items-center justify-center rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
           >
             Novo lançamento
           </Link>
@@ -137,33 +204,41 @@ export const TransactionsListPage = () => {
             id="description"
             name="description"
             placeholder="Buscar por descrição"
-            value={filters.description}
-            onChange={handleFilterChange}
+            value={filterForm.description}
+            onChange={handleDescriptionChange}
           />
         </div>
         <div>
           <FormLabel htmlFor="dueDayStart">Vencimento inicial</FormLabel>
-          <Input
+          <DatePicker
             id="dueDayStart"
-            name="dueDayStart"
-            type="date"
-            value={filters.dueDayStart}
-            onChange={handleFilterChange}
+            value={filterForm.dueDayStart}
+            onChange={(value) =>
+              setFilterForm((prev) => ({ ...prev, dueDayStart: value }))
+            }
           />
         </div>
         <div>
           <FormLabel htmlFor="dueDayEnd">Vencimento final</FormLabel>
-          <Input
+          <DatePicker
             id="dueDayEnd"
-            name="dueDayEnd"
-            type="date"
-            value={filters.dueDayEnd}
-            onChange={handleFilterChange}
+            value={filterForm.dueDayEnd}
+            onChange={(value) =>
+              setFilterForm((prev) => ({ ...prev, dueDayEnd: value }))
+            }
           />
         </div>
-        <div className="md:col-span-4 flex justify-end">
+        <div className="md:col-span-4 flex flex-col justify-end gap-2 md:flex-row">
           <Button type="submit" className="w-full md:w-auto">
             Aplicar filtros
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full md:w-auto"
+            onClick={handleResetFilters}
+          >
+            Limpar
           </Button>
         </div>
       </form>
@@ -198,18 +273,33 @@ export const TransactionsListPage = () => {
                     <td className="px-6 py-4 font-semibold text-slate-900">
                       {transaction.personName}
                     </td>
-                    <td className="px-6 py-4">{transaction.description}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className="line-clamp-1"
+                        title={transaction.description}
+                      >
+                        {truncateText(transaction.description, 25)}
+                      </span>
+                    </td>
                     <td className="px-6 py-4">{formatDate(transaction.dueDay)}</td>
                     <td className="px-6 py-4">{formatDate(transaction.payday)}</td>
                     <td className="px-6 py-4 font-semibold">
                       <span
-                        className={transaction.type === 'EXPENSE' ? 'text-red-600' : 'text-emerald-600'}
+                        className={
+                          transaction.type === 'EXPENSE'
+                            ? 'text-red-600'
+                            : 'text-emerald-600'
+                        }
                       >
                         {formatCurrencyBRL(transaction.value)}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <Badge variant={transaction.type === 'EXPENSE' ? 'danger' : 'success'}>
+                      <Badge
+                        variant={
+                          transaction.type === 'EXPENSE' ? 'danger' : 'success'
+                        }
+                      >
                         {transaction.type === 'EXPENSE' ? 'Despesa' : 'Receita'}
                       </Badge>
                     </td>
@@ -217,14 +307,14 @@ export const TransactionsListPage = () => {
                       <div className="flex justify-end gap-2">
                         <Link
                           to={`/transactions/${transaction.id}`}
-                          className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-brand-300 hover:text-brand-600"
+                          className="cursor-pointer rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-brand-300 hover:text-brand-600"
                         >
                           Editar
                         </Link>
                         {canDelete ? (
                           <button
                             type="button"
-                            className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                            className="cursor-pointer rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                             onClick={() => handleDelete(transaction)}
                           >
                             Excluir
@@ -247,13 +337,19 @@ export const TransactionsListPage = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-slate-900">
-                      {transaction.description}
+                      <span title={transaction.description}>
+                        {truncateText(transaction.description, 25)}
+                      </span>
                     </p>
                     <p className="text-xs text-slate-500">
                       {transaction.personName}
                     </p>
                   </div>
-                  <Badge variant={transaction.type === 'EXPENSE' ? 'danger' : 'success'}>
+                  <Badge
+                    variant={
+                      transaction.type === 'EXPENSE' ? 'danger' : 'success'
+                    }
+                  >
                     {transaction.type === 'EXPENSE' ? 'Despesa' : 'Receita'}
                   </Badge>
                 </div>
@@ -273,14 +369,14 @@ export const TransactionsListPage = () => {
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
                   <Link
                     to={`/transactions/${transaction.id}`}
-                    className="rounded-full bg-brand-50 px-3 py-1 text-brand-700"
+                    className="cursor-pointer rounded-full bg-brand-50 px-3 py-1 text-brand-700"
                   >
                     Editar
                   </Link>
                   {canDelete ? (
                     <button
                       type="button"
-                      className="rounded-full bg-red-100 px-3 py-1 text-red-700"
+                      className="cursor-pointer rounded-full bg-red-100 px-3 py-1 text-red-700"
                       onClick={() => handleDelete(transaction)}
                     >
                       Excluir
@@ -297,7 +393,6 @@ export const TransactionsListPage = () => {
             total={total}
             onPageChange={(nextPage) => {
               setPage(nextPage)
-              loadTransactions(nextPage, filters)
             }}
           />
         </div>

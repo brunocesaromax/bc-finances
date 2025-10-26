@@ -7,9 +7,14 @@ import type {
 } from '@/types/transaction'
 import type { PageableResponse } from '@/types/common'
 
+type RequestOptions = {
+  signal?: AbortSignal
+}
+
 export const transactionService = {
   async search(
     filter: TransactionFilter,
+    options?: RequestOptions,
   ): Promise<PageableResponse<TransactionSummary>> {
     const params: Record<string, string> = {
       page: filter.page.toString(),
@@ -35,6 +40,7 @@ export const transactionService = {
           ...params,
           summary: '',
         },
+        signal: options?.signal,
       },
     )
 
