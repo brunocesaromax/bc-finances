@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
-import { DayPicker } from 'react-day-picker'
-import { ptBR } from 'react-day-picker/locale'
-import 'react-day-picker/dist/style.css'
+import {
+  forwardRef,
+  useMemo,
+  type MouseEvent as ReactMouseEvent,
+} from 'react'
+import ReactDatePicker from 'react-datepicker'
+import { ptBR } from 'date-fns/locale/pt-BR'
+import 'react-datepicker/dist/react-datepicker.css'
 import clsx from 'clsx'
 import { format, isValid, parse, parseISO } from 'date-fns'
 
@@ -18,6 +22,16 @@ type DatePickerProps = {
   className?: string
 }
 
+type CustomInputProps = {
+  value?: string
+  onClick?: () => void
+  placeholder: string
+  disabled?: boolean
+  hasError?: boolean
+  inputId?: string
+  onClear?: (event: ReactMouseEvent<HTMLButtonElement>) => void
+}
+
 const parseDateValue = (value?: string | null) => {
   if (!value) {
     return null
@@ -32,175 +46,46 @@ const parseDateValue = (value?: string | null) => {
   return isValid(fallback) ? fallback : null
 }
 
-export const DatePicker = ({
-  id,
-  name,
-  value,
-  onChange,
-  onBlur,
-  placeholder = 'dd/mm/aaaa',
-  disabled = false,
-  hasError = false,
-  required = false,
-  className,
-}: DatePickerProps) => {
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
-
-  const selectedDate = useMemo(() => parseDateValue(value), [value])
-  const displayValue = useMemo(
-    () => (selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''),
-    [selectedDate],
-  )
-
-  useEffect(() => {
-    if (!isOpen) {
-      return
-    }
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false)
-        onBlur?.()
-      }
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false)
-        onBlur?.()
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isOpen, onBlur])
-
-  const handleSelect = (day?: Date) => {
-    if (!day) {
-      return
-    }
-
-    onChange?.(format(day, 'yyyy-MM-dd'))
-    setIsOpen(false)
-    onBlur?.()
-  }
-
-  const handleToggle = () => {
-    if (disabled) {
-      return
-    }
-
-    setIsOpen((prev) => !prev)
-  }
-
-  const handleClear = (event: ReactMouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation()
-    onChange?.(null)
-    setIsOpen(false)
-    onBlur?.()
-  }
-
-  return (
-    <div
-      ref={containerRef}
-      className={clsx('relative w-full', className)}
-      data-date-picker=""
-    >
+const DatePickerInput = forwardRef<HTMLButtonElement, CustomInputProps>(
+  (
+    { value, onClick, placeholder, disabled, hasError, inputId, onClear },
+    ref,
+  ) => (
+    <div className="relative w-full">
       <button
-        id={id}
+        id={inputId}
         type="button"
+        ref={ref}
+        onClick={onClick}
         disabled={disabled}
-        onClick={handleToggle}
         className={clsx(
-          'flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm text-slate-900 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:cursor-not-allowed disabled:bg-slate-100',
+          'flex w-full items-center rounded-xl border border-slate-200 bg-white px-4 py-2 pr-10 text-left text-sm text-slate-900 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:cursor-not-allowed disabled:bg-slate-100',
           hasError && 'border-red-400 focus:border-red-500 focus:ring-red-100',
         )}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
       >
-        <span
-          className={clsx('select-none', !displayValue && 'text-slate-400')}
-        >
-          {displayValue || placeholder}
-        </span>
-
-        <span className="ml-3 text-slate-400">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              d="M7 11H17"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M7 15H14"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M16 3V7"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M8 3V7"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M5 9H19"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M9 21H15C18 21 19 20 19 17V11C19 8 18 7 15 7H9C6 7 5 8 5 11V17C5 20 6 21 9 21Z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+        <span className={clsx('w-full select-none', !value && 'text-slate-400')}>
+          {value || placeholder}
         </span>
       </button>
 
       {value && !disabled ? (
         <button
           type="button"
-          onClick={handleClear}
-          className="absolute right-9 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-red-500"
+          className="absolute right-9 top-1/2 -translate-y-1/2 text-slate-300 transition hover:text-red-500"
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            onClear?.(event)
+          }}
           aria-label="Limpar data selecionada"
         >
           <svg
-            width="16"
-            height="16"
+            width="14"
+            height="14"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
           >
             <path
               d="M18 6L6 18"
@@ -220,6 +105,120 @@ export const DatePicker = ({
         </button>
       ) : null}
 
+      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M7 11H17"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M7 15H14"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 3V7"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8 3V7"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M5 9H19"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M9 21H15C18 21 19 20 19 17V11C19 8 18 7 15 7H9C6 7 5 8 5 11V17C5 20 6 21 9 21Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </div>
+  ),
+)
+
+DatePickerInput.displayName = 'DatePickerInput'
+
+export const DatePicker = ({
+  id,
+  name,
+  value,
+  onChange,
+  onBlur,
+  placeholder = 'dd/mm/aaaa',
+  disabled = false,
+  hasError = false,
+  required = false,
+  className,
+}: DatePickerProps) => {
+  const selectedDate = useMemo(() => parseDateValue(value), [value])
+
+  const handleChange = (date: Date | null) => {
+    if (onChange) {
+      onChange(date ? format(date, 'yyyy-MM-dd') : null)
+    }
+    onBlur?.()
+  }
+
+  const handleClear = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    if (!disabled) {
+      handleChange(null)
+      onBlur?.()
+    }
+  }
+
+  return (
+    <div className={clsx('relative w-full', className)}>
+      <ReactDatePicker
+        id={id}
+        selected={selectedDate}
+        onChange={(date) => handleChange(date)}
+        dateFormat="dd/MM/yyyy"
+        locale={ptBR}
+        disabled={disabled}
+        placeholderText={placeholder}
+        customInput={
+          <DatePickerInput
+            value={selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''}
+            placeholder={placeholder}
+            disabled={disabled}
+            hasError={hasError}
+            inputId={id}
+            onClear={handleClear}
+          />
+        }
+        showPopperArrow={false}
+        calendarClassName="date-picker-calendar"
+        popperClassName="date-picker-popper"
+        shouldCloseOnSelect
+      />
+
       <input
         type="hidden"
         name={name}
@@ -228,37 +227,6 @@ export const DatePicker = ({
         aria-hidden="true"
         required={required}
       />
-
-      {isOpen ? (
-        <div className="absolute z-20 mt-2 w-[280px] rounded-2xl border border-slate-200 bg-white p-3 shadow-lg">
-          <DayPicker
-            mode="single"
-            locale={ptBR}
-            selected={selectedDate ?? undefined}
-            onSelect={handleSelect}
-            defaultMonth={selectedDate ?? new Date()}
-            showOutsideDays
-            classNames={{
-              months: 'flex flex-col gap-4',
-              month: 'space-y-2',
-              caption: 'flex items-center justify-between px-1',
-              caption_label: 'text-sm font-semibold text-slate-800',
-              nav: 'flex items-center gap-2',
-              nav_button: 'rdp-nav_button',
-              table: 'rdp-table',
-              head_row: 'rdp-head_row',
-              head_cell: 'rdp-head_cell',
-              row: 'rdp-row',
-              cell: 'rdp-cell',
-              day: 'rdp-day',
-              day_selected: 'rdp-day_selected',
-              day_today: 'rdp-day_today',
-              day_outside: 'rdp-day_outside',
-              day_disabled: 'rdp-day_disabled',
-            }}
-          />
-        </div>
-      ) : null}
     </div>
   )
 }
