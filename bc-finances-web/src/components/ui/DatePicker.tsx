@@ -8,6 +8,7 @@ import { ptBR } from 'date-fns/locale/pt-BR'
 import 'react-datepicker/dist/react-datepicker.css'
 import clsx from 'clsx'
 import { format, isValid, parse, parseISO } from 'date-fns'
+import { Input } from '@/components/ui/Input'
 
 type DatePickerProps = {
   id?: string
@@ -46,27 +47,23 @@ const parseDateValue = (value?: string | null) => {
   return isValid(fallback) ? fallback : null
 }
 
-const DatePickerInput = forwardRef<HTMLButtonElement, CustomInputProps>(
+const DatePickerInput = forwardRef<HTMLInputElement, CustomInputProps>(
   (
     { value, onClick, placeholder, disabled, hasError, inputId, onClear },
     ref,
   ) => (
     <div className="relative w-full">
-      <button
-        id={inputId}
-        type="button"
+      <Input
         ref={ref}
+        id={inputId}
+        value={value ?? ''}
+        placeholder={placeholder}
         onClick={onClick}
+        readOnly
         disabled={disabled}
-        className={clsx(
-          'flex w-full items-center rounded-xl border border-slate-200 bg-white px-4 py-2 pr-10 text-left text-sm text-slate-900 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:cursor-not-allowed disabled:bg-slate-100',
-          hasError && 'border-red-400 focus:border-red-500 focus:ring-red-100',
-        )}
-      >
-        <span className={clsx('w-full select-none', !value && 'text-slate-400')}>
-          {value || placeholder}
-        </span>
-      </button>
+        hasError={hasError}
+        className="pr-12"
+      />
 
       {value && !disabled ? (
         <button
@@ -203,15 +200,15 @@ export const DatePicker = ({
         locale={ptBR}
         disabled={disabled}
         placeholderText={placeholder}
-        customInput={
-          <DatePickerInput
-            value={selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''}
-            placeholder={placeholder}
-            disabled={disabled}
-            hasError={hasError}
-            inputId={id}
-            onClear={handleClear}
-          />
+      customInput={
+        <DatePickerInput
+          value={selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''}
+          placeholder={placeholder}
+          disabled={disabled}
+          hasError={hasError}
+          inputId={id}
+          onClear={handleClear}
+        />
         }
         showPopperArrow={false}
         calendarClassName="date-picker-calendar"

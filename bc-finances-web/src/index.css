@@ -127,4 +127,9 @@ button,
 
 .date-picker-popper {
   z-index: 30;
+  margin-top: 0.5rem !important;
+}
+
+.date-picker-calendar {
+  font-family: var(--font-sans);
 }
