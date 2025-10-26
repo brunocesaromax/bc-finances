@@ -50,9 +50,18 @@ const AuthContext = createContext<AuthContextValue>({
 const tokenToUser = (token: string): AuthUser | null => {
   try {
     const payload = jwtDecode<JwtPayload>(token)
-    const permissions = Array.isArray(payload.authorities)
-      ? payload.authorities.filter((perm): perm is string => typeof perm === 'string')
-      : []
+    const rawAuthorities = payload.authorities
+
+    const permissions = Array.isArray(rawAuthorities)
+      ? rawAuthorities.filter(
+          (perm): perm is string => typeof perm === 'string' && perm.length > 0,
+        )
+      : typeof rawAuthorities === 'string'
+        ? rawAuthorities
+            .split(/[,\s]+/)
+            .map((perm) => perm.trim())
+            .filter((perm) => perm.length > 0)
+        : []
 
     const expiresAt =
       typeof payload.exp === 'number' ? payload.exp * 1000 : Date.now()

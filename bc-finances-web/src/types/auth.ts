@@ -10,6 +10,6 @@ export type JwtPayload = {
   exp: number
   iat?: number
   name?: string
-  authorities?: string[]
+  authorities?: string[] | string
   [key: string]: unknown
 }
