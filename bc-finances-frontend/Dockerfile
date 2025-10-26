@@ -1,40 +1,44 @@
-# Multi-stage build for Angular application
-FROM node:10.19-alpine AS builder
+# syntax=docker/dockerfile:1.7
 
-# Set working directory
+##
+# Build stage: install dependencies and generate production bundle
+##
+FROM node:20-alpine AS builder
+
 WORKDIR /app
 
-# Copy package files
+# Install dependencies based on lockfile for reproducibility
 COPY package*.json ./
+RUN npm ci --ignore-scripts
 
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy source code
+# Copy source and build the application
 COPY . .
 
-# Build the application for development (uses environment.ts instead of environment.prod.ts)
-RUN npx ng build
+# Allow overriding the API URL at build time
+ARG VITE_API_URL=http://bc-finances-backend:8080
+ENV VITE_API_URL=${VITE_API_URL}
 
-# Runtime stage with nginx
-FROM nginx:1.21-alpine AS runtime
+RUN npm run build
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist/bc-finances-frontend /usr/share/nginx/html
+##
+# Runtime stage: serve static assets via Nginx
+##
+FROM nginx:1.27-alpine AS runtime
 
-# Copy custom nginx configuration
-COPY nginx-full.conf /etc/nginx/nginx.conf
+# Remove default config and add SPA-friendly configuration
+RUN rm -f /etc/nginx/conf.d/default.conf
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create directory for nginx PID with proper permissions
+# Copy compiled assets
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Create writable directories for nginx user
 RUN mkdir -p /tmp/nginx && \
     chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /tmp/nginx /var/log/nginx
 
-# Expose port
 EXPOSE 80
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
 
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

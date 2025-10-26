@@ -1,9 +1,0 @@
-<app-navbar *ngIf="showNavBar()"></app-navbar>
-<router-outlet></router-outlet>  <!-- Diretiva de roteamento, placeholder -->
-<ng2-toasty></ng2-toasty>
-<p-confirmDialog header="Confirmação" icon="pi pi-exclamation-triangle" #confirmationDialog>
-  <p-footer>
-    <button type="button" pButton icon="pi pi-check" label="Sim" (click)="confirmationDialog.accept()"></button>
-    <button type="button" pButton icon="pi pi-times" label="Não" (click)="confirmationDialog.reject()"></button>
-  </p-footer>
-</p-confirmDialog>

@@ -90,7 +90,7 @@ services:
 
   frontend:
     build:
-      context: ./bc-finances-web
+      context: bc-finances-frontend
       dockerfile: Dockerfile
       args:
         VITE_API_URL: /api
