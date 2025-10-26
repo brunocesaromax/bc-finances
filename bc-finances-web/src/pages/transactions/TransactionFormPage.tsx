@@ -21,9 +21,20 @@ import { CurrencyInput } from '@/components/ui/CurrencyInput'
 import { Input } from '@/components/ui/Input'
 import { parseDateInputValue } from '@/utils/formatters'
 
-const currencySchema = z.coerce
-  .number()
-  .refine((value) => Number.isFinite(value), 'Informe o valor')
+const currencySchema = z
+  .any()
+  .transform((value) => {
+    if (typeof value === 'number') {
+      return value
+    }
+
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return Number(value.replace(',', '.'))
+    }
+
+    return NaN
+  })
+  .refine((value) => !Number.isNaN(value), 'Informe o valor do lançamento')
   .refine((value) => value > 0, 'O valor deve ser maior que zero')
 
 const transactionSchema = z.object({
