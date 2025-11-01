@@ -77,6 +77,7 @@ export const PersonsListPage = () => {
         if (axiosError?.code === 'ERR_CANCELED') {
           return
         }
+        console.error('Não foi possível carregar as pessoas cadastradas.', error)
         toast.error('Não foi possível carregar as pessoas cadastradas.')
       } finally {
         if (!controller.signal.aborted) {
@@ -106,6 +107,7 @@ export const PersonsListPage = () => {
       toast.success('Pessoa excluída com sucesso!')
       setRefreshKey((prev) => prev + 1)
     } catch (error) {
+      console.error('Não foi possível excluir a pessoa.', error)
       toast.error('Não foi possível excluir a pessoa.')
     }
   }
@@ -120,6 +122,7 @@ export const PersonsListPage = () => {
       )
       setRefreshKey((prev) => prev + 1)
     } catch (error) {
+      console.error('Não foi possível atualizar o status da pessoa.', error)
       toast.error('Não foi possível atualizar o status da pessoa.')
     }
   }

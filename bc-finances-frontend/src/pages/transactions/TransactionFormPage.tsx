@@ -100,6 +100,7 @@ export const TransactionFormPage = () => {
           setCategories(categoriesResponse)
           setPersons(personsResponse)
         } catch (error) {
+          console.error('Não foi possível carregar categorias e pessoas.', error)
           toast.error('Não foi possível carregar categorias e pessoas.')
         }
       },
@@ -115,6 +116,7 @@ export const TransactionFormPage = () => {
           const transaction = await transactionService.findById(Number(id))
           hydrateForm(transaction)
         } catch (error) {
+          console.error('Não foi possível carregar o lançamento.', error)
           toast.error('Não foi possível carregar o lançamento.')
         }
       }
@@ -174,6 +176,7 @@ export const TransactionFormPage = () => {
         navigate(`/transactions/${saved.id}`)
       }
     } catch (error) {
+      console.error('Não foi possível salvar o lançamento.', error)
       toast.error('Não foi possível salvar o lançamento.')
     } finally {
       setIsSubmitting(false)
@@ -196,6 +199,7 @@ export const TransactionFormPage = () => {
       setValue('urlAttachment', response.url)
       toast.success('Anexo enviado com sucesso!')
     } catch (error) {
+      console.error('Não foi possível enviar o anexo.', error)
       toast.error('Não foi possível enviar o anexo.')
     } finally {
       setUploadingAttachment(false)

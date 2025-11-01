@@ -13,7 +13,7 @@ const getPageList = (current: number, totalPages: number) => {
   const half = Math.floor(maxVisible / 2)
 
   let start = Math.max(current - half, 0)
-  let end = Math.min(start + maxVisible - 1, totalPages - 1)
+  const end = Math.min(start + maxVisible - 1, totalPages - 1)
 
   if (end - start + 1 < maxVisible) {
     start = Math.max(end - maxVisible + 1, 0)

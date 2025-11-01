@@ -131,6 +131,7 @@ export const PersonFormPage = () => {
           const response = await personService.listStates()
           setStates(response)
         } catch (error) {
+          console.error('Não foi possível carregar os estados.', error)
           toast.error('Não foi possível carregar os estados.')
         }
       },
@@ -148,6 +149,7 @@ export const PersonFormPage = () => {
             setValue('cityId', '')
           }
         } catch (error) {
+          console.error('Não foi possível carregar as cidades para o estado selecionado.', error)
           toast.error('Não foi possível carregar as cidades para o estado selecionado.')
         }
       },
@@ -164,6 +166,7 @@ export const PersonFormPage = () => {
         const person = await personService.findById(personIdentifier)
         hydrateForm(person)
       } catch (error) {
+        console.error('Não foi possível carregar os dados da pessoa.', error)
         toast.error('Não foi possível carregar os dados da pessoa.')
       } finally {
         setIsLoading(false)
@@ -275,6 +278,7 @@ export const PersonFormPage = () => {
 
       navigate('/persons')
     } catch (error) {
+      console.error('Não foi possível salvar os dados da pessoa.', error)
       toast.error('Não foi possível salvar os dados da pessoa.')
     } finally {
       setIsSubmitting(false)
