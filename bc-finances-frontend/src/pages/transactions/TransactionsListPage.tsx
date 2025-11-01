@@ -102,6 +102,7 @@ export const TransactionsListPage = () => {
         if (axiosError?.code === 'ERR_CANCELED') {
           return
         }
+        console.error('Não foi possível carregar os lançamentos.', error)
         toast.error('Não foi possível carregar os lançamentos.')
       } finally {
         if (!controller.signal.aborted) {
@@ -166,6 +167,7 @@ export const TransactionsListPage = () => {
       toast.success('Lançamento removido com sucesso!')
       setRefreshKey((prev) => prev + 1)
     } catch (error) {
+      console.error('Não foi possível remover o lançamento.', error)
       toast.error('Não foi possível remover o lançamento.')
     }
   }

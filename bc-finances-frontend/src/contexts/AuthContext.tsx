@@ -90,7 +90,7 @@ const tokenToUser = (token: string): AuthUser | null => {
       permissions,
       expiresAt,
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }

@@ -14,7 +14,7 @@ export const formatDate = (value?: string | null, fallback = '—') => {
 
   try {
     return format(parseISO(value), 'dd/MM/yyyy')
-  } catch (error) {
+  } catch {
     return fallback
   }
 }
@@ -26,7 +26,7 @@ export const parseDateInputValue = (value?: string | null): string | null => {
 
   try {
     return format(parseISO(value), 'yyyy-MM-dd')
-  } catch (error) {
+  } catch {
     return null
   }
 }
