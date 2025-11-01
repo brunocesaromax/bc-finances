@@ -9,15 +9,6 @@ A aplicação consiste no gerenciamento financeiro do usuário, através de lan�
 Login: admin@algamoney.com   
 Senha: admin
 
-## Layout Web
-
-![img1.png](docs/main-pages/img1.png)
-![img2.png](docs/main-pages/img2.png)
-![img3.png](docs/main-pages/img3.png)
-![img4.png](docs/main-pages/img4.png)
-![img5.png](docs/main-pages/img5.png)
-![img6.png](docs/main-pages/img6.png)
-
 ## Documentação Técnica
 
 Para documentação detalhada da arquitetura e diagramas, consulte:
