@@ -6,6 +6,9 @@ Este documento descreve o fluxo oficial para publicar novas versões do BC Finan
 - Certifique-se de que todas as implementações da versão estejam integradas em `develop`.
 - Execute `mvn clean compile` no backend e valide testes adicionais conforme a demanda.
 - Para o frontend, rode `npm run lint` e demais verificações necessárias.
+- Atualize as versões das aplicações antes do commit de versionamento. Garanta que backend e frontend estejam alinhados com a tag planejada (ex.: `0.3.0`):
+  - Backend: ajuste o `<version>` em `bc-finances-backend/pom.xml`.
+  - Frontend: atualize o campo `version` em `bc-finances-frontend/package.json` e `package-lock.json`.
 - Gere o commit de versionamento (`chore(project-version): Set new project version 0.3.0`, por exemplo) já em `develop`.
 
 ```bash
@@ -51,4 +54,3 @@ git push origin v0.3.0
 - Nunca crie tags diretamente a partir de `develop` ou branches de feature.
 - Mantenha o histórico linear em `master`; evite `--no-ff` e commits extras.
 - Releases só devem ser executadas com a árvore de trabalho limpa e após todos os testes definidos em `docs/ia-agents-instructions/development.md`.
-

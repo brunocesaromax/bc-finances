@@ -31,6 +31,9 @@ Para documentação detalhada da arquitetura e diagramas, consulte:
 ### Frontend
 - **[Guia do Frontend](docs/frontend/README.md)** - Padrões de arquitetura, código e convenções do projeto
 
+### Releases
+- **[Processo de Release](docs/release/release-process.md)** - Passo a passo para versionamento, criação de tags e publicação oficial
+
 ## Tecnologias utilizadas
 
 ### Back end

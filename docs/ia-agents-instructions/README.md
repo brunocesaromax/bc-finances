@@ -20,6 +20,7 @@ Ignorar qualquer um desses passos constitui violação grave das regras do proje
 - `architecture.md`: visão geral do sistema, módulos principais e referências a diagramas.
 - `migrations.md`: padrões para banco de dados, nomenclaturas e regras rígidas para migrations Flyway.
 - `operations-and-deploy.md`: orientações de ambiente, Docker, deploys e requisitos de execução.
+- `docs/release/release-process.md`: fluxo oficial para versionamento, criação de tags e publicação das releases.
 
 Todos os arquivos devem ser lidos integralmente – não basta consultar tópicos isolados.
 
