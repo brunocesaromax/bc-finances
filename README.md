@@ -75,6 +75,7 @@ Pré-requisitos: Docker e Docker Compose
   - **Frontend**: http://localhost:5173
   - **Backend API**: http://localhost:8080
   - **pgAdmin**: http://localhost:8081
+  - **OpenObserve**: http://localhost:5080
   - **Health Check**: http://localhost:8080/actuator/health
   
   4 - Para parar todos os serviços:
@@ -102,6 +103,14 @@ Pré-requisitos: Docker e Docker Compose
   # Ver status dos containers
   docker-compose ps
   ```
+
+## Observabilidade com OpenObserve
+
+- O `docker-compose` sobe automaticamente o serviço `openobserve` (portas 5080/5081) e persiste dados no volume `openobserve_data`.
+- O backend Spring Boot está instrumentado com **OpenTelemetry + Micrometer** para enviar **logs, traces e métricas (100%)** via OTLP diretamente para o OpenObserve.
+- Variáveis relevantes (configure no `.env`): `OPENOBSERVE_USERNAME`, `OPENOBSERVE_PASSWORD`, `OPENOBSERVE_ORG`, `OPENOBSERVE_STREAM`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION`.
+- **Gere um API Token** no OpenObserve (Settings › API Tokens) e use `echo -n '<org_id>:<api_token>' | base64` para montar o header. Exemplo: `OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION="Basic ZGVmYXVsdDphcGlfdG9rZW4"`; o uso de email/senha gera erro `401 Unauthorized`.
+- Dashboards podem ser criados no OpenObserve consumindo o stream padrão `bcfinances`; todos os eventos possuem `service.name=bc-finances-backend` para fácil filtragem.
 
 ### Executando apenas Banco de Dados com Docker
 
