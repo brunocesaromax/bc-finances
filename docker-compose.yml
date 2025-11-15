@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   redis:
     image: redis:8.2.1-alpine
@@ -55,6 +53,23 @@ services:
     networks:
       - bc-finances-network
 
+  openobserve:
+    image: public.ecr.aws/zinclabs/openobserve:latest
+    container_name: bc-finances-openobserve
+    environment:
+      ZO_ROOT_USER_EMAIL: ${OPENOBSERVE_USERNAME:-root@example.com}
+      ZO_ROOT_USER_PASSWORD: ${OPENOBSERVE_PASSWORD:-Complexpass#123}
+      ZO_DATA_DIR: /data
+      ZO_TELEMETRY_ENABLED: "false"
+    ports:
+      - "5080:5080"
+      - "5081:5081"
+    volumes:
+      - openobserve_data:/data
+    networks:
+      - bc-finances-network
+    restart: unless-stopped
+
   backend:
     build:
       context: ./bc-finances-backend
@@ -75,6 +90,10 @@ services:
       AWS_S3_ACCESS_KEY_ID: ${AWS_S3_ACCESS_KEY_ID:-dummy-access-key}
       AWS_S3_SECRET_ACCESS_KEY: ${AWS_S3_SECRET_ACCESS_KEY:-dummy-secret-key}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET:-dummy-bucket}
+      OPENOBSERVE_STREAM: ${OPENOBSERVE_STREAM:-bcfinances}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://openobserve:5080/api/${OPENOBSERVE_ORG}
+      OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION: ${OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION:-Basic cm9vdEBleGFtcGxlLmNvbTpDb21wbGV4cGFzcyMxMjM=}
+      OTEL_SAMPLING_PROBABILITY: ${OTEL_SAMPLING_PROBABILITY:-1.0}
     ports:
       - "8080:8080"
     depends_on:
@@ -82,6 +101,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      openobserve:
+        condition: service_started
     volumes:
       - backend_logs:/app/logs
     networks:
@@ -109,6 +130,7 @@ volumes:
   postgres_data:
   pgadmin_data:
   backend_logs:
+  openobserve_data:
 
 networks:
   bc-finances-network:
