@@ -112,6 +112,16 @@ Pré-requisitos: Docker e Docker Compose
 - **Gere um API Token** no OpenObserve (Settings › API Tokens) e use `echo -n '<org_id>:<api_token>' | base64` para montar o header. Exemplo: `OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION="Basic ZGVmYXVsdDphcGlfdG9rZW4"`; o uso de email/senha gera erro `401 Unauthorized`.
 - Dashboards podem ser criados no OpenObserve consumindo o stream padrão `bcfinances`; todos os eventos possuem `service.name=bc-finances-backend` para fácil filtragem.
 
+## Build de Imagens (Backend)
+
+O Dockerfile do backend utiliza recursos do Docker BuildKit (cache de `/root/.m2`). Ao gerar a imagem local, habilite o BuildKit:
+
+```bash
+DOCKER_BUILDKIT=1 docker build -t bc-finances-backend ./bc-finances-backend
+```
+
+**Observação**: Sem o BuildKit a etapa `mvn dependency:go-offline` fica lenta porque baixa todas as dependências sem cache. Caso queira tornar permanente, habilite BuildKit no Docker Desktop (Settings › General) ou adicione `"features": {"buildkit": true}` ao arquivo `~/.docker/config.json`.
+
 ### Executando apenas Banco de Dados com Docker
 
   1 - Para subir apenas PostgreSQL + pgAdmin:

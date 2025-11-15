@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 # Multi-stage build for Spring Boot application
 FROM eclipse-temurin:21-jdk-alpine AS builder
 
@@ -10,14 +12,14 @@ WORKDIR /app
 # Copy Maven configuration files
 COPY pom.xml .
 
-# Download dependencies (cache layer)
-RUN mvn dependency:go-offline -B
+# Download dependencies (cache layer - reuses ~/.m2 between builds)
+RUN --mount=type=cache,target=/root/.m2 mvn -B dependency:go-offline
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN mvn clean package -DskipTests
+RUN --mount=type=cache,target=/root/.m2 mvn -B clean package -DskipTests
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine AS runtime
