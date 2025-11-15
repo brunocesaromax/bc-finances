@@ -10,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @RestControllerAdvice
@@ -27,9 +25,7 @@ public class PersonExceptionHandler {
     public ResponseEntity<Object> handlePersonExistentInTransactionException(PersonExistentInTransactionException ex) {
         String msgUser = messageSource.getMessage("person.existent.in.transaction", null, LocaleContextHolder.getLocale());
         String msgDev = Optional.ofNullable(ex.getCause()).isPresent() ? ex.getCause().toString() : ex.toString();
-        List<BcFinancesExceptionHandler.Error> errors = Collections.singletonList(
-            new BcFinancesExceptionHandler.Error(msgUser, msgDev)
-        );
+        var errors = BcFinancesExceptionHandler.buildErrorList(msgUser, msgDev);
 
         return ResponseEntity.badRequest().body(errors);
     }
@@ -38,9 +34,7 @@ public class PersonExceptionHandler {
     public ResponseEntity<Object> handlePersonNotFoundException(PersonNotFoundException ex) {
         String msgUser = "Person not found";
         String msgDev = ex.getMessage();
-        List<BcFinancesExceptionHandler.Error> errors = Collections.singletonList(
-            new BcFinancesExceptionHandler.Error(msgUser, msgDev)
-        );
+        var errors = BcFinancesExceptionHandler.buildErrorList(msgUser, msgDev);
 
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }

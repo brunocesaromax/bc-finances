@@ -1,9 +1,11 @@
 package br.com.bcfinances.shared.presentation.exception;
 
-import lombok.Data;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -24,68 +26,89 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// Captura exceções de ResponseEntities
-@ControllerAdvice // Observa toda a aplicação
+@ControllerAdvice
 @RequiredArgsConstructor
 public class BcFinancesExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @Qualifier("messageSource")
-    private final MessageSource messageSorce;
+    private final MessageSource messageSource;
 
-    // Capturar mensagens que não conseguiram ler
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
                                                                   HttpHeaders headers,
-                                                                  org.springframework.http.HttpStatusCode status, 
+                                                                  org.springframework.http.HttpStatusCode status,
                                                                   WebRequest request) {
-        String msgUser = messageSorce.getMessage("msg.invalid", null, LocaleContextHolder.getLocale());
+        String msgUser = messageSource.getMessage("msg.invalid", null, LocaleContextHolder.getLocale());
         String msgDev = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
-        List<Error> errors = Collections.singletonList(new Error(msgUser, msgDev));
+        List<Error> errors = buildErrorList(msgUser, msgDev);
 
         return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request);
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  HttpHeaders headers, 
-                                                                  org.springframework.http.HttpStatusCode status, 
+                                                                  HttpHeaders headers,
+                                                                  org.springframework.http.HttpStatusCode status,
                                                                   WebRequest request) {
         List<Error> errors = getErrorsList(ex.getBindingResult());
         return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request);
     }
 
 
-    //	Tratando exceção do type abaixo
     @ExceptionHandler({ConstraintViolationException.class, EmptyResultDataAccessException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Object> handleConstraintViolationException(Exception ex, WebRequest request) {
-        String msgUser = messageSorce.getMessage("resource.not-found", null, LocaleContextHolder.getLocale());
+        String msgUser = messageSource.getMessage("resource.not-found", null, LocaleContextHolder.getLocale());
         String msgDev = ex.toString();
-        List<Error> errors = Collections.singletonList(new Error(msgUser, msgDev));
+        List<Error> errors = buildErrorList(msgUser, msgDev);
 
         return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> defaultHandleException(Exception ex, WebRequest request) {
+        String msgUser = messageSource.getMessage("internal.error", null, LocaleContextHolder.getLocale());
+        String msgDev = ex.toString();
+        List<Error> errors = buildErrorList(msgUser, msgDev);
+
+        return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     private List<Error> getErrorsList(BindingResult bindingResult) {
         List<Error> errors = new ArrayList<>();
 
-//		Retornar todos os errors nos campos do objeto
+        // Return all errors in the object fields
         for (FieldError fieldError : bindingResult.getFieldErrors()) {
-            String msgUser = messageSorce.getMessage(fieldError, LocaleContextHolder.getLocale());
+            String msgUser = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
             String msgDev = fieldError.toString();
-            errors.add(new Error(msgUser, msgDev));
+            errors.add(buildError(msgUser, msgDev));
         }
 
         return errors;
     }
 
-    @Data
+    public static List<Error> buildErrorList(String msgUser, String msgDev) {
+        return Collections.singletonList(buildError(msgUser, msgDev));
+    }
+
+    private static Error buildError(String msgUser, String msgDev) {
+        SpanContext context = Span.current().getSpanContext();
+
+        if (context.isValid()) {
+            return new Error(msgUser, msgDev, context.getTraceId(), context.getSpanId());
+        }
+
+        return new Error(msgUser, msgDev);
+    }
+
+    @AllArgsConstructor
+    @Getter
     public static class Error {
         private String msgUser;
         private String msgDev;
+        private String traceId;
+        private String spanId;
 
         public Error(String msgUser, String msgDev) {
-            super();
             this.msgUser = msgUser;
             this.msgDev = msgDev;
         }
