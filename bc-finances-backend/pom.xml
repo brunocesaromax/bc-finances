@@ -18,7 +18,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <opentelemetry.instrumentation.version>2.20.0</opentelemetry.instrumentation.version>
+        <opentelemetry.instrumentation.version>2.21.0</opentelemetry.instrumentation.version>
     </properties>
 
     <dependencies>
@@ -123,7 +123,7 @@
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-logback-appender-1.0</artifactId>
-            <version>2.20.0-alpha</version>
+            <version>2.21.0-alpha</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
