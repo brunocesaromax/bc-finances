@@ -7,6 +7,7 @@ import br.com.bcfinances.category.application.usecases.CreateCategoryUseCase;
 import br.com.bcfinances.category.application.usecases.FindCategoryUseCase;
 import br.com.bcfinances.category.domain.entities.Category;
 import br.com.bcfinances.shared.infrastructure.event.ResourceCreatedEvent;
+import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -35,8 +37,10 @@ public class CategoryController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_SEARCH_CATEGORY')")
-    public List<CategoryResponse> list() {
-        List<Category> categories = findCategoryUseCase.findAll();
+    public List<CategoryResponse> list(@RequestParam(value = "type", required = false) TransactionType transactionType) {
+        List<Category> categories = transactionType != null
+                ? findCategoryUseCase.findByTransactionType(transactionType)
+                : findCategoryUseCase.findAll();
         return categoryMapper.toResponseList(categories);
     }
 

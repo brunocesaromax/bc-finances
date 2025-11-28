@@ -1,11 +1,13 @@
 import { apiClient } from '@/services/apiClient'
-import type {
-  AttachmentResponse,
-  Transaction,
-  TransactionFilter,
-  TransactionSummary,
-} from '@/types/transaction'
 import type { PageableResponse } from '@/types/common'
+import type {
+  Attachment,
+  TransactionDetail,
+  TransactionFilter,
+  TransactionPayload,
+  TransactionSummary,
+  TransactionUpdatePayload,
+} from '@/types/transaction'
 
 type RequestOptions = {
   signal?: AbortSignal
@@ -19,6 +21,7 @@ export const transactionService = {
     const params: Record<string, string> = {
       page: filter.page.toString(),
       size: filter.size.toString(),
+      summary: '',
     }
 
     if (filter.description) {
@@ -33,13 +36,18 @@ export const transactionService = {
       params.dueDayEnd = filter.dueDayEnd
     }
 
+    if (filter.type) {
+      params.type = filter.type
+    }
+
+    if (filter.categoryId) {
+      params.categoryId = filter.categoryId.toString()
+    }
+
     const { data } = await apiClient.get<PageableResponse<TransactionSummary>>(
       '/transactions',
       {
-        params: {
-          ...params,
-          summary: '',
-        },
+        params,
         signal: options?.signal,
       },
     )
@@ -47,28 +55,22 @@ export const transactionService = {
     return data
   },
 
-  async findById(id: number): Promise<Transaction> {
-    const { data } = await apiClient.get<Transaction>(`/transactions/${id}`)
+  async findById(id: number): Promise<TransactionDetail> {
+    const { data } = await apiClient.get<TransactionDetail>(`/transactions/${id}`)
     return data
   },
 
-  async save(transaction: Transaction): Promise<Transaction> {
-    const { data } = await apiClient.post<Transaction>(
-      '/transactions',
-      transaction,
-    )
+  async save(payload: TransactionPayload): Promise<TransactionDetail> {
+    const { data } = await apiClient.post<TransactionDetail>('/transactions', payload)
     return data
   },
 
-  async update(transaction: Transaction): Promise<Transaction> {
-    if (!transaction.id) {
+  async update(payload: TransactionUpdatePayload): Promise<TransactionDetail> {
+    const { id, ...rest } = payload
+    if (!id) {
       throw new Error('Transaction id is required to update')
     }
-
-    const { data } = await apiClient.put<Transaction>(
-      `/transactions/${transaction.id}`,
-      transaction,
-    )
+    const { data } = await apiClient.put<TransactionDetail>(`/transactions/${id}`, rest)
     return data
   },
 
@@ -76,12 +78,16 @@ export const transactionService = {
     await apiClient.delete(`/transactions/${id}`)
   },
 
-  async uploadAttachment(file: File): Promise<AttachmentResponse> {
-    const formData = new FormData()
-    formData.append('attachment', file)
+  async uploadAttachments(files: File[]): Promise<Attachment[]> {
+    if (!files || files.length === 0) {
+      return []
+    }
 
-    const { data } = await apiClient.post<AttachmentResponse>(
-      '/transactions/attachment',
+    const formData = new FormData()
+    files.forEach((file) => formData.append('attachments', file))
+
+    const { data } = await apiClient.post<Attachment[]>(
+      '/transactions/attachments',
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },

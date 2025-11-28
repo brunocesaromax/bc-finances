@@ -1,5 +1,6 @@
 package br.com.bcfinances.transaction.application.dto;
 
+import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,6 @@ public class TransactionFilterDto {
     private String description;
     private LocalDate dueDayStart;
     private LocalDate dueDayEnd;
-    private String personName;
-    private String categoryName;
-
+    private TransactionType type;
+    private Long categoryId;
 }

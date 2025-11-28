@@ -1,12 +1,12 @@
 package br.com.bcfinances.transaction.application.dto;
 
 import br.com.bcfinances.category.application.dto.CategoryResponse;
-import br.com.bcfinances.person.application.dto.PersonResponse;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Setter
 @Getter
@@ -20,14 +20,13 @@ public class TransactionResponse {
     private String observation;
     private String type;
     private CategoryResponse category;
-    private PersonResponse person;
-    private String attachment;
-    private String urlAttachment;
+    private List<String> tags;
+    private List<AttachmentDto> attachments;
 
     public TransactionResponse(Long id, String description, LocalDate dueDay, LocalDate payday,
-                             BigDecimal value, String observation, String type,
-                             CategoryResponse category, PersonResponse person,
-                             String attachment, String urlAttachment) {
+                               BigDecimal value, String observation, String type,
+                               CategoryResponse category, List<String> tags,
+                               List<AttachmentDto> attachments) {
         this.id = id;
         this.description = description;
         this.dueDay = dueDay;
@@ -36,8 +35,7 @@ public class TransactionResponse {
         this.observation = observation;
         this.type = type;
         this.category = category;
-        this.person = person;
-        this.attachment = attachment;
-        this.urlAttachment = urlAttachment;
+        this.tags = tags;
+        this.attachments = attachments;
     }
 }

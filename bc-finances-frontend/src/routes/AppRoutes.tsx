@@ -3,8 +3,6 @@ import { LoginPage } from '@/pages/auth/LoginPage'
 import { AppShell } from '@/components/layout/AppShell'
 import { TransactionsListPage } from '@/pages/transactions/TransactionsListPage'
 import { TransactionFormPage } from '@/pages/transactions/TransactionFormPage'
-import { PersonsListPage } from '@/pages/persons/PersonsListPage'
-import { PersonFormPage } from '@/pages/persons/PersonFormPage'
 import { NotAuthorizedPage } from '@/pages/errors/NotAuthorizedPage'
 import { NotFoundPage } from '@/pages/errors/NotFoundPage'
 import { useAuth } from '@/hooks/useAuth'
@@ -71,23 +69,6 @@ export const AppRoutes = () => (
           }
         >
           <Route path="transactions/new" element={<TransactionFormPage />} />
-        </Route>
-
-        <Route
-          element={
-            <RequirePermission permissions={[PERMISSIONS.SEARCH_PERSON]} />
-          }
-        >
-          <Route path="persons" element={<PersonsListPage />} />
-          <Route path="persons/:id" element={<PersonFormPage />} />
-        </Route>
-
-        <Route
-          element={
-            <RequirePermission permissions={[PERMISSIONS.CREATE_PERSON]} />
-          }
-        >
-          <Route path="persons/new" element={<PersonFormPage />} />
         </Route>
 
         <Route path="not-authorized" element={<NotAuthorizedPage />} />

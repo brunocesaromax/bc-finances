@@ -2,6 +2,7 @@ package br.com.bcfinances.category.application.usecases;
 
 import br.com.bcfinances.category.domain.entities.Category;
 import br.com.bcfinances.category.domain.contracts.CategoryRepository;
+import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,5 +21,9 @@ public class FindCategoryUseCase {
     
     public List<Category> findAll() {
         return categoryRepository.findAll();
+    }
+
+    public List<Category> findByTransactionType(TransactionType transactionType) {
+        return categoryRepository.findByTransactionType(transactionType);
     }
 }

@@ -1,6 +1,5 @@
 package br.com.bcfinances.transaction.presentation.controllers;
 
-import br.com.bcfinances.person.domain.exceptions.PersonInactiveException;
 import br.com.bcfinances.shared.infrastructure.event.ResourceCreatedEvent;
 import br.com.bcfinances.shared.infrastructure.storage.S3Service;
 import br.com.bcfinances.transaction.application.dto.AttachmentDto;
@@ -17,15 +16,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +34,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -53,7 +49,6 @@ public class TransactionController {
     private final TransactionRepository transactionRepository;
     private final S3Service s3Service;
     private final ApplicationEventPublisher publisher;
-    private final MessageSource messageSource;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION')")
@@ -97,24 +92,22 @@ public class TransactionController {
         return transactionRepository.findWithFilter(filter, pageable);
     }
 
-    @PostMapping("/attachment")
+    @PostMapping("/attachments")
     @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION')")
-    public AttachmentDto uploadAttachment(@RequestParam MultipartFile attachment) {
-        String name = s3Service.saveTemp(attachment);
-        return new AttachmentDto(name, s3Service.configureUrl(name));
-    }
+    public List<AttachmentDto> uploadAttachment(@RequestParam("attachments") List<MultipartFile> attachments) {
+        List<MultipartFile> files = attachments != null ? attachments : List.of();
 
-    @ExceptionHandler({PersonInactiveException.class})
-    public ResponseEntity<Object> handlePersonInactiveException(PersonInactiveException ex) {
-        String msgUser = messageSource.getMessage("person.not-exists-or-inactive", null, LocaleContextHolder.getLocale());
-        String msgDev = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
-
-        // Simple error structure for now - can be enhanced later
-        var error = new ErrorResponse(msgUser, msgDev);
-        return ResponseEntity.badRequest().body(Collections.singletonList(error));
-    }
-
-    // Simple error response class - can be moved to a common package later
-    private record ErrorResponse(String userMessage, String devMessage) {
+        return files.stream()
+                .map(file -> {
+                    String name = s3Service.saveTemp(file);
+                    return new AttachmentDto(
+                            name,
+                            file.getOriginalFilename(),
+                            file.getContentType(),
+                            file.getSize(),
+                            s3Service.configureUrl(name)
+                    );
+                })
+                .toList();
     }
 }

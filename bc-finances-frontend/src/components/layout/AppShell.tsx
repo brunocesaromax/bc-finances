@@ -11,11 +11,6 @@ const navigation = [
     to: '/transactions',
     permission: PERMISSIONS.SEARCH_TRANSACTION,
   },
-  {
-    label: 'Pessoas',
-    to: '/persons',
-    permission: PERMISSIONS.SEARCH_PERSON,
-  },
 ]
 
 const NavItems = ({ onNavigate }: { onNavigate?: () => void }) => {

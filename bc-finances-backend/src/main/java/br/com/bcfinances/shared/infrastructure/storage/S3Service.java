@@ -19,6 +19,7 @@ import software.amazon.awssdk.services.s3.model.Tagging;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -30,8 +31,11 @@ public class S3Service {
     private final ApiProperty apiProperty;
     private final S3Config s3Config;
     private final MessageSource messageSource;
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.of("application/pdf", "text/plain");
 
     public String saveTemp(MultipartFile file) {
+        validateContentType(file);
+
         // Verificar se S3 está configurado com credenciais reais
         if (!isS3Available()) {
             log.warn("S3 não configurado. Upload do arquivo '{}' será ignorado.", file.getOriginalFilename());
@@ -71,9 +75,20 @@ public class S3Service {
 
 
     public String configureUrl(String object) {
-        // o '\\\\' não importará se o protocolo é http ou https
-        // o '\\\\' só será utilizado no contexto do cliente
-        return "\\\\" + apiProperty.getS3().getBucket() + ".s3.amazonaws.com/" + object;
+        if (!StringUtils.hasText(object) || !StringUtils.hasText(apiProperty.getS3().getBucket())) {
+            return object;
+        }
+
+        String publicEndpoint = apiProperty.getS3().getPublicEndpoint();
+        String endpoint = apiProperty.getS3().getEndpoint();
+        if (!StringUtils.hasText(publicEndpoint) && !StringUtils.hasText(endpoint)) {
+            return "https://" + apiProperty.getS3().getBucket() + ".s3.amazonaws.com/" + object;
+        }
+
+        String baseUrl = StringUtils.hasText(publicEndpoint) ? publicEndpoint : endpoint;
+        baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+
+        return baseUrl + "/" + apiProperty.getS3().getBucket() + "/" + object;
     }
 
     //Salvar arquivo temporário como permanente
@@ -116,17 +131,33 @@ public class S3Service {
     private String generateUniqueName(String originalFilename) {
         return UUID.randomUUID().toString() + "_" + originalFilename;
     }
+
+    private void validateContentType(MultipartFile file) {
+        String contentType = file.getContentType();
+
+        boolean isImage = StringUtils.hasText(contentType) && contentType.toLowerCase().startsWith("image/");
+        boolean isExplicitlyAllowed = StringUtils.hasText(contentType) && ALLOWED_CONTENT_TYPES.contains(contentType);
+
+        if (!isImage && !isExplicitlyAllowed) {
+            throw new IllegalArgumentException("Unsupported file type: " + contentType);
+        }
+    }
     
     private boolean isS3Available() {
         String accessKeyId = apiProperty.getS3().getAccessKeyId();
         String secretAccessKey = apiProperty.getS3().getSecretAccessKey();
-        
-        // Verificar se são credenciais placeholder
-        return !(accessKeyId == null || accessKeyId.isEmpty() || 
-                secretAccessKey == null || secretAccessKey.isEmpty() ||
-                "placeholder".equals(accessKeyId) || "placeholder".equals(secretAccessKey) ||
-                "s3-access-key".equals(accessKeyId) || "s3-secret-key".equals(secretAccessKey) ||
-                "your-aws-access-key-id".equals(accessKeyId) || "your-aws-secret-access-key".equals(secretAccessKey));
+        String endpoint = apiProperty.getS3().getEndpoint();
+        String bucket = apiProperty.getS3().getBucket();
+
+        boolean hasValidBucket = StringUtils.hasText(bucket);
+        boolean hasEndpoint = StringUtils.hasText(endpoint);
+
+        boolean hasCredentials = StringUtils.hasText(accessKeyId) && StringUtils.hasText(secretAccessKey)
+                && !"placeholder".equals(accessKeyId) && !"placeholder".equals(secretAccessKey)
+                && !"s3-access-key".equals(accessKeyId) && !"s3-secret-key".equals(secretAccessKey)
+                && !"your-aws-access-key-id".equals(accessKeyId) && !"your-aws-secret-access-key".equals(secretAccessKey);
+
+        return hasValidBucket && (hasEndpoint || hasCredentials);
     }
     
     private void ensureBucketConfigured() {

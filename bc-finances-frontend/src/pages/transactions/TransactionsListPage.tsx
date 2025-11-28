@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import type { AxiosError } from 'axios'
 import { transactionService } from '@/services/transactionService'
+import { categoryService } from '@/services/categoryService'
 import type { TransactionSummary } from '@/types/transaction'
+import type { TransactionType } from '@/types/finance'
+import type { Category } from '@/types/category'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -15,6 +18,7 @@ import { PERMISSIONS } from '@/utils/permissions'
 import { FormLabel } from '@/components/ui/FormLabel'
 import { Input } from '@/components/ui/Input'
 import { DatePicker } from '@/components/ui/DatePicker'
+import { Select } from '@/components/ui/Select'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 
 const PAGE_SIZE = 6
@@ -23,6 +27,8 @@ type FilterFormState = {
   description: string
   dueDayStart: string | null
   dueDayEnd: string | null
+  type: TransactionType | ''
+  categoryId: string
 }
 
 type FetchState = {
@@ -39,11 +45,15 @@ export const TransactionsListPage = () => {
     description: '',
     dueDayStart: null,
     dueDayEnd: null,
+    type: '',
+    categoryId: '',
   })
   const [appliedFilters, setAppliedFilters] = useState<FilterFormState>({
     description: '',
     dueDayStart: null,
     dueDayEnd: null,
+    type: '',
+    categoryId: '',
   })
   const [page, setPage] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -52,6 +62,7 @@ export const TransactionsListPage = () => {
     totalElements: 0,
   })
   const [refreshKey, setRefreshKey] = useState(0)
+  const [categories, setCategories] = useState<Category[]>([])
 
   const canCreate = hasPermission(PERMISSIONS.CREATE_TRANSACTION)
   const canDelete = hasPermission(PERMISSIONS.REMOVE_TRANSACTION)
@@ -78,6 +89,22 @@ export const TransactionsListPage = () => {
   }, [normalizedDescription])
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryService.findAll(
+          filterForm.type || undefined,
+        )
+        setCategories(response)
+      } catch (error) {
+        console.error('Não foi possível carregar categorias.', error)
+        toast.error('Não foi possível carregar categorias.')
+      }
+    }
+
+    fetchCategories()
+  }, [filterForm.type])
+
+  useEffect(() => {
     const controller = new AbortController()
     const fetchData = async () => {
       setIsLoading(true)
@@ -89,6 +116,10 @@ export const TransactionsListPage = () => {
             description: appliedFilters.description || undefined,
             dueDayStart: appliedFilters.dueDayStart ?? undefined,
             dueDayEnd: appliedFilters.dueDayEnd ?? undefined,
+            type: appliedFilters.type || undefined,
+            categoryId: appliedFilters.categoryId
+              ? Number(appliedFilters.categoryId)
+              : undefined,
           },
           { signal: controller.signal },
         )
@@ -120,6 +151,8 @@ export const TransactionsListPage = () => {
     appliedFilters.description,
     appliedFilters.dueDayEnd,
     appliedFilters.dueDayStart,
+    appliedFilters.type,
+    appliedFilters.categoryId,
     page,
     refreshKey,
   ])
@@ -129,6 +162,22 @@ export const TransactionsListPage = () => {
     setFilterForm((prev) => ({ ...prev, description: value }))
   }
 
+  const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextType = event.target.value as TransactionType | ''
+    setFilterForm((prev) => ({
+      ...prev,
+      type: nextType,
+      categoryId: '',
+    }))
+  }
+
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterForm((prev) => ({
+      ...prev,
+      categoryId: event.target.value,
+    }))
+  }
+
   const handleFilterSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setPage(0)
@@ -136,6 +185,8 @@ export const TransactionsListPage = () => {
       ...prev,
       dueDayStart: filterForm.dueDayStart,
       dueDayEnd: filterForm.dueDayEnd,
+      type: filterForm.type,
+      categoryId: filterForm.categoryId,
     }))
   }
 
@@ -144,11 +195,15 @@ export const TransactionsListPage = () => {
       description: '',
       dueDayStart: null,
       dueDayEnd: null,
+      type: '',
+      categoryId: '',
     })
     setAppliedFilters({
       description: '',
       dueDayStart: null,
       dueDayEnd: null,
+      type: '',
+      categoryId: '',
     })
     setPage(0)
   }
@@ -197,7 +252,7 @@ export const TransactionsListPage = () => {
       </header>
 
       <form
-        className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-4"
+        className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-5"
         onSubmit={handleFilterSubmit}
       >
         <div className="md:col-span-2">
@@ -209,6 +264,33 @@ export const TransactionsListPage = () => {
             value={filterForm.description}
             onChange={handleDescriptionChange}
           />
+        </div>
+        <div>
+          <FormLabel htmlFor="type">Tipo</FormLabel>
+          <Select
+            id="type"
+            value={filterForm.type}
+            onChange={handleTypeChange}
+          >
+            <option value="">Todos</option>
+            <option value="RECIPE">Receita</option>
+            <option value="EXPENSE">Despesa</option>
+          </Select>
+        </div>
+        <div>
+          <FormLabel htmlFor="category">Categoria</FormLabel>
+          <Select
+            id="category"
+            value={filterForm.categoryId}
+            onChange={handleCategoryChange}
+          >
+            <option value="">Todas</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </Select>
         </div>
         <div>
           <FormLabel htmlFor="dueDayStart">Vencimento inicial</FormLabel>
@@ -232,7 +314,7 @@ export const TransactionsListPage = () => {
             className="max-w-full"
           />
         </div>
-        <div className="md:col-span-4 flex flex-col justify-end gap-2 md:flex-row">
+        <div className="md:col-span-5 flex flex-col justify-end gap-2 md:flex-row">
           <Button type="submit" className="w-full md:w-auto">
             Aplicar filtros
           </Button>
@@ -262,8 +344,8 @@ export const TransactionsListPage = () => {
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th className="px-6 py-3">Pessoa</th>
                   <th className="px-6 py-3">Descrição</th>
+                  <th className="px-6 py-3">Categoria</th>
                   <th className="px-6 py-3">Vencimento</th>
                   <th className="px-6 py-3">Pagamento</th>
                   <th className="px-6 py-3">Valor</th>
@@ -274,9 +356,6 @@ export const TransactionsListPage = () => {
               <tbody className="divide-y divide-slate-200 text-sm text-slate-700">
                 {transactions.map((transaction) => (
                   <tr key={transaction.id}>
-                    <td className="px-6 py-4 font-semibold text-slate-900">
-                      {transaction.personName}
-                    </td>
                     <td className="px-6 py-4">
                       <span
                         className="line-clamp-1"
@@ -284,6 +363,17 @@ export const TransactionsListPage = () => {
                       >
                         {truncateText(transaction.description, 25)}
                       </span>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {transaction.tags?.map((tag) => (
+                          <Badge key={tag}>{tag}</Badge>
+                        ))}
+                        {transaction.hasAttachments ? (
+                          <Badge variant="info">Anexos</Badge>
+                        ) : null}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-800">
+                      {transaction.categoryName ?? '—'}
                     </td>
                     <td className="px-6 py-4">{formatDate(transaction.dueDay)}</td>
                     <td className="px-6 py-4">{formatDate(transaction.payday)}</td>
@@ -346,8 +436,16 @@ export const TransactionsListPage = () => {
                       </span>
                     </p>
                     <p className="text-xs text-slate-500">
-                      {transaction.personName}
+                      {transaction.categoryName ?? 'Sem categoria'}
                     </p>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {transaction.tags?.map((tag) => (
+                        <Badge key={tag}>{tag}</Badge>
+                      ))}
+                      {transaction.hasAttachments ? (
+                        <Badge variant="info">Anexos</Badge>
+                      ) : null}
+                    </div>
                   </div>
                   <Badge
                     variant={
@@ -366,7 +464,13 @@ export const TransactionsListPage = () => {
                     <p className="font-semibold text-slate-500">Pagamento</p>
                     <p>{formatDate(transaction.payday)}</p>
                   </div>
-                  <div className="col-span-2 text-sm font-semibold text-emerald-600">
+                  <div
+                    className={`col-span-2 text-sm font-semibold ${
+                      transaction.type === 'EXPENSE'
+                        ? 'text-red-600'
+                        : 'text-emerald-600'
+                    }`}
+                  >
                     {formatCurrencyBRL(transaction.value)}
                   </div>
                 </div>

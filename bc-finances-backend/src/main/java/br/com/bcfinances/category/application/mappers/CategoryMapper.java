@@ -11,11 +11,11 @@ import java.util.List;
 public class CategoryMapper {
     
     public Category toEntity(CategoryRequest request) {
-        return new Category(request.getName());
+        return new Category(request.getName(), request.getTransactionType());
     }
     
     public CategoryResponse toResponse(Category category) {
-        return new CategoryResponse(category.getId(), category.getName());
+        return new CategoryResponse(category.getId(), category.getName(), category.getTransactionType());
     }
     
     public List<CategoryResponse> toResponseList(List<Category> categories) {

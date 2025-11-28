@@ -1,7 +1,10 @@
 package br.com.bcfinances.category.infrastructure.persistence;
 
+import br.com.bcfinances.transaction.infrastructure.persistence.TransactionTypeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,8 +26,13 @@ public class CategoryEntity {
     
     @Column(nullable = false, length = 50)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type", nullable = false, length = 20)
+    private TransactionTypeEntity transactionType;
     
-    public CategoryEntity(String name) {
+    public CategoryEntity(String name, TransactionTypeEntity transactionType) {
         this.name = name;
+        this.transactionType = transactionType;
     }
 }

@@ -2,19 +2,27 @@ package br.com.bcfinances.transaction.application.usecases;
 
 import br.com.bcfinances.category.domain.contracts.CategoryRepository;
 import br.com.bcfinances.category.domain.entities.Category;
-import br.com.bcfinances.person.domain.contracts.PersonRepository;
-import br.com.bcfinances.person.domain.entities.Person;
-import br.com.bcfinances.person.domain.exceptions.PersonInactiveException;
+import br.com.bcfinances.tag.domain.contracts.TagRepository;
+import br.com.bcfinances.tag.domain.entities.Tag;
 import br.com.bcfinances.shared.infrastructure.storage.S3Service;
 import br.com.bcfinances.transaction.application.dto.TransactionRequest;
 import br.com.bcfinances.transaction.application.dto.TransactionResponse;
 import br.com.bcfinances.transaction.application.mappers.TransactionMapper;
 import br.com.bcfinances.transaction.domain.contracts.TransactionRepository;
 import br.com.bcfinances.transaction.domain.entities.Transaction;
+import br.com.bcfinances.transaction.domain.entities.TransactionAttachment;
+import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,40 +30,100 @@ public class CreateTransactionUseCase {
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
-    private final PersonRepository personRepository;
+    private final TagRepository tagRepository;
     private final TransactionMapper transactionMapper;
     private final S3Service s3Service;
 
     @Transactional
     public TransactionResponse execute(TransactionRequest request) {
-        Category category = categoryRepository.findById(request.getCategory().getId())
+        Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        Person person = validatePerson(request.getPerson().getId());
+        validateCategoryType(category, request.getType());
 
-        Transaction transaction = transactionMapper.toEntity(request, category, person);
+        List<Tag> tags = resolveTags(request.getTags());
+        List<TransactionAttachment> attachments = buildAttachments(request);
 
-        if (StringUtils.hasText(transaction.getAttachment())) {
-            s3Service.save(transaction.getAttachment());
-        }
+        Transaction transaction = transactionMapper.toEntity(request, category, tags, attachments);
+
+        finalizeAttachments(transaction.getAttachments());
 
         Transaction savedTransaction = transactionRepository.save(transaction);
 
         return transactionMapper.toResponse(savedTransaction);
     }
 
-    private Person validatePerson(Long personId) {
-        if (personId == null) {
-            throw new PersonInactiveException("Person ID cannot be null");
+    private void validateCategoryType(Category category, TransactionType type) {
+        if (type == null) {
+            throw new IllegalArgumentException("Transaction type is required");
+        }
+        if (category.getTransactionType() != type) {
+            throw new IllegalArgumentException("Category type does not match transaction type");
+        }
+    }
+
+    private List<Tag> resolveTags(List<String> tagNames) {
+        if (tagNames == null || tagNames.isEmpty()) {
+            return List.of();
         }
 
-        Person person = personRepository.findById(personId)
-                .orElseThrow(() -> new PersonInactiveException("Person not found"));
+        LinkedHashSet<String> normalizedNames = tagNames.stream()
+                .filter(StringUtils::hasText)
+                .map(name -> name.trim())
+                .filter(name -> !name.isEmpty())
+                .map(name -> name.length() > 80 ? name.substring(0, 80) : name)
+                .collect(LinkedHashSet::new, LinkedHashSet::add, LinkedHashSet::addAll);
 
-        if (Boolean.TRUE.equals(person.isInactive())) {
-            throw new PersonInactiveException("Person is inactive");
+        if (normalizedNames.isEmpty()) {
+            return List.of();
         }
 
-        return person;
+        Map<String, Tag> existingByLower = new LinkedHashMap<>();
+        tagRepository.findByNamesIgnoreCase(normalizedNames).forEach(tag ->
+                existingByLower.put(tag.getName().toLowerCase(Locale.ROOT), tag));
+
+        List<Tag> result = new ArrayList<>(existingByLower.values());
+
+        List<Tag> newTags = normalizedNames.stream()
+                .filter(name -> !existingByLower.containsKey(name.toLowerCase(Locale.ROOT)))
+                .map(Tag::new)
+                .toList();
+
+        if (!newTags.isEmpty()) {
+            result.addAll(tagRepository.saveAll(newTags));
+        }
+
+        return result;
+    }
+
+    private List<TransactionAttachment> buildAttachments(TransactionRequest request) {
+        if (request.getAttachments() == null) {
+            return List.of();
+        }
+
+        return request.getAttachments().stream()
+                .filter(att -> att != null && StringUtils.hasText(att.getName()))
+                .map(att -> {
+                    TransactionAttachment attachment = new TransactionAttachment(
+                            att.getName(),
+                            att.getOriginalName(),
+                            att.getContentType(),
+                            att.getSize()
+                    );
+                    attachment.setUrl(s3Service.configureUrl(att.getName()));
+                    return attachment;
+                })
+                .toList();
+    }
+
+    private void finalizeAttachments(List<TransactionAttachment> attachments) {
+        if (attachments == null) {
+            return;
+        }
+
+        attachments.stream()
+                .map(TransactionAttachment::getObjectKey)
+                .filter(StringUtils::hasText)
+                .forEach(s3Service::save);
     }
 }

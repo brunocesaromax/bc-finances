@@ -61,5 +61,13 @@ public class ApiProperty {
         private String secretAccessKey;
 
         private String bucket;
+
+        private String endpoint;
+
+        private String publicEndpoint;
+
+        private String region;
+
+        private boolean pathStyleAccess = true;
     }
 }
