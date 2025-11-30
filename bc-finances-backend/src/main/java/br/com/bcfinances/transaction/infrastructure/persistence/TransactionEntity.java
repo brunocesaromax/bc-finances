@@ -1,9 +1,10 @@
 package br.com.bcfinances.transaction.infrastructure.persistence;
 
 import br.com.bcfinances.category.infrastructure.persistence.CategoryEntity;
+import br.com.bcfinances.tag.infrastructure.persistence.TagEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -11,22 +12,31 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import org.hibernate.annotations.Where;
 
 @Setter
 @Getter
-@EntityListeners(TransactionAttachmentListener.class)
 @Entity
 @Table(name = "transactions")
+@Where(clause = "deleted_at IS NULL")
 public class TransactionEntity {
 
     @Id
@@ -57,31 +67,22 @@ public class TransactionEntity {
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "person_id")
-    private br.com.bcfinances.person.infrastructure.persistence.PersonEntity person;
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt DESC")
+    private List<TransactionAttachmentEntity> attachments = new ArrayList<>();
 
-    private String attachment;
+    @ManyToMany
+    @JoinTable(
+            name = "transaction_tags",
+            joinColumns = @JoinColumn(name = "transaction_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<TagEntity> tags = new HashSet<>();
 
-    @Transient
-    private String urlAttachment;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     public TransactionEntity() {}
-
-    public TransactionEntity(String description, LocalDate dueDay, LocalDate payday,
-                           BigDecimal value, String observation, TransactionTypeEntity type,
-                           CategoryEntity category, br.com.bcfinances.person.infrastructure.persistence.PersonEntity person, String attachment) {
-        this.description = description;
-        this.dueDay = dueDay;
-        this.payday = payday;
-        this.value = value;
-        this.observation = observation;
-        this.type = type;
-        this.category = category;
-        this.person = person;
-        this.attachment = attachment;
-    }
 
     @Override
     public boolean equals(Object o) {

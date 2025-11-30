@@ -16,7 +16,6 @@ public interface TransactionRepository {
     Optional<Transaction> findById(Long id);
     void deleteById(Long id);
     boolean existsById(Long id);
-    boolean existsByPersonId(Long personId);
 
     Page<TransactionSummaryDto> findWithFilter(TransactionFilterDto filter, Pageable pageable);
     List<Transaction> findOverdueTransactions(LocalDate referenceDate);

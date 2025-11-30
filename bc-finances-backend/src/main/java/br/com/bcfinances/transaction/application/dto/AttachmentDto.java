@@ -12,5 +12,8 @@ import lombok.Setter;
 public class AttachmentDto {
     
     private String name;
+    private String originalName;
+    private String contentType;
+    private Long size;
     private String url;
 }

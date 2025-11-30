@@ -6,10 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.BucketLifecycleConfiguration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.ExpirationStatus;
@@ -31,32 +34,37 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client() {
-        // Verificar se as credenciais AWS estão configuradas com valores reais
         String accessKeyId = apiProperty.getS3().getAccessKeyId();
         String secretAccessKey = apiProperty.getS3().getSecretAccessKey();
+        String endpoint = apiProperty.getS3().getEndpoint();
+        String regionValue = StringUtils.hasText(apiProperty.getS3().getRegion())
+                ? apiProperty.getS3().getRegion()
+                : "us-east-1";
 
-        // Verificar se são placeholders do .env.example
         boolean isPlaceholder = isPlaceholderCredentials(accessKeyId, secretAccessKey);
 
-        if (accessKeyId == null || accessKeyId.isEmpty() ||
-            secretAccessKey == null || secretAccessKey.isEmpty() || isPlaceholder) {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(
+                StringUtils.hasText(accessKeyId) ? accessKeyId : "placeholder",
+                StringUtils.hasText(secretAccessKey) ? secretAccessKey : "placeholder"
+        );
 
+        if (!StringUtils.hasText(endpoint) && isPlaceholder) {
             log.warn("AWS S3 não configurado (credenciais vazias ou placeholder).");
-
-            // Retorna um cliente válido mas com credenciais placeholder para evitar falhas
-            return S3Client.builder()
-                    .region(Region.US_EAST_1)
-                    .credentialsProvider(StaticCredentialsProvider.create(
-                            AwsBasicCredentials.create("placeholder", "placeholder")))
-                    .build();
         }
 
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKeyId, secretAccessKey);
-
-        return S3Client.builder()
+        S3ClientBuilder builder = S3Client.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .region(Region.US_EAST_2)
-                .build();
+                .region(Region.of(regionValue));
+
+        if (StringUtils.hasText(endpoint)) {
+            builder = builder
+                    .endpointOverride(java.net.URI.create(endpoint))
+                    .serviceConfiguration(S3Configuration.builder()
+                            .pathStyleAccessEnabled(apiProperty.getS3().isPathStyleAccess())
+                            .build());
+        }
+
+        return builder.build();
     }
 
     private boolean isPlaceholderCredentials(String accessKeyId, String secretAccessKey) {

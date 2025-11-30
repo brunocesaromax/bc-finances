@@ -70,6 +70,20 @@ services:
       - bc-finances-network
     restart: unless-stopped
 
+  localstack:
+    image: localstack/localstack:3.8
+    container_name: bc-finances-localstack
+    environment:
+      - SERVICES=s3
+      - DEBUG=0
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack_data:/var/lib/localstack
+    networks:
+      - bc-finances-network
+    restart: unless-stopped
+
   backend:
     build:
       context: ./bc-finances-backend
@@ -90,6 +104,9 @@ services:
       AWS_S3_ACCESS_KEY_ID: ${AWS_S3_ACCESS_KEY_ID:-dummy-access-key}
       AWS_S3_SECRET_ACCESS_KEY: ${AWS_S3_SECRET_ACCESS_KEY:-dummy-secret-key}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET:-dummy-bucket}
+      AWS_S3_ENDPOINT: ${AWS_S3_ENDPOINT:-http://localstack:4566}
+      AWS_S3_PUBLIC_ENDPOINT: ${AWS_S3_PUBLIC_ENDPOINT:-http://localhost:4566}
+      AWS_S3_REGION: ${AWS_S3_REGION:-us-east-1}
       OPENOBSERVE_STREAM: ${OPENOBSERVE_STREAM:-bcfinances}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://openobserve:5080/api/${OPENOBSERVE_ORG}
       OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION: ${OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION:-Basic cm9vdEBleGFtcGxlLmNvbTpDb21wbGV4cGFzcyMxMjM=}
@@ -102,6 +119,8 @@ services:
       redis:
         condition: service_healthy
       openobserve:
+        condition: service_started
+      localstack:
         condition: service_started
     volumes:
       - backend_logs:/app/logs
@@ -131,6 +150,7 @@ volumes:
   pgadmin_data:
   backend_logs:
   openobserve_data:
+  localstack_data:
 
 networks:
   bc-finances-network:

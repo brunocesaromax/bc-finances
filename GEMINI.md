@@ -1,4 +1,4 @@
-# GEMINI.md
+# AGENTS.md
 
 Este documento define o protocolo obrigatório para agentes de IA ao atuar neste repositório.
 
@@ -7,12 +7,13 @@ Este documento define o protocolo obrigatório para agentes de IA ao atuar neste
 A cada nova sessão ou interação, carregue integralmente em contexto:
 
 1. `README.md`
-2. `TODO.md`
-3. `CHANGELOG.md`
+2. `tasks/{branch-name}/TODO.md`
+3. `tasks/{branch-name}/CHANGELOG.md`
 4. Diagramas em `docs/diagrams` (classes e entidade-relacionamento)
-5. **Todos os arquivos do diretório `docs/ia-agents-instructions`**
+5. **O arquivo README.md do diretório `docs/ia-agents-instructions/README.md`**
+6. Carregar conforme necessário, repito **CONFORME NECESSÁRIO**, os arquivos de instruções de IA em `docs/ia-agents-instructions` e também os arquivos de documentação gerais em `docs`
 
-Não prossiga com nenhuma ação sem confirmar a leitura completa desses materiais.
+Não prossiga com nenhuma ação sem confirmar a leitura e entendimento completo dos materiais de 1 a 5 acima.
 
 ## Diretório Mestre de Instruções (`docs/ia-agents-instructions`)
 
@@ -31,6 +32,6 @@ Qualquer alteração nesses arquivos deve ser imediatamente refletida aqui e nos
 ## Cumprimento das Regras
 
 - Trate estas instruções como parte do código-fonte: não existem exceções.
-- Ao abrir nova demanda, garanta que `TODO.md` e `CHANGELOG.md` existam e estejam alinhados com o trabalho em execução.
-- Atualize a documentação a cada tarefa concluída antes de continuar o desenvolvimento.
+- Ao abrir nova demanda, garanta que `tasks/{branch-name}/TODO.md` e `tasks/{branch-name}/CHANGELOG.md` existam e estejam alinhados com o trabalho em execução.
+- **IMPORTANTE**: Atualize os documentos do item anterior a cada sub-etapa da tarefa atual concluída antes de continuar o desenvolvimento. Em relação ao conceito de 'sub-etapa', siga a famosa regra de desenvolvimento de software de dividir para conquistar.
 - Em caso de dúvida, pause a atividade e solicite esclarecimentos ao mantenedor.

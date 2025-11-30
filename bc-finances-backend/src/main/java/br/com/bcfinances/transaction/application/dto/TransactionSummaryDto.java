@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Setter
 @Getter
@@ -17,10 +18,12 @@ public class TransactionSummaryDto {
     private BigDecimal value;
     private String type;
     private String categoryName;
-    private String personName;
+    private List<String> tags;
+    private boolean hasAttachments;
 
     public TransactionSummaryDto(Long id, String description, LocalDate dueDay, LocalDate payday,
-                               BigDecimal value, String type, String categoryName, String personName) {
+                                 BigDecimal value, String type, String categoryName,
+                                 List<String> tags, boolean hasAttachments) {
         this.id = id;
         this.description = description;
         this.dueDay = dueDay;
@@ -28,7 +31,7 @@ public class TransactionSummaryDto {
         this.value = value;
         this.type = type;
         this.categoryName = categoryName;
-        this.personName = personName;
+        this.tags = tags;
+        this.hasAttachments = hasAttachments;
     }
-
 }

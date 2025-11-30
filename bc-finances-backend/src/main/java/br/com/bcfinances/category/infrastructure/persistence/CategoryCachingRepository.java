@@ -2,6 +2,7 @@ package br.com.bcfinances.category.infrastructure.persistence;
 
 import br.com.bcfinances.category.domain.contracts.CategoryRepository;
 import br.com.bcfinances.category.domain.entities.Category;
+import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -26,7 +27,8 @@ public class CategoryCachingRepository implements CategoryRepository {
                     @CachePut(cacheNames = "categories:byId", key = "#result.id")
             },
             evict = {
-                    @CacheEvict(cacheNames = "categories:all", allEntries = true)
+                    @CacheEvict(cacheNames = "categories:all", allEntries = true),
+                    @CacheEvict(cacheNames = "categories:byType", allEntries = true)
             }
     )
     public Category save(Category category) {
@@ -44,5 +46,14 @@ public class CategoryCachingRepository implements CategoryRepository {
     public List<Category> findAll() {
         return delegate.findAll();
     }
-}
 
+    @Override
+    @Cacheable(cacheNames = "categories:byType", key = "#transactionType.name()", condition = "#transactionType != null")
+    public List<Category> findByTransactionType(TransactionType transactionType) {
+        if (transactionType == null) {
+            return delegate.findAll();
+        }
+
+        return delegate.findByTransactionType(transactionType);
+    }
+}

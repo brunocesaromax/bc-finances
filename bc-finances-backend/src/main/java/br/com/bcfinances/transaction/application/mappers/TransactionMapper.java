@@ -2,22 +2,25 @@ package br.com.bcfinances.transaction.application.mappers;
 
 import br.com.bcfinances.category.application.mappers.CategoryMapper;
 import br.com.bcfinances.category.domain.entities.Category;
-import br.com.bcfinances.person.domain.entities.Person;
+import br.com.bcfinances.tag.domain.entities.Tag;
+import br.com.bcfinances.transaction.application.dto.AttachmentDto;
 import br.com.bcfinances.transaction.application.dto.TransactionRequest;
 import br.com.bcfinances.transaction.application.dto.TransactionResponse;
 import br.com.bcfinances.transaction.domain.entities.Transaction;
-import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
+import br.com.bcfinances.transaction.domain.entities.TransactionAttachment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class TransactionMapper {
 
     private final CategoryMapper categoryMapper;
-    private final br.com.bcfinances.person.application.mappers.PersonMapper personMapper;
 
-    public Transaction toEntity(TransactionRequest request, Category category, Person person) {
+    public Transaction toEntity(TransactionRequest request, Category category, List<Tag> tags, List<TransactionAttachment> attachments) {
         if (request == null) {
             return null;
         }
@@ -28,10 +31,10 @@ public class TransactionMapper {
                 request.getPayday(),
                 request.getValue(),
                 request.getObservation(),
-                TransactionType.valueOf(request.getType()),
+                request.getType(),
                 category,
-                person,
-                request.getAttachment()
+                tags,
+                attachments
         );
     }
 
@@ -39,6 +42,19 @@ public class TransactionMapper {
         if (transaction == null) {
             return null;
         }
+
+        List<String> tagNames = transaction.getTags() != null
+                ? transaction.getTags().stream()
+                .map(Tag::getName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList()
+                : List.of();
+
+        List<AttachmentDto> attachmentDtos = transaction.getAttachments() != null
+                ? transaction.getAttachments().stream()
+                .map(this::toAttachmentDto)
+                .toList()
+                : List.of();
 
         return new TransactionResponse(
                 transaction.getId(),
@@ -49,13 +65,12 @@ public class TransactionMapper {
                 transaction.getObservation(),
                 transaction.getType().name(),
                 categoryMapper.toResponse(transaction.getCategory()),
-                personMapper.toResponse(transaction.getPerson()),
-                transaction.getAttachment(),
-                transaction.getUrlAttachment()
+                tagNames,
+                attachmentDtos
         );
     }
 
-    public void updateEntity(Transaction entity, TransactionRequest request, Category category, Person person) {
+    public void updateEntity(Transaction entity, TransactionRequest request, Category category, List<Tag> tags, List<TransactionAttachment> attachments) {
         if (entity == null || request == null) {
             return;
         }
@@ -65,9 +80,19 @@ public class TransactionMapper {
         entity.setPayday(request.getPayday());
         entity.setValue(request.getValue());
         entity.setObservation(request.getObservation());
-        entity.setType(TransactionType.valueOf(request.getType()));
+        entity.setType(request.getType());
         entity.setCategory(category);
-        entity.setPerson(person);
-        entity.setAttachment(request.getAttachment());
+        entity.setTags(tags != null ? new ArrayList<>(tags) : new ArrayList<>());
+        entity.setAttachments(attachments != null ? new ArrayList<>(attachments) : new ArrayList<>());
+    }
+
+    private AttachmentDto toAttachmentDto(TransactionAttachment attachment) {
+        return new AttachmentDto(
+                attachment.getObjectKey(),
+                attachment.getOriginalName(),
+                attachment.getContentType(),
+                attachment.getSize(),
+                attachment.getUrl()
+        );
     }
 }

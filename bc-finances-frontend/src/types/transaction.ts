@@ -1,4 +1,13 @@
-export type TransactionType = 'RECIPE' | 'EXPENSE'
+import type { Category } from './category'
+import type { TransactionType } from './finance'
+
+export type Attachment = {
+  name: string
+  originalName: string
+  contentType?: string | null
+  size?: number | null
+  url?: string | null
+}
 
 export type TransactionSummary = {
   id: number
@@ -7,39 +16,45 @@ export type TransactionSummary = {
   payday: string | null
   value: number
   type: TransactionType
-  personName: string
-  categoryName?: string
+  categoryName?: string | null
+  tags: string[]
+  hasAttachments: boolean
 }
 
-export type Transaction = {
-  id?: number
+export type TransactionDetail = {
+  id: number
   description: string
   dueDay: string | null
   payday: string | null
   value: number
   type: TransactionType
   observation: string
-  person: {
-    id: number
-    name?: string
-  }
-  category: {
-    id: number
-    name?: string
-  }
-  attachment?: string | null
-  urlAttachment?: string | null
+  category: Category
+  tags: string[]
+  attachments: Attachment[]
 }
+
+export type TransactionPayload = {
+  description: string
+  dueDay: string
+  payday?: string | null
+  value: number
+  type: TransactionType
+  observation?: string | null
+  categoryId: number
+  tags: string[]
+  attachments: Attachment[]
+}
+
+export type TransactionUpdatePayload = TransactionPayload & { id: number }
 
 export type TransactionFilter = {
   description?: string
   dueDayStart?: string
   dueDayEnd?: string
+  type?: TransactionType
+  categoryId?: number
+  tags?: string[]
   page: number
   size: number
-}
-
-export type AttachmentResponse = {
-  name: string
-  url: string
 }

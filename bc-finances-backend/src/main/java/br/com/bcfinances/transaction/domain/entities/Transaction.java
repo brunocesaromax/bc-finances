@@ -1,13 +1,16 @@
 package br.com.bcfinances.transaction.domain.entities;
 
 import br.com.bcfinances.category.domain.entities.Category;
-import br.com.bcfinances.person.domain.entities.Person;
+import br.com.bcfinances.tag.domain.entities.Tag;
 import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -24,17 +27,16 @@ public class Transaction {
     private String observation;
     private TransactionType type;
     private Category category;
-    private Person person;
+    private List<Tag> tags = new ArrayList<>();
+    private List<TransactionAttachment> attachments = new ArrayList<>();
     @Setter
-    private String attachment;
-    @Setter
-    private String urlAttachment;
+    private LocalDateTime deletedAt;
 
     public Transaction() {}
 
-    public Transaction(String description, LocalDate dueDay, LocalDate payday, 
-                      BigDecimal value, String observation, TransactionType type,
-                      Category category, Person person, String attachment) {
+    public Transaction(String description, LocalDate dueDay, LocalDate payday,
+                       BigDecimal value, String observation, TransactionType type,
+                       Category category, List<Tag> tags, List<TransactionAttachment> attachments) {
         this.description = description;
         this.dueDay = dueDay;
         this.payday = payday;
@@ -42,14 +44,14 @@ public class Transaction {
         this.observation = observation;
         this.type = type;
         this.category = category;
-        this.person = person;
-        this.attachment = attachment;
+        this.tags = tags != null ? tags : new ArrayList<>();
+        this.attachments = attachments != null ? attachments : new ArrayList<>();
         this.validateTransaction();
     }
 
-    public Transaction(String description, LocalDate dueDay, BigDecimal value, 
-                      TransactionType type, Category category, Person person) {
-        this(description, dueDay, null, value, null, type, category, person, null);
+    public Transaction(String description, LocalDate dueDay, BigDecimal value,
+                       TransactionType type, Category category) {
+        this(description, dueDay, null, value, null, type, category, new ArrayList<>(), new ArrayList<>());
     }
 
     private void validateTransaction() {
@@ -67,9 +69,6 @@ public class Transaction {
         }
         if (category == null) {
             throw new IllegalArgumentException("Category is required");
-        }
-        if (person == null) {
-            throw new IllegalArgumentException("Person is required");
         }
     }
 
@@ -108,11 +107,12 @@ public class Transaction {
         this.category = category;
     }
 
-    public void setPerson(Person person) {
-        if (person == null) {
-            throw new IllegalArgumentException("Person is required");
-        }
-        this.person = person;
+    public void setTags(List<Tag> tags) {
+        this.tags = tags != null ? tags : new ArrayList<>();
+    }
+
+    public void setAttachments(List<TransactionAttachment> attachments) {
+        this.attachments = attachments != null ? attachments : new ArrayList<>();
     }
 
     @Override
@@ -138,7 +138,8 @@ public class Transaction {
                 ", value=" + value +
                 ", type=" + type +
                 ", category=" + (category != null ? category.getName() : null) +
-                ", person=" + (person != null ? person.getName() : null) +
+                ", tags=" + (tags != null ? tags.size() : 0) +
+                ", attachments=" + (attachments != null ? attachments.size() : 0) +
                 '}';
     }
 }

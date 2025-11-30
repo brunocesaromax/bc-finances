@@ -12,7 +12,7 @@ public class CategoryCacheConfig {
     public RedisCacheManagerBuilderCustomizer categoryCaches(RedisCacheConfiguration baseConfig) {
         return builder -> builder
                 .withCacheConfiguration("categories:all", baseConfig)
-                .withCacheConfiguration("categories:byId", baseConfig);
+                .withCacheConfiguration("categories:byId", baseConfig)
+                .withCacheConfiguration("categories:byType", baseConfig);
     }
 }
-

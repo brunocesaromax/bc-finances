@@ -1,12 +1,11 @@
 import { apiClient } from '@/services/apiClient'
 import type { Category } from '@/types/category'
+import type { TransactionType } from '@/types/finance'
 
 export const categoryService = {
-  async findAll(): Promise<Category[]> {
+  async findAll(transactionType?: TransactionType): Promise<Category[]> {
     const { data } = await apiClient.get<Category[]>('/categories', {
-      params: {
-        pagination: '',
-      },
+      params: transactionType ? { type: transactionType } : undefined,
     })
     return data
   },
