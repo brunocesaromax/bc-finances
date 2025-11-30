@@ -55,4 +55,4 @@
 
 - Código SQL (incluindo comentários) deve permanecer em inglês.
 - Documentações do projeto (README, TODO, CHANGELOG e arquivos deste diretório) devem ser escritas em português.
-- Mensagens de commit podem ser feitas em português ou inglês, seguindo o padrão em vigor na branch.
+- Mensagens de commit podem ser feitas em inglês, seguindo o padrão em vigor na branch. Utilizar a boa prática de commits semânticos.

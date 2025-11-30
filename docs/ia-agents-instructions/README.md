@@ -6,9 +6,10 @@ Este diretório centraliza todas as orientações obrigatórias para qualquer ag
 
 Antes de iniciar qualquer atividade:
 
-1. Leia integralmente `README.md`, `TODO.md` e `CHANGELOG.md` na raiz do projeto.
+1. Leia integralmente `docs/ia-agents-instructions/README.md`, `tasks/{branch-name}/TODO.md` e `tasks/{branch-name}/CHANGELOG.md` no diretório `tasks/{branch-name}/`.
 2. Revise os diagramas em `docs/diagrams` (classes e entidade-relacionamento).
-3. Leia **todos** os arquivos deste diretório `docs/ia-agents-instructions`. Nenhuma interação é permitida sem o carregamento completo dessas instruções em contexto.
+3. Leia conforme necessário, repito **CONFORME NECESSÁRIO**, os arquivos deste diretório `docs/ia-agents-instructions`. Nenhuma interação é permitida sem o carregamento dos arquivos **necessários** dessas instruções em contexto.
+   Quando digo necessário, me refiro a carregar conforme o contexto que se irá trabalhar/alterar: desenvolvimento, arquitetura, observabilidade, etc. 
 
 Ignorar qualquer um desses passos constitui violação grave das regras do projeto.
 
@@ -27,7 +28,8 @@ Todos os arquivos devem ser lidos integralmente – não basta consultar tópico
 ## Cumprimento e Atualizações
 
 - Trate estas regras como parte do código-fonte: nenhuma exceção é permitida.
-- Ao abrir uma nova demanda, verifique se `TODO.md` e `CHANGELOG.md` existem e estão alinhados com a tarefa atual.
+- Ao abrir uma nova demanda, verifique se `tasks/{branch-name}/TODO.md` e `tasks/{branch-name}/CHANGELOG.md` existem e estão alinhados com a tarefa atual.
+- **IMPORTANTE**: Atualize os documentos do item anterior a cada sub-etapa da tarefa atual concluída antes de continuar o desenvolvimento. Em relação ao conceito de 'sub-etapa', siga a famosa regra de desenvolvimento de software de dividir para conquistar.
 - Atualize as instruções deste diretório sempre que regras forem ajustadas ou novas políticas forem definidas pelo mantenedor.
 
 Em caso de dúvida, pause o trabalho e solicite esclarecimentos antes de prosseguir. Segurança, consistência e aderência às regras são obrigações absolutas.

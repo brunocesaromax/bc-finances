@@ -1,2 +1,8 @@
 ### Local Configuration ###
 .env
+
+### Control IA Files ###
+tasks
+
+### IDE Setting Files ###
+.idea
