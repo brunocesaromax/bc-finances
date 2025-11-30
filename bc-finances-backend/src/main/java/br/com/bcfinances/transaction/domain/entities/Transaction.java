@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,8 @@ public class Transaction {
     private Category category;
     private List<Tag> tags = new ArrayList<>();
     private List<TransactionAttachment> attachments = new ArrayList<>();
+    @Setter
+    private LocalDateTime deletedAt;
 
     public Transaction() {}
 

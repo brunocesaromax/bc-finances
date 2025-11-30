@@ -42,6 +42,7 @@ public class TransactionEntityMapper {
         entity.setObservation(domain.getObservation());
         entity.setType(mapTransactionType(domain.getType()));
         entity.setCategory(categoryEntityMapper.toEntity(domain.getCategory()));
+        entity.setDeletedAt(domain.getDeletedAt());
 
         Set<TagEntity> tagEntities = domain.getTags() != null
                 ? domain.getTags().stream()
@@ -77,6 +78,7 @@ public class TransactionEntityMapper {
         domain.setObservation(entity.getObservation());
         domain.setType(mapTransactionType(entity.getType()));
         domain.setCategory(categoryEntityMapper.toDomain(entity.getCategory()));
+        domain.setDeletedAt(entity.getDeletedAt());
 
         List<TransactionAttachment> attachments = new ArrayList<>();
         if (entity.getAttachments() != null) {

@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 import jakarta.persistence.criteria.JoinType;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,18 +41,21 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     @Override
     public Optional<Transaction> findById(Long id) {
-        return jpaRepository.findById(id)
+        return jpaRepository.findByIdAndDeletedAtIsNull(id)
                 .map(entityMapper::toDomain);
     }
 
     @Override
     public void deleteById(Long id) {
-        jpaRepository.deleteById(id);
+        TransactionEntity entity = jpaRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+        entity.setDeletedAt(LocalDateTime.now());
+        jpaRepository.save(entity);
     }
 
     @Override
     public boolean existsById(Long id) {
-        return jpaRepository.existsById(id);
+        return jpaRepository.existsByIdAndDeletedAtIsNull(id);
     }
 
     @Override
@@ -70,7 +74,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     @Override
     public List<Transaction> findOverdueTransactions(LocalDate referenceDate) {
-        return jpaRepository.findByDueDayLessThanEqualAndPaydayIsNull(referenceDate).stream()
+        return jpaRepository.findByDueDayLessThanEqualAndPaydayIsNullAndDeletedAtIsNull(referenceDate).stream()
                 .map(entityMapper::toDomain)
                 .toList();
     }
@@ -78,6 +82,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     private Specification<TransactionEntity> buildSpecification(TransactionFilterDto filter) {
         return (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(builder.isNull(root.get("deletedAt")));
 
             if (filter != null) {
                 if (filter.getTags() != null && !filter.getTags().isEmpty()) {

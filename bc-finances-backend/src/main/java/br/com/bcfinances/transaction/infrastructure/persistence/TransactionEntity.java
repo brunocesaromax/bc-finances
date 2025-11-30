@@ -24,16 +24,19 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.hibernate.annotations.Where;
 
 @Setter
 @Getter
 @Entity
 @Table(name = "transactions")
+@Where(clause = "deleted_at IS NULL")
 public class TransactionEntity {
 
     @Id
@@ -75,6 +78,9 @@ public class TransactionEntity {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<TagEntity> tags = new HashSet<>();
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     public TransactionEntity() {}
 

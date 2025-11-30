@@ -29,6 +29,7 @@ import { parseDateInputValue } from '@/utils/formatters'
 
 const TAG_MAX_LENGTH = 80
 type PendingAttachment = { id: string; file: File }
+type PreviewAttachment = { url: string; title: string; revoke?: boolean }
 
 const currencySchema = z
   .any()
@@ -106,6 +107,7 @@ export const TransactionFormPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [transactionId, setTransactionId] = useState<number | null>(null)
+  const [previewAttachment, setPreviewAttachment] = useState<PreviewAttachment | null>(null)
 
   const {
     register,
@@ -125,6 +127,35 @@ export const TransactionFormPage = () => {
   const persistedAttachments = watch('attachments') ?? []
   const watchedCategoryId = watch('categoryId')
   const currentCategories = categoriesByType[watchedType] ?? []
+
+  const isImageAttachment = (contentType?: string | null, fileName?: string) => {
+    if (contentType && contentType.toLowerCase().startsWith('image/')) {
+      return true
+    }
+    const lowerName = fileName?.toLowerCase() ?? ''
+    return ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg'].some((ext) =>
+      lowerName.endsWith(ext),
+    )
+  }
+
+  const isPdfAttachment = (contentType?: string | null, fileName?: string) => {
+    if (contentType && contentType.toLowerCase() === 'application/pdf') {
+      return true
+    }
+    const lowerName = fileName?.toLowerCase() ?? ''
+    return lowerName.endsWith('.pdf')
+  }
+
+  const openImagePreview = (payload: PreviewAttachment) => {
+    setPreviewAttachment(payload)
+  }
+
+  const closePreview = () => {
+    if (previewAttachment?.revoke) {
+      URL.revokeObjectURL(previewAttachment.url)
+    }
+    setPreviewAttachment(null)
+  }
 
   const loadTags = async () => {
     try {
@@ -265,6 +296,7 @@ export const TransactionFormPage = () => {
 
       if (pendingAttachments.length > 0) {
         const uploads = await transactionService.uploadAttachments(
+          baseTransaction.id,
           pendingAttachments.map((attachment) => attachment.file),
         )
 
@@ -638,7 +670,7 @@ export const TransactionFormPage = () => {
                     key={attachment.id}
                     className="flex flex-col gap-1 rounded-xl border border-brand-100 bg-brand-50 px-3 py-2 text-sm text-slate-700 md:flex-row md:items-center md:justify-between"
                   >
-                    <div className="space-y-0.5">
+                    <div className="space-y-1">
                       <p className="font-semibold text-slate-800">
                         {attachment.file.name}
                       </p>
@@ -648,14 +680,31 @@ export const TransactionFormPage = () => {
                       <Badge variant="primary" className="w-fit">
                         Será enviado ao salvar
                       </Badge>
+                      {isImageAttachment(attachment.file.type, attachment.file.name) ? (
+                        <button
+                          type="button"
+                          className="text-xs font-semibold text-brand-700 transition hover:text-brand-800"
+                          onClick={() =>
+                            openImagePreview({
+                              url: URL.createObjectURL(attachment.file),
+                              title: attachment.file.name,
+                              revoke: true,
+                            })
+                          }
+                        >
+                          Visualizar imagem
+                        </button>
+                      ) : null}
                     </div>
-                    <button
-                      type="button"
-                      className="text-xs font-semibold text-red-600 transition hover:text-red-700"
-                      onClick={() => handleRemovePendingAttachment(attachment.id)}
-                    >
-                      Remover
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        className="text-xs font-semibold text-red-600 transition hover:text-red-700"
+                        onClick={() => handleRemovePendingAttachment(attachment.id)}
+                      >
+                        Remover
+                      </button>
+                    </div>
                   </div>
                 ))}
                 {persistedAttachments.map((attachment) => (
@@ -670,14 +719,36 @@ export const TransactionFormPage = () => {
                       <p className="text-xs text-slate-500">
                         {attachment.contentType ?? 'Arquivo'}
                       </p>
-                      {attachment.url ? (
+                      {attachment.url &&
+                      isImageAttachment(
+                        attachment.contentType,
+                        attachment.originalName ?? attachment.name,
+                      ) ? (
+                        <button
+                          type="button"
+                          className="text-xs font-semibold text-brand-700 transition hover:text-brand-800"
+                          onClick={() =>
+                            openImagePreview({
+                              url: attachment.url as string,
+                              title: attachment.originalName ?? attachment.name ?? 'Imagem',
+                            })
+                          }
+                        >
+                          Visualizar imagem
+                        </button>
+                      ) : attachment.url ? (
                         <a
                           href={attachment.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-xs font-semibold text-brand-700 hover:underline"
                         >
-                          Abrir arquivo
+                          {isPdfAttachment(
+                            attachment.contentType,
+                            attachment.originalName ?? attachment.name,
+                          )
+                            ? 'Abrir PDF'
+                            : 'Abrir arquivo'}
                         </a>
                       ) : null}
                     </div>
@@ -711,6 +782,30 @@ export const TransactionFormPage = () => {
           </Button>
         </div>
       </form>
+
+      {previewAttachment ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
+          <div className="relative w-full max-w-4xl rounded-2xl bg-white p-4 shadow-2xl">
+            <button
+              type="button"
+              className="absolute right-3 top-3 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-200"
+              onClick={closePreview}
+            >
+              Fechar
+            </button>
+            <div className="flex max-h-[80vh] items-center justify-center">
+              <img
+                src={previewAttachment.url}
+                alt={previewAttachment.title}
+                className="max-h-[72vh] w-full object-contain"
+              />
+            </div>
+            <p className="mt-3 text-center text-sm font-semibold text-slate-700">
+              {previewAttachment.title}
+            </p>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

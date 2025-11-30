@@ -8,6 +8,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -18,6 +19,8 @@ import software.amazon.awssdk.services.s3.model.Tag;
 import software.amazon.awssdk.services.s3.model.Tagging;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -33,19 +36,22 @@ public class S3Service {
     private final MessageSource messageSource;
     private static final List<String> ALLOWED_CONTENT_TYPES = List.of("application/pdf", "text/plain");
 
-    public String saveTemp(MultipartFile file) {
+    public String saveTemp(Long transactionId, MultipartFile file) {
+        if (transactionId == null) {
+            throw new IllegalArgumentException("Transaction id is required to upload attachments");
+        }
         validateContentType(file);
 
         // Verificar se S3 está configurado com credenciais reais
         if (!isS3Available()) {
             log.warn("S3 não configurado. Upload do arquivo '{}' será ignorado.", file.getOriginalFilename());
-            return generateUniqueName(file.getOriginalFilename()); // Retorna nome único mas não faz upload
+            return buildObjectKey(transactionId, file.getOriginalFilename()); // Retorna nome único mas não faz upload
         }
         
         // Garantir que o bucket existe antes de usar
         ensureBucketConfigured();
-        
-        String uniqueName = generateUniqueName(file.getOriginalFilename());
+
+        String uniqueName = buildObjectKey(transactionId, file.getOriginalFilename());
 
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -88,7 +94,8 @@ public class S3Service {
         String baseUrl = StringUtils.hasText(publicEndpoint) ? publicEndpoint : endpoint;
         baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
 
-        return baseUrl + "/" + apiProperty.getS3().getBucket() + "/" + object;
+        String encodedKey = UriUtils.encodePath(object, StandardCharsets.UTF_8);
+        return baseUrl + "/" + apiProperty.getS3().getBucket() + "/" + encodedKey;
     }
 
     //Salvar arquivo temporário como permanente
@@ -128,8 +135,19 @@ public class S3Service {
         s3Client.deleteObject(deleteObjectRequest);
     }
 
-    private String generateUniqueName(String originalFilename) {
-        return UUID.randomUUID().toString() + "_" + originalFilename;
+    private String buildObjectKey(Long transactionId, String originalFilename) {
+        String sanitized = sanitizeFilename(originalFilename);
+        String hash = UUID.randomUUID().toString().replace("-", "");
+        return transactionId + "/" + hash + "/" + sanitized;
+    }
+
+    private String sanitizeFilename(String originalFilename) {
+        String baseName = StringUtils.hasText(originalFilename) ? originalFilename : "file";
+        String normalized = Normalizer.normalize(baseName, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        String cleaned = normalized.replaceAll("[^A-Za-z0-9._-]", "_");
+        String trimmed = cleaned.length() > 100 ? cleaned.substring(0, 100) : cleaned;
+        return StringUtils.hasText(trimmed) ? trimmed : "file";
     }
 
     private void validateContentType(MultipartFile file) {

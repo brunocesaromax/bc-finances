@@ -80,12 +80,13 @@ export const transactionService = {
     await apiClient.delete(`/transactions/${id}`)
   },
 
-  async uploadAttachments(files: File[]): Promise<Attachment[]> {
-    if (!files || files.length === 0) {
+  async uploadAttachments(transactionId: number, files: File[]): Promise<Attachment[]> {
+    if (!transactionId || !files || files.length === 0) {
       return []
     }
 
     const formData = new FormData()
+    formData.append('transactionId', transactionId.toString())
     files.forEach((file) => formData.append('attachments', file))
 
     const { data } = await apiClient.post<Attachment[]>(

@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -94,12 +95,17 @@ public class TransactionController {
 
     @PostMapping("/attachments")
     @PreAuthorize("hasAuthority('ROLE_CREATE_TRANSACTION')")
-    public List<AttachmentDto> uploadAttachment(@RequestParam("attachments") List<MultipartFile> attachments) {
+    public List<AttachmentDto> uploadAttachment(@RequestParam("transactionId") Long transactionId,
+                                                @RequestParam("attachments") List<MultipartFile> attachments) {
+        if (transactionId == null || !transactionRepository.existsById(transactionId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found");
+        }
+
         List<MultipartFile> files = attachments != null ? attachments : List.of();
 
         return files.stream()
                 .map(file -> {
-                    String name = s3Service.saveTemp(file);
+                    String name = s3Service.saveTemp(transactionId, file);
                     return new AttachmentDto(
                             name,
                             file.getOriginalFilename(),
