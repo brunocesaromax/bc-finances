@@ -54,6 +54,7 @@ export type TransactionFilter = {
   dueDayEnd?: string
   type?: TransactionType
   categoryId?: number
+  tags?: string[]
   page: number
   size: number
 }

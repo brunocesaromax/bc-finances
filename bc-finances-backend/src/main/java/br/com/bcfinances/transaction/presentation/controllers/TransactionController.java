@@ -86,7 +86,7 @@ public class TransactionController {
         deleteTransactionUseCase.execute(id);
     }
 
-    @GetMapping(params = "summary")
+    @GetMapping
     @PreAuthorize("hasAuthority('ROLE_SEARCH_TRANSACTION')")
     public Page<TransactionSummaryDto> summary(@ModelAttribute TransactionFilterDto filter, Pageable pageable) {
         return transactionRepository.findWithFilter(filter, pageable);

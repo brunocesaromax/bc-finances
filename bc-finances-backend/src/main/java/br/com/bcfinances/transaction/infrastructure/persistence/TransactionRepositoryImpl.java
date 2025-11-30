@@ -6,6 +6,7 @@ import br.com.bcfinances.transaction.application.dto.TransactionSummaryDto;
 import br.com.bcfinances.transaction.domain.contracts.TransactionRepository;
 import br.com.bcfinances.transaction.domain.entities.Transaction;
 import br.com.bcfinances.transaction.infrastructure.mappers.TransactionEntityMapper;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,11 +14,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
+import jakarta.persistence.criteria.JoinType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -72,9 +77,23 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     private Specification<TransactionEntity> buildSpecification(TransactionFilterDto filter) {
         return (root, query, builder) -> {
-            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
             if (filter != null) {
+                if (filter.getTags() != null && !filter.getTags().isEmpty()) {
+                    Set<String> normalizedTags = filter.getTags().stream()
+                            .filter(StringUtils::hasText)
+                            .map(String::trim)
+                            .filter(name -> !name.isEmpty())
+                            .map(String::toLowerCase)
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+                    if (!normalizedTags.isEmpty()) {
+                        var tagJoin = root.join("tags", JoinType.INNER);
+                        predicates.add(builder.lower(tagJoin.get("name")).in(normalizedTags));
+                    }
+                }
+
                 if (StringUtils.hasText(filter.getDescription())) {
                     predicates.add(builder.like(
                             builder.lower(root.get("description")),
@@ -102,7 +121,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
             query.distinct(true);
             query.orderBy(builder.desc(root.get("dueDay")), builder.desc(root.get("id")));
 
-            return builder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+            return builder.and(predicates.toArray(new Predicate[0]));
         };
     }
 

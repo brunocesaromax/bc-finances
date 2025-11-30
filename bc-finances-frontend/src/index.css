@@ -139,3 +139,18 @@ button,
 .date-picker-wrapper .react-datepicker__input-container input {
   width: 100%;
 }
+
+select {
+  border-radius: 1rem;
+}
+
+select option {
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+}
+
+select option:checked,
+select option:focus,
+select option:hover {
+  background-color: var(--color-brand-50);
+}

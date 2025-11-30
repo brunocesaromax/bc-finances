@@ -4,6 +4,7 @@ import br.com.bcfinances.transaction.domain.valueobjects.TransactionType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +37,7 @@ public class TransactionRequest {
     @NotNull
     private Long categoryId;
 
-    private List<String> tags = new ArrayList<>();
+    private List<@Size(min = 3, max = 80, message = "Tag must be between 3 and 80 characters") String> tags = new ArrayList<>();
 
     private List<AttachmentRequest> attachments = new ArrayList<>();
 

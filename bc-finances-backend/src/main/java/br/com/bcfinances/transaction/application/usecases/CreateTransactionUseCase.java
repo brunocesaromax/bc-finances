@@ -40,6 +40,7 @@ public class CreateTransactionUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
         validateCategoryType(category, request.getType());
+        validateTagNames(request.getTags());
 
         List<Tag> tags = resolveTags(request.getTags());
         List<TransactionAttachment> attachments = buildAttachments(request);
@@ -59,6 +60,21 @@ public class CreateTransactionUseCase {
         }
         if (category.getTransactionType() != type) {
             throw new IllegalArgumentException("Category type does not match transaction type");
+        }
+    }
+
+    private void validateTagNames(List<String> tagNames) {
+        if (tagNames == null || tagNames.isEmpty()) {
+            return;
+        }
+
+        boolean hasInvalid = tagNames.stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .anyMatch(name -> name.length() < 3);
+
+        if (hasInvalid) {
+            throw new IllegalArgumentException("Tags must have at least 3 characters");
         }
     }
 

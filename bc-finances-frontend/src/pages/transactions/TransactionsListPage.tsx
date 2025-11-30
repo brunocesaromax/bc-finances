@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import type { AxiosError } from 'axios'
 import { transactionService } from '@/services/transactionService'
 import { categoryService } from '@/services/categoryService'
+import { tagService } from '@/services/tagService'
 import type { TransactionSummary } from '@/types/transaction'
 import type { TransactionType } from '@/types/finance'
 import type { Category } from '@/types/category'
+import type { Tag } from '@/types/tag'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -19,9 +21,8 @@ import { FormLabel } from '@/components/ui/FormLabel'
 import { Input } from '@/components/ui/Input'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { Select } from '@/components/ui/Select'
-import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 
-const PAGE_SIZE = 6
+const PAGE_SIZE = 10
 
 type FilterFormState = {
   description: string
@@ -29,6 +30,7 @@ type FilterFormState = {
   dueDayEnd: string | null
   type: TransactionType | ''
   categoryId: string
+  tags: string[]
 }
 
 type FetchState = {
@@ -47,6 +49,7 @@ export const TransactionsListPage = () => {
     dueDayEnd: null,
     type: '',
     categoryId: '',
+    tags: [],
   })
   const [appliedFilters, setAppliedFilters] = useState<FilterFormState>({
     description: '',
@@ -54,6 +57,7 @@ export const TransactionsListPage = () => {
     dueDayEnd: null,
     type: '',
     categoryId: '',
+    tags: [],
   })
   const [page, setPage] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -63,32 +67,18 @@ export const TransactionsListPage = () => {
   })
   const [refreshKey, setRefreshKey] = useState(0)
   const [categories, setCategories] = useState<Category[]>([])
+  const [availableTags, setAvailableTags] = useState<Tag[]>([])
+  const [isLoadingTags, setIsLoadingTags] = useState(false)
 
   const canCreate = hasPermission(PERMISSIONS.CREATE_TRANSACTION)
   const canDelete = hasPermission(PERMISSIONS.REMOVE_TRANSACTION)
 
-  const debouncedDescription = useDebouncedValue(filterForm.description, 400)
-
-  const normalizedDescription = useMemo(() => {
-    const trimmed = debouncedDescription.trim()
-    return trimmed.length >= 3 ? trimmed : ''
-  }, [debouncedDescription])
-
   useEffect(() => {
-    setAppliedFilters((previous) => {
-      if (previous.description === normalizedDescription) {
-        return previous
-      }
+    if (!filterForm.type) {
+      setCategories([])
+      return
+    }
 
-      setPage(0)
-      return {
-        ...previous,
-        description: normalizedDescription,
-      }
-    })
-  }, [normalizedDescription])
-
-  useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await categoryService.findAll(
@@ -103,6 +93,23 @@ export const TransactionsListPage = () => {
 
     fetchCategories()
   }, [filterForm.type])
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      setIsLoadingTags(true)
+      try {
+        const response = await tagService.findAll()
+        setAvailableTags(response)
+      } catch (error) {
+        console.error('Não foi possível carregar tags.', error)
+        toast.error('Não foi possível carregar tags.')
+      } finally {
+        setIsLoadingTags(false)
+      }
+    }
+
+    fetchTags()
+  }, [])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -120,6 +127,10 @@ export const TransactionsListPage = () => {
             categoryId: appliedFilters.categoryId
               ? Number(appliedFilters.categoryId)
               : undefined,
+            tags:
+              appliedFilters.tags && appliedFilters.tags.length > 0
+                ? appliedFilters.tags
+                : undefined,
           },
           { signal: controller.signal },
         )
@@ -153,6 +164,7 @@ export const TransactionsListPage = () => {
     appliedFilters.dueDayStart,
     appliedFilters.type,
     appliedFilters.categoryId,
+    appliedFilters.tags,
     page,
     refreshKey,
   ])
@@ -178,15 +190,32 @@ export const TransactionsListPage = () => {
     }))
   }
 
+  const handleTagToggle = (tagName: string) => {
+    setFilterForm((prev) => {
+      const isSelected = prev.tags.includes(tagName)
+      return {
+        ...prev,
+        tags: isSelected
+          ? prev.tags.filter((tag) => tag !== tagName)
+          : [...prev.tags, tagName],
+      }
+    })
+  }
+
   const handleFilterSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const normalizedDescription = filterForm.description.trim()
+    const descriptionFilter =
+      normalizedDescription.length > 0 ? normalizedDescription : ''
     setPage(0)
     setAppliedFilters((prev) => ({
       ...prev,
+      description: descriptionFilter,
       dueDayStart: filterForm.dueDayStart,
       dueDayEnd: filterForm.dueDayEnd,
       type: filterForm.type,
       categoryId: filterForm.categoryId,
+      tags: [...filterForm.tags],
     }))
   }
 
@@ -197,6 +226,7 @@ export const TransactionsListPage = () => {
       dueDayEnd: null,
       type: '',
       categoryId: '',
+      tags: [],
     })
     setAppliedFilters({
       description: '',
@@ -204,8 +234,10 @@ export const TransactionsListPage = () => {
       dueDayEnd: null,
       type: '',
       categoryId: '',
+      tags: [],
     })
     setPage(0)
+    setCategories([])
   }
 
   const handleDelete = async (transaction: TransactionSummary) => {
@@ -252,7 +284,7 @@ export const TransactionsListPage = () => {
       </header>
 
       <form
-        className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-5"
+        className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-6"
         onSubmit={handleFilterSubmit}
       >
         <div className="md:col-span-2">
@@ -283,14 +315,49 @@ export const TransactionsListPage = () => {
             id="category"
             value={filterForm.categoryId}
             onChange={handleCategoryChange}
+            disabled={!filterForm.type}
           >
-            <option value="">Todas</option>
+            <option value="">
+              {filterForm.type ? 'Todas' : 'Selecione o tipo'}
+            </option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
           </Select>
+        </div>
+        <div className="md:col-span-2">
+          <FormLabel htmlFor="tags-filter">Tags</FormLabel>
+          <div
+            id="tags-filter"
+            className="flex min-h-[42px] flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2"
+          >
+            {isLoadingTags ? (
+              <span className="text-xs text-slate-500">Carregando tags...</span>
+            ) : availableTags.length === 0 ? (
+              <span className="text-xs text-slate-500">Nenhuma tag disponível</span>
+            ) : (
+              availableTags.map((tag) => {
+                const isSelected = filterForm.tags.includes(tag.name)
+                return (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    aria-pressed={isSelected}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                      isSelected
+                        ? 'border-brand-300 bg-brand-50 text-brand-700 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-brand-200 hover:text-brand-700'
+                    }`}
+                    onClick={() => handleTagToggle(tag.name)}
+                  >
+                    {tag.name}
+                  </button>
+                )
+              })
+            )}
+          </div>
         </div>
         <div>
           <FormLabel htmlFor="dueDayStart">Vencimento inicial</FormLabel>
@@ -314,7 +381,7 @@ export const TransactionsListPage = () => {
             className="max-w-full"
           />
         </div>
-        <div className="md:col-span-5 flex flex-col justify-end gap-2 md:flex-row">
+        <div className="md:col-span-6 flex flex-col justify-end gap-2 md:flex-row">
           <Button type="submit" className="w-full md:w-auto">
             Aplicar filtros
           </Button>
@@ -365,7 +432,9 @@ export const TransactionsListPage = () => {
                       </span>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {transaction.tags?.map((tag) => (
-                          <Badge key={tag}>{tag}</Badge>
+                          <Badge key={tag} variant="primary">
+                            {tag}
+                          </Badge>
                         ))}
                         {transaction.hasAttachments ? (
                           <Badge variant="info">Anexos</Badge>
@@ -440,7 +509,9 @@ export const TransactionsListPage = () => {
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1">
                       {transaction.tags?.map((tag) => (
-                        <Badge key={tag}>{tag}</Badge>
+                        <Badge key={tag} variant="primary">
+                          {tag}
+                        </Badge>
                       ))}
                       {transaction.hasAttachments ? (
                         <Badge variant="info">Anexos</Badge>

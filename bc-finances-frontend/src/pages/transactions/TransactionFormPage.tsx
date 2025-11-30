@@ -28,6 +28,7 @@ import { Badge } from '@/components/ui/Badge'
 import { parseDateInputValue } from '@/utils/formatters'
 
 const TAG_MAX_LENGTH = 80
+type PendingAttachment = { id: string; file: File }
 
 const currencySchema = z
   .any()
@@ -61,7 +62,16 @@ const transactionSchema = z.object({
   payday: z.string().optional().nullable(),
   categoryId: z.string().min(1, 'Selecione a categoria'),
   observation: z.string().optional().nullable(),
-  tags: z.array(z.string().min(1).max(TAG_MAX_LENGTH)).optional().default([]),
+  tags: z
+    .array(
+      z
+        .string()
+        .trim()
+        .min(3, 'A tag deve ter no mínimo 3 caracteres')
+        .max(TAG_MAX_LENGTH),
+    )
+    .optional()
+    .default([]),
   attachments: z.array(attachmentSchema).optional().default([]),
 })
 
@@ -89,12 +99,12 @@ export const TransactionFormPage = () => {
     RECIPE: [],
     EXPENSE: [],
   })
+  const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([])
   const [isLoadingCategories, setIsLoadingCategories] = useState(false)
   const [availableTags, setAvailableTags] = useState<Tag[]>([])
   const [tagInput, setTagInput] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [uploadingAttachment, setUploadingAttachment] = useState(false)
   const [transactionId, setTransactionId] = useState<number | null>(null)
 
   const {
@@ -112,7 +122,7 @@ export const TransactionFormPage = () => {
 
   const watchedType = watch('type')
   const watchedTags = watch('tags') ?? []
-  const watchedAttachments = watch('attachments') ?? []
+  const persistedAttachments = watch('attachments') ?? []
   const watchedCategoryId = watch('categoryId')
   const currentCategories = categoriesByType[watchedType] ?? []
 
@@ -159,6 +169,7 @@ export const TransactionFormPage = () => {
       tags: transaction.tags ?? [],
       attachments: transaction.attachments ?? [],
     })
+    setPendingAttachments([])
   }
 
   useEffect(() => {
@@ -209,18 +220,21 @@ export const TransactionFormPage = () => {
   }
 
   const onSubmit = handleSubmit(async (values) => {
+    if (isEditing && !transactionId) {
+      toast.error('Não foi possível identificar o lançamento para atualização.')
+      return
+    }
+
     setIsSubmitting(true)
 
-    const attachmentsPayload: Attachment[] = (values.attachments ?? []).map(
-      (attachment) => ({
-        name: attachment.name,
-        originalName: attachment.originalName ?? attachment.name,
-        contentType: attachment.contentType,
-        size: attachment.size,
-      }),
-    )
+    const attachmentsPayload: Attachment[] = (values.attachments ?? []).map((attachment) => ({
+      name: attachment.name,
+      originalName: attachment.originalName ?? attachment.name,
+      contentType: attachment.contentType,
+      size: attachment.size,
+    }))
 
-    const payload: TransactionPayload = {
+    const payloadWithoutAttachments: Omit<TransactionPayload, 'attachments'> = {
       description: values.description,
       value: Number(values.value),
       type: values.type,
@@ -229,21 +243,47 @@ export const TransactionFormPage = () => {
       observation: values.observation ?? '',
       categoryId: Number(values.categoryId),
       tags: values.tags ?? [],
-      attachments: attachmentsPayload,
     }
 
     try {
-      if (isEditing && transactionId) {
-        await transactionService.update({
-          id: transactionId,
-          ...payload,
+      const baseTransaction = isEditing
+        ? await transactionService.update({
+            id: transactionId as number,
+            ...payloadWithoutAttachments,
+            attachments: attachmentsPayload,
+          })
+        : await transactionService.save({
+            ...payloadWithoutAttachments,
+            attachments: attachmentsPayload,
+          })
+
+      if (!baseTransaction || !baseTransaction.id) {
+        throw new Error('Falha ao salvar o lançamento.')
+      }
+
+      let finalTransaction = baseTransaction
+
+      if (pendingAttachments.length > 0) {
+        const uploads = await transactionService.uploadAttachments(
+          pendingAttachments.map((attachment) => attachment.file),
+        )
+
+        finalTransaction = await transactionService.update({
+          id: baseTransaction.id,
+          ...payloadWithoutAttachments,
+          attachments: [...(baseTransaction.attachments ?? []), ...uploads],
         })
-        toast.success('Lançamento atualizado com sucesso!')
-        navigate('/transactions')
-      } else {
-        const saved = await transactionService.save(payload)
-        toast.success('Lançamento criado com sucesso!')
-        navigate(`/transactions/${saved.id}`)
+      }
+
+      await hydrateForm(finalTransaction)
+      setPendingAttachments([])
+
+      toast.success(
+        isEditing ? 'Lançamento atualizado com sucesso!' : 'Lançamento criado com sucesso!',
+      )
+
+      if (!isEditing && finalTransaction.id) {
+        navigate(`/transactions/${finalTransaction.id}`)
       }
     } catch (error) {
       console.error('Não foi possível salvar o lançamento.', error)
@@ -253,48 +293,66 @@ export const TransactionFormPage = () => {
     }
   })
 
-  const handleAttachmentUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleAttachmentSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files ? Array.from(event.target.files) : []
     if (!files.length) {
       return
     }
 
-    setUploadingAttachment(true)
+    const currentPendingNames = new Set(
+      pendingAttachments.map((attachment) => attachment.file.name.toLowerCase()),
+    )
+    const existingAttachmentNames = new Set(
+      (persistedAttachments ?? []).map((attachment) =>
+        (attachment.originalName ?? attachment.name).toLowerCase(),
+      ),
+    )
 
-    try {
-      const uploads = await transactionService.uploadAttachments(files)
-      const current = watch('attachments') ?? []
+    const freshFiles = files.filter((file) => {
+      const normalizedName = file.name.toLowerCase()
+      return (
+        !currentPendingNames.has(normalizedName) &&
+        !existingAttachmentNames.has(normalizedName)
+      )
+    })
 
-      const merged = [...current]
-      uploads.forEach((upload) => {
-        if (!merged.some((attachment) => attachment.name === upload.name)) {
-          merged.push(upload)
-        }
-      })
-
-      setValue('attachments', merged, { shouldValidate: true })
-      toast.success('Anexo enviado com sucesso!')
-    } catch (error) {
-      console.error('Não foi possível enviar o anexo.', error)
-      toast.error('Não foi possível enviar o anexo.')
-    } finally {
-      setUploadingAttachment(false)
+    if (!freshFiles.length) {
+      toast.error('Esses arquivos já foram adicionados.')
       event.target.value = ''
+      return
     }
+
+    const mapped = freshFiles.map((file) => ({
+      id: `${file.name}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      file,
+    }))
+
+    setPendingAttachments((previous) => [...previous, ...mapped])
+    toast.success('Anexos adicionados para envio ao salvar.')
+    event.target.value = ''
   }
 
   const handleRemoveAttachment = (name: string) => {
-    const nextAttachments = (watch('attachments') ?? []).filter(
+    const nextAttachments = (persistedAttachments ?? []).filter(
       (attachment) => attachment.name !== name,
     )
     setValue('attachments', nextAttachments, { shouldValidate: true })
   }
 
+  const handleRemovePendingAttachment = (id: string) => {
+    setPendingAttachments((previous) =>
+      previous.filter((attachment) => attachment.id !== id),
+    )
+  }
+
   const handleTagAddition = () => {
     const normalized = tagInput.trim().slice(0, TAG_MAX_LENGTH)
     if (!normalized) {
+      return
+    }
+
+    if (normalized.length < 3) {
+      toast.error('A tag deve ter pelo menos 3 caracteres.')
       return
     }
 
@@ -508,7 +566,11 @@ export const TransactionFormPage = () => {
                 {watchedTags.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {watchedTags.map((tag) => (
-                      <Badge key={tag} className="flex items-center gap-2">
+                      <Badge
+                        key={tag}
+                        variant="primary"
+                        className="flex items-center gap-2"
+                      >
                         <span>{tag}</span>
                         <button
                           type="button"
@@ -554,7 +616,7 @@ export const TransactionFormPage = () => {
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Anexos</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Inclua comprovantes, notas fiscais ou imagens relacionados ao lançamento.
+            Inclua comprovantes, notas fiscais ou imagens relacionados ao lançamento. Os arquivos são enviados somente ao salvar o lançamento.
           </p>
 
           <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center">
@@ -564,14 +626,39 @@ export const TransactionFormPage = () => {
                 accept="image/*,application/pdf,text/plain"
                 multiple
                 className="sr-only"
-                onChange={handleAttachmentUpload}
+                onChange={handleAttachmentSelection}
               />
-              {uploadingAttachment ? 'Enviando...' : 'Selecionar arquivos'}
+              Selecionar arquivos
             </label>
 
-            {watchedAttachments.length > 0 ? (
+            {pendingAttachments.length > 0 || persistedAttachments.length > 0 ? (
               <div className="flex-1 space-y-3">
-                {watchedAttachments.map((attachment) => (
+                {pendingAttachments.map((attachment) => (
+                  <div
+                    key={attachment.id}
+                    className="flex flex-col gap-1 rounded-xl border border-brand-100 bg-brand-50 px-3 py-2 text-sm text-slate-700 md:flex-row md:items-center md:justify-between"
+                  >
+                    <div className="space-y-0.5">
+                      <p className="font-semibold text-slate-800">
+                        {attachment.file.name}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {attachment.file.type || 'Arquivo'}
+                      </p>
+                      <Badge variant="primary" className="w-fit">
+                        Será enviado ao salvar
+                      </Badge>
+                    </div>
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-red-600 transition hover:text-red-700"
+                      onClick={() => handleRemovePendingAttachment(attachment.id)}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ))}
+                {persistedAttachments.map((attachment) => (
                   <div
                     key={attachment.name}
                     className="flex flex-col gap-1 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-sm text-slate-700 md:flex-row md:items-center md:justify-between"
@@ -606,7 +693,7 @@ export const TransactionFormPage = () => {
               </div>
             ) : (
               <p className="text-xs text-slate-400">
-                Nenhum anexo selecionado. Formatos aceitos: PDF, imagens e texto.
+                Nenhum anexo selecionado. Formatos aceitos: PDF, imagens e texto. Os arquivos serão enviados somente ao salvar.
               </p>
             )}
           </div>

@@ -18,30 +18,32 @@ export const transactionService = {
     filter: TransactionFilter,
     options?: RequestOptions,
   ): Promise<PageableResponse<TransactionSummary>> {
-    const params: Record<string, string> = {
-      page: filter.page.toString(),
-      size: filter.size.toString(),
-      summary: '',
-    }
+    const params = new URLSearchParams()
+    params.set('page', filter.page.toString())
+    params.set('size', filter.size.toString())
 
     if (filter.description) {
-      params.description = filter.description
+      params.set('description', filter.description)
     }
 
     if (filter.dueDayStart) {
-      params.dueDayStart = filter.dueDayStart
+      params.set('dueDayStart', filter.dueDayStart)
     }
 
     if (filter.dueDayEnd) {
-      params.dueDayEnd = filter.dueDayEnd
+      params.set('dueDayEnd', filter.dueDayEnd)
     }
 
     if (filter.type) {
-      params.type = filter.type
+      params.set('type', filter.type)
     }
 
     if (filter.categoryId) {
-      params.categoryId = filter.categoryId.toString()
+      params.set('categoryId', filter.categoryId.toString())
+    }
+
+    if (filter.tags?.length) {
+      filter.tags.forEach((tag) => params.append('tags', tag))
     }
 
     const { data } = await apiClient.get<PageableResponse<TransactionSummary>>(
