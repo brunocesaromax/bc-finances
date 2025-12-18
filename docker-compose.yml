@@ -87,7 +87,7 @@ services:
   backend:
     build:
       context: ./bc-finances-backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: bc-finances-backend
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
