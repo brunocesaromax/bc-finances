@@ -13,13 +13,13 @@ WORKDIR /app
 COPY pom.xml .
 
 # Download dependencies (cache layer - reuses ~/.m2 between builds)
-RUN --mount=type=cache,target=/root/.m2 mvn -B dependency:go-offline
+RUN --mount=type=cache,id=bc-finances-backend-m2,target=/root/.m2 mvn -B dependency:go-offline
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN --mount=type=cache,target=/root/.m2 mvn -B clean package -DskipTests
+RUN --mount=type=cache,id=bc-finances-backend-m2,target=/root/.m2 mvn -B clean package -DskipTests
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine AS runtime
