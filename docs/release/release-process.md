@@ -34,7 +34,7 @@ git merge --ff-only develop
 ```
 
 ## 3. Criação da Tag de Release
-- Com `master` apontando para o commit de versionamento, crie a tag anotada.
+- Com `master` apontando para o commit de versionamento, crie a tag anotada. **Nunca** tague diretamente a partir de `develop` ou de branches de feature.
 - A mensagem deve indicar claramente o objetivo da release.
 
 ```bash
@@ -50,7 +50,19 @@ git push origin master
 git push origin v0.3.0
 ```
 
+## 5. Merge-back obrigatório para `develop`
+- Após publicar a tag, traga `master` de volta para `develop` para evitar divergências (ex.: commits de versionamento ou hotfixes feitos direto em `master`).
+
+```bash
+git checkout develop
+git pull --rebase origin develop
+git merge --ff-only master
+git push origin develop
+```
+
+- Caso `--ff-only` falhe, abra PR de sincronização `master -> develop` para revisão. **Não** deixe commits exclusivos em `master`.
+
 ## Políticas Complementares
-- Nunca crie tags diretamente a partir de `develop` ou branches de feature.
 - Mantenha o histórico linear em `master`; evite `--no-ff` e commits extras.
 - Releases só devem ser executadas com a árvore de trabalho limpa e após todos os testes definidos em `docs/ia-agents-instructions/development.md`.
+- Sempre valide que `pom.xml` e `package*.json` com a versão da release estão presentes em `develop` depois do merge-back; divergências indicam release incompleto.
