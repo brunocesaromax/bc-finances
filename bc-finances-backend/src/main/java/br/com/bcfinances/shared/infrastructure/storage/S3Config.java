@@ -10,9 +10,9 @@ import org.springframework.util.StringUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.BucketLifecycleConfiguration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.ExpirationStatus;
@@ -23,6 +23,9 @@ import software.amazon.awssdk.services.s3.model.LifecycleRuleFilter;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutBucketLifecycleConfigurationRequest;
 import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
+import java.net.URI;
 
 @Slf4j
 @Configuration
@@ -58,7 +61,40 @@ public class S3Config {
 
         if (StringUtils.hasText(endpoint)) {
             builder = builder
-                    .endpointOverride(java.net.URI.create(endpoint))
+                    .endpointOverride(URI.create(endpoint))
+                    .serviceConfiguration(S3Configuration.builder()
+                            .pathStyleAccessEnabled(apiProperty.getS3().isPathStyleAccess())
+                            .build());
+        }
+
+        return builder.build();
+    }
+
+    @Bean
+    public S3Presigner s3Presigner() {
+        String accessKeyId = apiProperty.getS3().getAccessKeyId();
+        String secretAccessKey = apiProperty.getS3().getSecretAccessKey();
+        String endpoint = apiProperty.getS3().getEndpoint();
+        String regionValue = apiProperty.getS3().getRegion();
+
+        boolean isPlaceholder = isPlaceholderCredentials(accessKeyId, secretAccessKey);
+
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(
+                StringUtils.hasText(accessKeyId) ? accessKeyId : "placeholder",
+                StringUtils.hasText(secretAccessKey) ? secretAccessKey : "placeholder"
+        );
+
+        if (!StringUtils.hasText(endpoint) && isPlaceholder) {
+            log.warn("AWS S3 não configurado (credenciais vazias ou placeholder).");
+        }
+
+        S3Presigner.Builder builder = S3Presigner.builder()
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .region(Region.of(regionValue));
+
+        if (StringUtils.hasText(endpoint)) {
+            builder = builder
+                    .endpointOverride(URI.create(endpoint))
                     .serviceConfiguration(S3Configuration.builder()
                             .pathStyleAccessEnabled(apiProperty.getS3().isPathStyleAccess())
                             .build());

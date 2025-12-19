@@ -12,15 +12,20 @@ import org.springframework.web.util.UriUtils;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectTaggingRequest;
 import software.amazon.awssdk.services.s3.model.Tag;
 import software.amazon.awssdk.services.s3.model.Tagging;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -31,10 +36,12 @@ import java.util.UUID;
 public class S3Service {
 
     private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
     private final ApiProperty apiProperty;
     private final S3Config s3Config;
     private final MessageSource messageSource;
     private static final List<String> ALLOWED_CONTENT_TYPES = List.of("application/pdf", "text/plain");
+    private static final Duration PRESIGNED_URL_TTL = Duration.ofHours(1);
 
     public String saveTemp(Long transactionId, MultipartFile file) {
         if (transactionId == null) {
@@ -85,17 +92,27 @@ public class S3Service {
             return object;
         }
 
-        String publicEndpoint = apiProperty.getS3().getPublicEndpoint();
-        String endpoint = apiProperty.getS3().getEndpoint();
-        if (!StringUtils.hasText(publicEndpoint) && !StringUtils.hasText(endpoint)) {
-            return "https://" + apiProperty.getS3().getBucket() + ".s3.amazonaws.com/" + object;
+        if (!isS3Available()) {
+            return object;
         }
 
-        String baseUrl = StringUtils.hasText(publicEndpoint) ? publicEndpoint : endpoint;
-        baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(apiProperty.getS3().getBucket())
+                    .key(object)
+                    .build();
 
-        String encodedKey = UriUtils.encodePath(object, StandardCharsets.UTF_8);
-        return baseUrl + "/" + apiProperty.getS3().getBucket() + "/" + encodedKey;
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(PRESIGNED_URL_TTL)
+                    .getObjectRequest(getObjectRequest)
+                    .build();
+
+            PresignedGetObjectRequest presigned = s3Presigner.presignGetObject(presignRequest);
+            return presigned.url().toString();
+        } catch (Exception ex) {
+            log.warn("Could not generate presigned URL for object '{}': {}", object, ex.getMessage());
+            return object;
+        }
     }
 
     //Salvar arquivo temporário como permanente
