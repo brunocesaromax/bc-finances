@@ -133,7 +133,7 @@ services:
       context: bc-finances-frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://backend:8080
+        VITE_API_URL: http://localhost:8080
     container_name: bc-finances-frontend
     ports:
       - "5173:80"
