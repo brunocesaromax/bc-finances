@@ -2,17 +2,16 @@ spring:
   flyway:
     validate-on-migrate: true
 
-management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 0.1
-
 otel:
   resource:
     attributes:
       deployment.environment: prod
       host.name: prod
+  traces:
+    sampler: parentbased_traceidratio
+    sampler.arg: 0.05
+  logs:
+    exporter: none
 
 bc-finances:
   origin-permitted: https://bc-finances.up.railway.app
