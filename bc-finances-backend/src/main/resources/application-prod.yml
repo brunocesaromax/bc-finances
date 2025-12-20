@@ -1,0 +1,22 @@
+spring:
+  flyway:
+    validate-on-migrate: true
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 0.1
+
+otel:
+  sdk:
+    disabled: true
+  resource:
+    attributes:
+      deployment.environment: prod
+      host.name: prod
+
+bc-finances:
+  origin-permitted: https://bc-finances.up.railway.app
+  i18n:
+    cache-seconds: -1
