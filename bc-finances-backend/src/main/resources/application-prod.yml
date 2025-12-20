@@ -9,8 +9,6 @@ management:
       probability: 0.1
 
 otel:
-  sdk:
-    disabled: true
   resource:
     attributes:
       deployment.environment: prod
