@@ -61,6 +61,7 @@ otel:
       protocol: http/protobuf
       headers:
         Authorization: ${OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION:Basic OTEL_HEADER_AUTHORIZATION}
+        organization: ${OPENOBSERVE_ORG:bcfinances}
         stream-name: ${OPENOBSERVE_STREAM:bcfinances}
       compression: gzip
   service:
