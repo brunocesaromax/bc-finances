@@ -90,7 +90,6 @@ services:
       dockerfile: Dockerfile.dev
     container_name: bc-finances-backend
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bc-finances}
       DB_USERNAME: ${POSTGRES_USER:-postgres}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}

@@ -27,6 +27,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import br.com.bcfinances.auth.infrastructure.caching.RedisRsaKeyStore;
+import br.com.bcfinances.shared.infrastructure.property.ApiProperty;
+import java.util.Arrays;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -41,6 +43,7 @@ public class JwtSecurityConfig {
 
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final RedisRsaKeyStore redisRsaKeyStore;
+    private final ApiProperty apiProperty;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -111,7 +114,7 @@ public class JwtSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOriginPatterns(resolveAllowedOriginPatterns());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -119,5 +122,17 @@ public class JwtSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    private List<String> resolveAllowedOriginPatterns() {
+        String originPermitted = apiProperty.getOriginPermitted();
+        if (originPermitted == null || originPermitted.isBlank()) {
+            return List.of("*");
+        }
+
+        return Arrays.stream(originPermitted.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList();
     }
 }
