@@ -3,7 +3,6 @@ package br.com.bcfinances.shared.infrastructure.storage;
 import br.com.bcfinances.shared.infrastructure.property.ApiProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -33,7 +32,6 @@ import java.net.URI;
 public class S3Config {
 
     private final ApiProperty apiProperty;
-    private final MessageSource messageSource;
 
     @Bean
     public S3Client s3Client() {
@@ -75,7 +73,10 @@ public class S3Config {
         String accessKeyId = apiProperty.getS3().getAccessKeyId();
         String secretAccessKey = apiProperty.getS3().getSecretAccessKey();
         String endpoint = apiProperty.getS3().getEndpoint();
-        String regionValue = apiProperty.getS3().getRegion();
+        String publicEndpoint = apiProperty.getS3().getPublicEndpoint();
+        String regionValue = StringUtils.hasText(apiProperty.getS3().getRegion())
+                ? apiProperty.getS3().getRegion()
+                : "us-east-1";
 
         boolean isPlaceholder = isPlaceholderCredentials(accessKeyId, secretAccessKey);
 
@@ -92,9 +93,10 @@ public class S3Config {
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .region(Region.of(regionValue));
 
-        if (StringUtils.hasText(endpoint)) {
+        String endpointToUse = StringUtils.hasText(publicEndpoint) ? publicEndpoint : endpoint;
+        if (StringUtils.hasText(endpointToUse)) {
             builder = builder
-                    .endpointOverride(URI.create(endpoint))
+                    .endpointOverride(URI.create(endpointToUse))
                     .serviceConfiguration(S3Configuration.builder()
                             .pathStyleAccessEnabled(apiProperty.getS3().isPathStyleAccess())
                             .build());
