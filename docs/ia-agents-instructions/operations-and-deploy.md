@@ -9,7 +9,7 @@
 ## Docker Compose
 
 ```bash
-docker-compose up -d      # subir PostgreSQL + pgAdmin
+docker-compose up -d      # subir todos serviços (PostgreSQL, Redis, OpenObserve, LocalStack, backend e frontend)
 docker-compose ps         # verificar status
 docker-compose down       # encerrar serviços
 ```
@@ -17,12 +17,13 @@ docker-compose down       # encerrar serviços
 - Acesse o pgAdmin em `http://localhost:8081` com `admin@lancamentos.com / admin`.
 - Mantenha o arquivo `docker-compose.yml` sincronizado com as versões exigidas pelo projeto (ex.: Redis 8.2.1).
 
-## Deploy (Heroku)
+## Deploy (Railway)
 
-- O frontend React gera bundle estático em `dist/` via `npm run build` (Vite). Utilize servidor leve (Express, Nginx ou plataforma estática) apontando para esse diretório.
-- Ajuste os scripts de deploy para Node.js 20 LTS e npm 10+.
-- Caso utilize Express, atualize o `server.js` para servir os assets de Vite.
-- Backend possui `Procfile` pronto para deploy; valide variáveis de ambiente antes de publicar.
+- Produção roda no Railway com serviços separados: frontend, backend, PostgreSQL, Redis, OpenObserve e bucket de arquivos.
+- Deploy automático via push na branch `master`.
+- Config-as-code disponível em `bc-finances-backend/railway.json` e `bc-finances-frontend/railway.json`.
+- Frontend utiliza build Vite e é servido por Nginx via Dockerfile do projeto; manter `VITE_API_URL` apontando para a URL pública do backend.
+- Backend depende das variáveis `DB_*`, `REDIS_*`, `AWS_S3_*`, `MAIL_*` e `OTEL_*` configuradas no Railway.
 
 ## Boas Práticas Operacionais
 

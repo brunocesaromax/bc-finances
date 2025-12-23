@@ -26,6 +26,7 @@ npm run lint
 - Troque para `master` e traga a versão remota mais recente.
 - Faça merge fast-forward a partir de `develop`; releases **sempre** partem de `master`.
 - Em caso de conflito, resolva, confirme o merge e revalide os testes obrigatórios.
+- **Produção no Railway:** qualquer push na `master` dispara o deploy automático.
 
 ```bash
 git checkout master
