@@ -9,7 +9,7 @@ O BC Finances adota os 3 pilares da observabilidade (**logs, métricas e tracing
 | Logs | Logback + `opentelemetry-logback-appender` | Logs JSON enriquecidos com `traceId/spanId`, enviados via OTLP |
 | Métricas | Micrometer + Spring Boot Actuator | `http.server.requests`, métricas JDBC e customizadas expostas via `/actuator/metrics` e exportadas pelo OTLP |
 | Tracing | OpenTelemetry Auto-Instrumentation | Captura automática de controllers, JDBC e Redis (100% sampling) |
-| Coletor/Storage | OpenObserve (Docker) | Recebe OTLP (HTTP/Protobuf + gzip) em `http://openobserve:5080` |
+| Coletor/Storage | OpenObserve (Docker local / Railway prod) | Recebe OTLP (HTTP/Protobuf + gzip); local usa `http://openobserve:5080` |
 
 ## Arquitetura
 
@@ -51,6 +51,12 @@ sequenceDiagram
 ### Docker Compose
 - O serviço `openobserve` é iniciado junto aos demais serviços (`docker-compose up -d`).
 - Volumes persistidos: `openobserve_data`.
+
+### Produção (Railway)
+- OpenObserve roda como serviço dedicado no Railway.
+- Ajuste `OTEL_EXPORTER_OTLP_ENDPOINT` e `OTEL_EXPORTER_OTLP_HEADER_AUTHORIZATION` para o endpoint e token do ambiente de produção.
+- Defina também `OPENOBSERVE_ORG` e `OPENOBSERVE_STREAM` para garantir roteamento correto dos dados em produção.
+- A UI do OpenObserve está disponível em `https://openobserve-prod.up.railway.app/` com credenciais configuradas pelas variáveis de ambiente do serviço em produção.
 
 ### Aplicação
 - Arquivo `bc-finances-backend/src/main/resources/application.yml` define:

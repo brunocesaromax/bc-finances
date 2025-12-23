@@ -9,6 +9,12 @@ A aplicação consiste no gerenciamento financeiro do usuário, através de lan�
 Login: admin@algamoney.com   
 Senha: admin
 
+## Produção (Railway)
+
+- URL: https://bc-finances.up.railway.app
+- Deploy: push na branch `master` publica automaticamente em produção.
+- Serviços: frontend, backend, PostgreSQL, Redis, OpenObserve e bucket de arquivos.
+
 ## Documentação Técnica
 
 Para documentação detalhada da arquitetura e diagramas, consulte:
