@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectTaggingRequest;
@@ -95,14 +94,9 @@ public class S3Service {
         }
 
         try {
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(apiProperty.getS3().getBucket())
-                    .key(object)
-                    .build();
-
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
                     .signatureDuration(PRESIGNED_URL_TTL)
-                    .getObjectRequest(getObjectRequest)
+                    .getObjectRequest(gor -> gor.bucket(apiProperty.getS3().getBucket()).key(object).build())
                     .build();
 
             PresignedGetObjectRequest presigned = s3Presigner.presignGetObject(presignRequest);
@@ -123,7 +117,7 @@ public class S3Service {
         PutObjectTaggingRequest putObjectTaggingRequest = PutObjectTaggingRequest.builder()
                 .bucket(apiProperty.getS3().getBucket())
                 .key(object)
-                .tagging(Tagging.builder().tagSet(Collections.emptyList()).build())
+                .tagging(t -> t.tagSet(Collections.emptyList()).build())
                 .build();
 
         s3Client.putObjectTagging(putObjectTaggingRequest);
@@ -202,7 +196,7 @@ public class S3Service {
             s3Config.ensureBucketExists(s3Client, apiProperty.getS3().getBucket());
         } catch (Exception e) {
             log.warn("Could not configure S3 bucket: {}. S3 functionality may not work properly.", e.getMessage());
-            // Não lança exceção para permitir que a aplicação continue funcionando sem S3
+            // Doesn't throw an exception to allow the application to continue running without S3
         }
     }
 }
