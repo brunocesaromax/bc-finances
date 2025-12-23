@@ -12,6 +12,8 @@ otel:
     sampler.arg: 0.05
   logs:
     exporter: none
+  metrics:
+    exporter: none
 
 bc-finances:
   origin-permitted: https://bc-finances.up.railway.app
