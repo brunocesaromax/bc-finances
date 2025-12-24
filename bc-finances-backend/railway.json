@@ -12,7 +12,7 @@
     "overlapSeconds": 30,
     "drainingSeconds": 30,
     "healthcheckPath": "/actuator/health",
-    "sleepApplication": false,
+    "sleepApplication": true,
     "multiRegionConfig": {
       "us-west2": {
         "numReplicas": 1

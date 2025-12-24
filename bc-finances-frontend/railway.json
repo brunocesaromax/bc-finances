@@ -13,7 +13,7 @@
     "overlapSeconds": 10,
     "drainingSeconds": 5,
     "healthcheckPath": "/",
-    "sleepApplication": false,
+    "sleepApplication": true,
     "multiRegionConfig": {
       "us-west2": {
         "numReplicas": 1
