@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -157,7 +157,7 @@ export const TransactionFormPage = () => {
     setPreviewAttachment(null)
   }
 
-  const loadTags = async () => {
+  const loadTags = useCallback(async () => {
     try {
       const tagsResponse = await tagService.findAll()
       setAvailableTags(tagsResponse)
@@ -165,9 +165,9 @@ export const TransactionFormPage = () => {
       console.error('Não foi possível carregar tags.', error)
       toast.error('Não foi possível carregar tags.')
     }
-  }
+  }, [])
 
-  const loadCategories = async (typeToLoad: TransactionType) => {
+  const loadCategories = useCallback(async (typeToLoad: TransactionType) => {
     setIsLoadingCategories(true)
     try {
       const categoriesResponse = await categoryService.findAll(typeToLoad)
@@ -183,9 +183,9 @@ export const TransactionFormPage = () => {
     } finally {
       setIsLoadingCategories(false)
     }
-  }
+  }, [])
 
-  const hydrateForm = async (transaction: TransactionDetail) => {
+  const hydrateForm = useCallback(async (transaction: TransactionDetail) => {
     setTransactionId(transaction.id ?? null)
     await loadCategories(transaction.type)
 
@@ -201,14 +201,14 @@ export const TransactionFormPage = () => {
       attachments: transaction.attachments ?? [],
     })
     setPendingAttachments([])
-  }
+  }, [loadCategories, reset])
 
   useEffect(() => {
     const initialize = async () => {
       try {
-        await Promise.all([loadTags(), loadCategories(watchedType)])
+        await Promise.all([loadTags(), loadCategories(DEFAULT_VALUES.type)])
 
-        if (isEditing && id) {
+        if (id) {
           const transaction = await transactionService.findById(Number(id))
           await hydrateForm(transaction)
         }
@@ -221,7 +221,7 @@ export const TransactionFormPage = () => {
     }
 
     initialize()
-  }, [id])
+  }, [id, loadCategories, loadTags, hydrateForm])
 
   useEffect(() => {
     const ensureCategoriesForType = async () => {
