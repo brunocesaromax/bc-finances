@@ -48,7 +48,7 @@ public class Mailer {
 //    }
 
     public void sendEmail(String from, List<String> targets, String subject, String template, Map<String, Object> variables) {
-        Context context = new Context(new Locale("pt", "BR"));
+        Context context = new Context(Locale.of("pt", "BR"));
 
         variables.forEach(context::setVariable);
 
