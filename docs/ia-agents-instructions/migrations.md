@@ -79,6 +79,11 @@ INSERT INTO users (name, email, password) VALUES
 4. Utilize transações (`BEGIN; ... COMMIT;`) quando necessário.
 5. Valide dados antes de executar alterações destrutivas.
 
+## Validação Automatizada
+
+- Utilize o script `bc-finances-backend/script/validate-migrations.sh` para validar nomenclatura, diretórios e duplicidade de timestamps.
+- Execute a validação antes de abrir PRs que incluam novas migrations.
+
 ## Exemplos de Rollbacks
 
 ```sql
