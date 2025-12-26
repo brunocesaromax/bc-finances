@@ -2,6 +2,10 @@ name: PR Checks
 
 on:
   pull_request:
+    paths:
+      - bc-finances-backend/**
+      - bc-finances-frontend/**
+      - .github/workflows/pr-checks.yml
 
 concurrency:
   group: pr-checks-${{ github.ref }}
@@ -16,26 +20,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: corretto
           java-version: "25"
           cache: maven
 
-      - name: Build and Compile
+      - name: Run Unit Tests
         working-directory: bc-finances-backend
-        run: mvn -B compile test-compile
+        run: mvn -B test
 
       - name: Validate Migrations
         working-directory: bc-finances-backend
         run: ./script/validate-migrations.sh
-
-      - name: Run Unit Tests
-        working-directory: bc-finances-backend
-        run: mvn -B test -Dmaven.compile.skip=true
 
       - name: Checkstyle
         working-directory: bc-finances-backend
@@ -46,12 +46,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: bc-finances-frontend/package-lock.json
 
