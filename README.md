@@ -169,6 +169,14 @@ Pré-requisitos: Java 25, PostgreSQL 16
   mvn spring-boot:run
   ```
 
+  5 - Validações de qualidade (opcional):
+
+  ```bash
+  mvn test
+  mvn checkstyle:check
+  ./script/validate-migrations.sh
+  ```
+
 ### Front end web (React)
 
 **Pré-requisitos:** Node.js 20+ (LTS), npm 10+

@@ -12,6 +12,8 @@
 mvn clean compile              # obrigatório para validar a base do projeto
 mvn spring-boot:run            # somente com autorização do usuário
 mvn test                       # executar suites quando aplicável
+mvn checkstyle:check           # validar padrão de estilo do backend
+./script/validate-migrations.sh # validar padrão das migrations Flyway
 mvn package                    # empacotar quando solicitado
 mvn spring-boot:run -Dspring.profiles.active=dev
 ```
@@ -55,7 +57,7 @@ npm run lint                   # verifica estilo e padrões via ESLint
 
 ## Testes e Qualidade
 
-- **Backend**: JUnit + Spring Boot Test, com foco em integração de repositórios e serviços.
+- **Backend**: JUnit + Spring Boot Test, com foco em integração de repositórios e serviços. Para controllers, priorizar MockMvc com `standaloneSetup` quando não houver slice de testes disponível.
 - **Frontend**: Utilizar ESLint (`npm run lint`) e considerar Vitest/Testing Library em novos testes.
 - Tenha certeza de que suites relevantes foram executadas após mudanças significativas.
 - Credenciais padrão para verificação rápida: `admin@algamoney.com / admin` (utilize somente em ambientes de teste).
