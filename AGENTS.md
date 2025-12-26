@@ -7,13 +7,13 @@ Este documento define o protocolo obrigatório para agentes de IA ao atuar neste
 A cada nova sessão ou interação, carregue integralmente em contexto:
 
 1. `README.md`
-2. `tasks/{branch-name}/TODO.md`
-3. `tasks/{branch-name}/CHANGELOG.md`
+2. `tasks/{branch-name}/TODO.md`, se `{branch-name}` for diferente de: develop, master, main 
+3. `tasks/{branch-name}/CHANGELOG.md`, se `{branch-name}` for diferente de: develop, master, main
 4. Diagramas em `docs/diagrams` (classes e entidade-relacionamento)
 5. **O arquivo README.md do diretório `docs/ia-agents-instructions/README.md`**
 6. Carregar conforme necessário, repito **CONFORME NECESSÁRIO**, os arquivos de instruções de IA em `docs/ia-agents-instructions` e também os arquivos de documentação gerais em `docs`
 
-Não prossiga com nenhuma ação sem confirmar a leitura e entendimento completo dos materiais de 1 a 5 acima.
+Não prossiga com nenhuma ação sem confirmar a leitura e entendimento completo dos materiais de 1 a 6 acima.
 
 ## Diretório Mestre de Instruções (`docs/ia-agents-instructions`)
 
@@ -32,6 +32,6 @@ Qualquer alteração nesses arquivos deve ser imediatamente refletida aqui e nos
 ## Cumprimento das Regras
 
 - Trate estas instruções como parte do código-fonte: não existem exceções.
-- Ao abrir nova demanda, garanta que `tasks/{branch-name}/TODO.md` e `tasks/{branch-name}/CHANGELOG.md` existam e estejam alinhados com o trabalho em execução.
+- Ao abrir nova demanda, garanta que `tasks/{branch-name}/TODO.md` e `tasks/{branch-name}/CHANGELOG.md` existam e estejam alinhados com o trabalho em execução. Regra deve ser aplicada somente se branch atual for diferente de: develop, master, main.
 - **IMPORTANTE**: Atualize os documentos do item anterior a cada sub-etapa da tarefa atual concluída antes de continuar o desenvolvimento. Em relação ao conceito de 'sub-etapa', siga a famosa regra de desenvolvimento de software de dividir para conquistar.
 - Em caso de dúvida, pause a atividade e solicite esclarecimentos ao mantenedor.

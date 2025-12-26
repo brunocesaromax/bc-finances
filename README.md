@@ -43,8 +43,8 @@ Para documentação detalhada da arquitetura e diagramas, consulte:
 ## Tecnologias utilizadas
 
 ### Back end
-- Java 21
-- Spring Boot 3.5.4 LTS
+- Java 25
+- Spring Boot 4.0.1
 - JPA/ Hibernate 6.6.22
 - Spring Security 6 com JWT stateless
 - AWS SDK v2 para integração S3
@@ -145,7 +145,7 @@ DOCKER_BUILDKIT=1 docker build -t bc-finances-backend ./bc-finances-backend
 
 ### Back end (Desenvolvimento Local)
 
-Pré-requisitos: Java 21, PostgreSQL 16
+Pré-requisitos: Java 25, PostgreSQL 16
 
   1 - Clonar o repositório: 
   

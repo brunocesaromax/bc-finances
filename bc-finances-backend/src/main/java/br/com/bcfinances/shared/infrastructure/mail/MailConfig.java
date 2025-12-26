@@ -26,7 +26,7 @@ public class MailConfig {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setJavaMailProperties(props);
         mailSender.setHost(apiProperty.getMail().getHost());
-        mailSender.setPort(apiProperty.getMail().getPort());
+        mailSender.setPort(Integer.parseInt(apiProperty.getMail().getPort()));
         mailSender.setUsername(apiProperty.getMail().getUsername());
         mailSender.setPassword(apiProperty.getMail().getPassword());
 

@@ -4,7 +4,7 @@
 
 BC Finances é um sistema full-stack para gerenciamento financeiro, combinando:
 
-- **Backend**: Spring Boot 3.5.4 (Java 21) com autenticação OAuth2/JWT, integração AWS S3 e notificações via e-mail.
+- **Backend**: Spring Boot 4.0.1 (Java 25) com autenticação OAuth2/JWT, integração AWS S3 e notificações via e-mail.
 - **Frontend**: React 19 (Vite + Tailwind) com gestão de autenticação via contexto, Axios e React Router.
 
 Os diagramas atualizados residem em `docs/diagrams` (classes e entidade-relacionamento) e devem ser consultados a cada nova demanda.

@@ -2,8 +2,8 @@
 
 ## Regras Críticas
 
-- `TODO.md` e `CHANGELOG.md` devem existir e ser atualizados a cada demanda ou branch.
-- Verifique a presença desses arquivos após a primeira interação com o usuário; crie-os imediatamente caso estejam ausentes.
+- `TODO.md` e `CHANGELOG.md` devem existir e ser atualizados a cada demanda ou branch. Branches excessão: develop, master, main.
+- Verifique a presença desses arquivos após a primeira interação com o usuário; crie-os imediatamente caso estejam ausentes. . Branches excessão: develop, master, main.
 - Atualize ambos sempre que concluir uma tarefa significativa. Pare o desenvolvimento até que a documentação esteja alinhada.
 - Registre apenas o que pertence à demanda/branch atual. Não antecipe funcionalidades futuras.
 
