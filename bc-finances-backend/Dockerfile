@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
 # Multi-stage build for Spring Boot application
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM eclipse-temurin:25-jdk-alpine AS builder
 
 # Install Maven
 RUN apk add --no-cache maven
@@ -22,7 +22,7 @@ COPY src ./src
 RUN mvn -B clean package -DskipTests
 
 # Runtime stage
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:25-jre-alpine AS runtime
 
 # Install curl for health check
 RUN apk add --no-cache curl

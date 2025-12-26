@@ -6,7 +6,7 @@
 - **Nunca** inicie aplicações ou serviços sem permissão explícita do usuário.
 - Ao concluir uma tarefa parcial, pause e atualize `TODO.md` e `CHANGELOG.md` antes de seguir.
 
-## Fluxo Backend (Spring Boot 3.5.4 / Java 21)
+## Fluxo Backend (Spring Boot 4.0.1 / Java 25)
 
 ```bash
 mvn clean compile              # obrigatório para validar a base do projeto

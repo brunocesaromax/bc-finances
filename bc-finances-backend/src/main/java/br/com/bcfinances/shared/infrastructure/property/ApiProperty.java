@@ -47,7 +47,7 @@ public class ApiProperty {
     public static class Mail {
 
         private String host;
-        private Integer port;
+        private String port;
         private String username;
         private String password;
     }

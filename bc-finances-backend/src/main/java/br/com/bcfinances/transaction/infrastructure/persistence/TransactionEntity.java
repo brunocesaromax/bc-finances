@@ -21,6 +21,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,13 +31,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import org.hibernate.annotations.Where;
 
 @Setter
 @Getter
 @Entity
 @Table(name = "transactions")
-@Where(clause = "deleted_at IS NULL")
+@SQLRestriction(value = "deleted_at IS NULL")
 public class TransactionEntity {
 
     @Id
