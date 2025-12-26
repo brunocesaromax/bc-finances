@@ -1,0 +1,64 @@
+name: PR Checks
+
+on:
+  pull_request:
+    paths:
+      - bc-finances-backend/**
+      - bc-finances-frontend/**
+      - .github/workflows/pr-checks.yml
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend-checks:
+    name: Backend - Checkstyle, Tests, Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: corretto
+          java-version: "25"
+          cache: maven
+
+      - name: Run Unit Tests
+        working-directory: bc-finances-backend
+        run: mvn -B test
+
+      - name: Validate Migrations
+        working-directory: bc-finances-backend
+        run: ./script/validate-migrations.sh
+
+      - name: Checkstyle
+        working-directory: bc-finances-backend
+        run: mvn -B checkstyle:check -Dmaven.compile.skip=true
+
+  frontend-build:
+    name: Frontend - Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: bc-finances-frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: bc-finances-frontend
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Build
+        working-directory: bc-finances-frontend
+        run: npm run build

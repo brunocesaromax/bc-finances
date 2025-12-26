@@ -1,5 +1,5 @@
 # BC Finances
-[![NPM](https://img.shields.io/npm/l/express)](https://github.com/brunocesaromax/lancamentos/blob/master/LICENSE)
+[![NPM](https://img.shields.io/npm/l/express)](https://github.com/brunocesaromax/lancamentos/blob/master/LICENSE) [![PR Checks](https://github.com/brunocesaromax/bc-finances/actions/workflows/pr-checks.yml/badge.svg?event=pull_request)](https://github.com/brunocesaromax/bc-finances/actions/workflows/pr-checks.yml)
 
 # Sobre o projeto
 
